@@ -3,6 +3,13 @@ chcp 65001 > nul
 echo =====================================================================
 echo  INICIANDO SISTEMA VIA DOCKER (BANCO + WEB + PHPMYADMIN)
 echo =====================================================================
+
+if exist "%~dp0projeto-pim-sistema-ong-main\docker-compose.yml" (
+    cd /d "%~dp0projeto-pim-sistema-ong-main"
+) else (
+    cd /d "%~dp0"
+)
+
 docker compose up -d --build
 if %ERRORLEVEL% NEQ 0 (
     echo.
