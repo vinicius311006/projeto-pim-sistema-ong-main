@@ -74,39 +74,60 @@ Solução corporativa completa para a gestão de doações, inventário, volunta
 
 ---
 
-## 💻 Instruções para Execução
+## 💻 Formas de Execução (Padronização para Diferentes Ambientes)
 
-### Pré-requisitos
-- [.NET SDK 10.0](https://dotnet.microsoft.com/)
-- [MySQL Server 8.0](https://dev.mysql.com/downloads/installer/) & MySQL Workbench
-- [Flutter SDK](https://docs.flutter.dev/) (para execução mobile)
-- [Android Studio](https://developer.android.com/studio) com emulador configurado
+Você pode rodar o sistema de **3 formas diferentes**, dependendo do que estiver instalado na máquina:
 
-### 1. Configurar o Banco de Dados
-1. Abra o **MySQL Workbench** e conecte-se à sua instância local (`localhost:3306`).
-2. Abra e execute o arquivo [`ScriptVestindoSonhos_MySQL.sql`](./ScriptVestindoSonhos_MySQL.sql).
-3. Todas as tabelas, triggers, procedures e dados iniciais serão criados automaticamente no banco `VESTINDOSONHOSDB`.
+---
 
-### 2. Executar o Back-end (Web MVC + API)
-No terminal, dentro da pasta do projeto:
-```bash
-cd VestindoSonhos
-dotnet run
-```
-O servidor iniciará ouvindo em:
-- **Web & API:** [http://localhost:5000](http://localhost:5000) e [http://localhost:5192](http://localhost:5192)
+### Opção 1: Docker Compose (Recomendado - Zero Instalação de SDK ou MySQL)
+Se a máquina tiver o [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado:
+1. Dê dois cliques em [`iniciar-docker.bat`](./iniciar-docker.bat) ou execute no terminal:
+   ```bash
+   docker compose up -d --build
+   ```
+2. O Docker baixará o MySQL 8.0, criará as tabelas e dados iniciais automaticamente com [`ScriptVestindoSonhos_MySQL.sql`](./ScriptVestindoSonhos_MySQL.sql) e subirá a aplicação Web.
+3. Acesse:
+   - **Sistema Web:** [http://localhost:5000/Login](http://localhost:5000/Login)
+   - **phpMyAdmin (Banco no Navegador):** [http://localhost:8080](http://localhost:8080) (Usuário: `root`, Senha: `root`)
+4. Para parar: dê dois cliques em [`parar-docker.bat`](./parar-docker.bat) ou rode `docker compose down`.
 
-**Credenciais Administrativas Padrão:**
-- **E-mail:** `admin@teste.org`
-- **Senha:** `123456`
+---
 
-### 3. Executar o Aplicativo Mobile
+### Opção 2: Executável Portátil Standalone (Sem precisar baixar o .NET SDK)
+Para rodar em computadores Windows que **NÃO possuem o .NET SDK instalado**:
+1. No computador de desenvolvimento, gere o pacote executando [`gerar-executavel-portatil.bat`](./gerar-executavel-portatil.bat).
+2. Será gerada a pasta `VestindoSonhos_Portavel`.
+3. Copie/zipe essa pasta para qualquer computador.
+4. No outro PC, basta abrir a pasta e dar **dois cliques em `VestindoSonhos.exe`**.
+*(O runtime do .NET já vai embutido no executável, sem precisar instalar nada!)*
+
+---
+
+### Opção 3: Execução Convencional (Ambiente de Desenvolvimento)
+Caso a máquina já possua o [.NET SDK 10.0](https://dotnet.microsoft.com/) e o [MySQL Server 8.0](https://dev.mysql.com/downloads/installer/):
+1. **Configurar o Banco:**
+   - Dê dois cliques em [`importar-banco-local.bat`](./importar-banco-local.bat) ou execute o script [`ScriptVestindoSonhos_MySQL.sql`](./ScriptVestindoSonhos_MySQL.sql) no **MySQL Workbench**.
+2. **Rodar a Aplicação Web:**
+   ```bash
+   cd VestindoSonhos
+   dotnet run
+   ```
+   Acesse [http://localhost:5000/Login](http://localhost:5000/Login).
+
+3. **Credenciais Administrativas Padrão:**
+   - **E-mail:** `admin@teste.org`
+   - **Senha:** `123456`
+
+---
+
+### 📱 Executar o Aplicativo Mobile (Flutter)
 No terminal ou no Android Studio:
 ```bash
 cd vestindo_sonhos_mobile
 flutter run
 ```
-Selecione o emulador Android (ex: `Medium Phone API 37.0`) ou dispositivo físico.
+Selecione o emulador Android ou dispositivo físico. O app se conecta automaticamente à API REST na porta 5000.
 
 ---
 
