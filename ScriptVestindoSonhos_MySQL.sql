@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS Eventos (
     data_inicio DATETIME NOT NULL,
     data_fim DATETIME NOT NULL,
     local VARCHAR(70),
+    observacao VARCHAR(255),
     responsavel INT NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT FK_Evento_Usuario FOREIGN KEY (responsavel) REFERENCES Usuario(id)
@@ -70,6 +71,7 @@ CREATE TABLE IF NOT EXISTS Beneficiario (
 CREATE TABLE IF NOT EXISTS VoluntarioAtribuido (
     evento INT NOT NULL,
     voluntario INT NOT NULL,
+    data_adicao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (evento, voluntario),
     CONSTRAINT FK_VA_Evento FOREIGN KEY (evento) REFERENCES Eventos(id),
     CONSTRAINT FK_VA_Voluntario FOREIGN KEY (voluntario) REFERENCES Voluntario(id)
@@ -247,3 +249,61 @@ BEGIN
 END //
 
 DELIMITER ;
+
+-- ------------------------------------------------------------------------------
+-- 6. VIEWS DE COMPATIBILIDADE COM O ENTITY FRAMEWORK CORE
+-- Garante funcionamento independente se a consulta do EF Core usar singular ou plural
+-- ------------------------------------------------------------------------------
+
+CREATE OR REPLACE VIEW cargo AS SELECT * FROM Cargos;
+CREATE OR REPLACE VIEW evento AS SELECT * FROM Eventos;
+CREATE OR REPLACE VIEW tipos_ativo AS SELECT * FROM TiposAtivo;
+CREATE OR REPLACE VIEW voluntario_atribuido AS SELECT * FROM VoluntarioAtribuido;
+
+-- ------------------------------------------------------------------------------
+-- 7. DADOS INICIAIS (SEEDS) PARA INICIALIZAÇÃO DO SISTEMA
+-- Insere registros essenciais para testes e acesso com usuário Admin
+-- ------------------------------------------------------------------------------
+
+-- Cargos
+INSERT IGNORE INTO Cargos (id, nome) VALUES 
+(1, 'Administrador'),
+(2, 'Voluntário');
+
+-- Categorias de itens
+INSERT IGNORE INTO TiposAtivo (id, categoria) VALUES
+(1, 'Roupas'),
+(2, 'Calçados'),
+(3, 'Alimentos');
+
+-- Usuário Administrador (Login: admin@teste.org / Senha: 123456)
+INSERT IGNORE INTO Usuario (id, nome, cargo, cpf, email, senha) 
+VALUES (1, 'Admin Teste', 1, '12345678901', 'admin@teste.org', '123456');
+
+-- Carteiras financeiras (Essenciais para registro financeiro)
+INSERT IGNORE INTO Carteira (id, nome, saldo) VALUES 
+(1, 'Conta Principal (Banco)', 5000.00),
+(2, 'Caixa Físico (Sede)', 1500.00),
+(3, 'Fundo de Reserva', 10000.00);
+
+-- Categorias financeiras
+INSERT IGNORE INTO Categoria (id, nome) VALUES 
+(1, 'Doação'),
+(2, 'Eventos'),
+(3, 'Campanhas'),
+(4, 'Despesas Operacionais');
+
+-- Voluntários para teste
+INSERT IGNORE INTO Voluntario (id, nome, cpf, endereco, telefone, email) VALUES 
+(1, 'Carlos Eduardo Lima', '11122233344', 'Rua das Flores, 120', '11988887777', 'carlos.lima@ong.org'),
+(2, 'Mariana Santos Silva', '55566677788', 'Av. Paulista, 1500', '11977776666', 'mariana.santos@ong.org');
+
+-- Eventos iniciais
+INSERT IGNORE INTO Eventos (id, nome, data_inicio, data_fim, local, responsavel, observacao) VALUES 
+(1, 'Campanha do Agasalho 2026', '2026-06-01 09:00:00', '2026-06-10 18:00:00', 'Ginásio Municipal', 1, 'Arrecadação de casacos e cobertores'),
+(2, 'Bazar Beneficente de Outono', '2026-10-15 09:00:00', '2026-10-15 17:00:00', 'Sede Central da ONG', 1, 'Venda comunitária e distribuição');
+
+-- Associação inicial
+INSERT IGNORE INTO VoluntarioAtribuido (evento, voluntario, data_adicao) VALUES
+(1, 1, NOW()),
+(1, 2, NOW());
