@@ -1,0 +1,59 @@
+﻿@model VestindoSonhos.Models.Dependente
+<link rel="stylesheet" href="~/css/formularios.css" />
+
+@{
+    ViewData["Title"] = "Apagar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container-formulario">
+
+    <div class="btn-back">
+        <a asp-controller="Beneficiarios" asp-action="Index"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
+    </div>
+
+
+    <h4>Apagar</h4>
+    <h4>Tem certeza que deseja apagar este item?</h4>
+        
+    <div>
+        <hr />
+        <h1>Dependente</h1>
+        <dl class="form-context row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Nome)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Nome)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Idade)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Idade)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Sexo)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Sexo)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Parentesco)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Parentesco)
+        </dd>
+        <dt class = "col-sm-2">
+            Responsável
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IdResponsavelNavigation.Nome)
+        </dd>
+    </dl>
+    
+    <form asp-action="Apagar">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Apagar" class="btn btn-danger" />
+    </form>
+    </div>
+</div>

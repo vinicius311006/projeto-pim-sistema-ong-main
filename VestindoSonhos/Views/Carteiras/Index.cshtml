@@ -1,0 +1,44 @@
+﻿@model IEnumerable<VestindoSonhos.Models.Carteira>
+<link rel="stylesheet" href="~/css/financeiro.css" />
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+<div class="card-topo">
+<p>
+    <a class="btn-transferencia" asp-area="" asp-controller="Carteiras" asp-action="Criar"><i class="material-symbols-outlined">add</i><span>Nova Carteira</span></a>
+</p>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Nome)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Saldo)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nome)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Saldo)
+            </td>
+                <td>
+                    <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span></a>
+                    <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span></a>
+                    <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span></a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,190 @@
+@model VestindoSonhos.ViewModels.HomeFinanceiraViewModel
+@using System.Linq
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+<link rel="stylesheet" href="~/css/financeiro.css" />
+
+@{
+    ViewData["Title"] = "Financeiro";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<h1>Financeiro</h1>
+<div class="container-formulario">
+
+
+<!-- -----------------------------------Tabelas da Esquerda ---------------------------------------------------->
+<div>
+    <div class="card-saldo">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_carteiras[0].Nome)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_carteiras[0].Saldo)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var carteira in Model.lista_carteiras)
+            {
+                <tr>
+                    <td>
+                        @carteira.Nome
+                    </td>
+                    <td class="valor">
+                        @carteira.Saldo
+                    </td>
+                </tr> 
+                } 
+        </tbody>
+    </table>
+    <a class="btn-abrir" asp-area="" asp-controller="Carteiras" asp-action="Index"><span class="material-symbols-outlined">open_in_full</span></a>
+</div>
+
+
+<div class="card card-extrato">
+    <a class="btn-abrir" asp-area="" asp-controller="Financeiro" asp-action="Resumo"><h2>Extrato</h2></a>
+    
+    <div class="btn-group">
+        <a class="btn-abrir" asp-area="" asp-controller="Financeiro" asp-action="Resumo"><span class="material-symbols-outlined">open_in_full</span></a>
+    </div>
+
+        <a class="btn-transferencia" asp-area="" asp-controller="Financeiro" asp-action="Criar"><i class="material-symbols-outlined">swap_horiz</i><span>Nova Transação</span></a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_transacoes[0].Razao)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_transacoes[0].Observacao)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_transacoes[0].Usuario)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_transacoes[0].Categoria)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_transacoes[0].Hora)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_transacoes[0].Valor)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item_transacao in Model.lista_transacoes){
+            <tr>
+                <td>
+                    @item_transacao.Razao
+                </td>
+                <td>
+                    @item_transacao.Observacao
+                </td>
+                <td>
+                    @item_transacao.Usuario
+                </td>
+                <td>
+                    @item_transacao.CategoriaNavigation.Nome
+                </td>
+                <td>
+                    @item_transacao.Hora
+                </td>
+                <td>
+                    @item_transacao.Valor
+                </td>
+                <td>
+                    <a asp-action="Editar" asp-route-id="@item_transacao.Id"><span class="material-symbols-outlined">edit</span></a>
+                    <a asp-action="Apagar" asp-route-id="@item_transacao.Id"><span class="material-symbols-outlined">delete</span></a>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    </div>
+</div>
+
+
+<!-- -----------------------------------Tabelas da Esquerda ---------------------------------------------------->
+<div>
+    <div class="card card-doacoes">
+    <a class="btn-abrir" asp-area="" asp-controller="Financeiro" asp-action="Doacoes"><h2>Doações</h2></a>
+
+    <div class="btn-group">
+        <a class="btn-abrir" asp-area="" asp-controller="Financeiro" asp-action="Doacoes"><span class="material-symbols-outlined">open_in_full</span></a>
+    </div>
+
+    <a class="btn-transferencia" asp-area="" asp-controller="Financeiro" asp-action="Criar"><i class="material-symbols-outlined">swap_horiz</i><span>Nova Doação</span></a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_doacoes.First().Razao)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_doacoes.First().Observacao)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_doacoes.First().Usuario)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_doacoes.First().Categoria)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_doacoes.First().Hora)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.lista_doacoes.First().Valor)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item_transacao in Model.lista_doacoes){
+            <tr>
+                <td>
+                    @item_transacao.Razao
+                </td>
+                <td>
+                    @item_transacao.Observacao
+                </td>
+                <td>
+                    @item_transacao.Usuario
+                </td>
+                <td>
+                    @item_transacao.CategoriaNavigation.Nome
+                </td>
+                <td>
+                    @item_transacao.Hora
+                </td>
+                <td>
+                    @item_transacao.Valor
+                </td>
+                <td>
+                    <a asp-action="Editar" asp-route-id="@item_transacao.Id"><span class="material-symbols-outlined">edit</span></a>
+                    <a asp-action="Apagar" asp-route-id="@item_transacao.Id"><span class="material-symbols-outlined">delete</span></a>
+                </td>
+            </tr>
+            }       
+        </tbody>
+    </table>
+    </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+

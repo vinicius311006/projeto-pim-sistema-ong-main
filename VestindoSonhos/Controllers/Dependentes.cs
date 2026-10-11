@@ -1,0 +1,184 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using VestindoSonhos.Models;
+
+namespace VestindoSonhos.Controllers
+{
+    public class Dependentes : Controller
+    {
+        private readonly VestindosonhosdbContext _context;
+
+        public Dependentes(VestindosonhosdbContext context)
+        {
+            _context = context;
+        }
+
+        // GET: Dependentes
+        [Authorize(Roles = "Administrador,Colaborador")]
+        public async Task<IActionResult> Index()
+        {
+            var vestindosonhosdbContext = _context.Dependente.Include(d => d.IdResponsavelNavigation);
+            return View(await vestindosonhosdbContext.ToListAsync());
+        }
+
+        // GET: Dependentes/Details/5
+        [Authorize(Roles = "Administrador,Colaborador")]
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var dependente = await _context.Dependente
+                .Include(d => d.IdResponsavelNavigation)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (dependente == null)
+            {
+                return NotFound();
+            }
+
+            return View(dependente);
+        }
+
+        // GET: Dependentes/Criar
+        [Authorize(Roles = "Administrador,Colaborador")]
+        public async Task<IActionResult> Criar(int idBeneficiario)
+        {
+            var beneficiario = await _context.Beneficiario.FirstOrDefaultAsync(b => b.Id == idBeneficiario);
+            ViewBag.Sexo = new SelectList(new[] { "M", "F", "n" });
+            ViewBag.beneficiarioNome = beneficiario.Nome;
+            ViewBag.beneficiarioId = idBeneficiario;
+            return View();
+        }
+
+        // POST: Dependentes/Criar
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Administrador,Colaborador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Criar([Bind("IdResponsavel,Nome,Idade,Sexo,Parentesco")] Dependente model)
+        {
+            //FOREACH para DEBUG
+            foreach (var erro in ModelState)
+            {
+                foreach (var subErro in erro.Value.Errors)
+                {
+                    Console.WriteLine($"{erro.Key}: {subErro.ErrorMessage}");
+                }
+            }
+            if (ModelState.IsValid)
+            {
+                _context.Add(model);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(controllerName: "Beneficiarios", actionName: "Index");
+            }
+            return View(model);
+        }
+
+        // GET: Dependentes/Editar/5
+        [Authorize(Roles = "Administrador,Colaborador")]
+        public async Task<IActionResult> Editar(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var dependente = await _context.Dependente.FindAsync(id);
+            var beneficiario = await _context.Beneficiario.FirstOrDefaultAsync(b => b.Id == dependente.IdResponsavel);
+
+            ViewBag.beneficiarioNome = beneficiario.Nome;
+            ViewBag.beneficiarioId = beneficiario.Id;
+            
+            if (dependente == null)
+            {
+                return NotFound();
+            }
+            return View(dependente);
+        }
+
+        // POST: Dependentes/Editar/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Administrador,Colaborador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(int id, [Bind("Id, IdResponsavel,Nome,Idade,Sexo,Parentesco")] Dependente dependente)
+        {
+            if (id != dependente.Id)
+            {
+                return NotFound();
+            }
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(dependente);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!DependenteExists(dependente.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(controllerName: "Beneficiarios", actionName: "Index");
+            }
+            ViewData["IdResponsavel"] = new SelectList(_context.Beneficiario, "Id", "Nome", dependente.IdResponsavel);
+            return View(dependente);
+        }
+
+        // GET: Dependentes/Apagar/5
+        [Authorize(Roles = "Administrador,Colaborador")]
+        public async Task<IActionResult> Apagar(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var dependente = await _context.Dependente
+                .Include(d => d.IdResponsavelNavigation)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (dependente == null)
+            {
+                return NotFound();
+            }
+
+            return View(dependente);
+        }
+
+        // POST: Dependentes/Apagar/5
+        [Authorize(Roles = "Administrador")]
+        [HttpPost, ActionName("Apagar")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var dependente = await _context.Dependente.FindAsync(id);
+            if (dependente != null)
+            {
+                _context.Dependente.Remove(dependente);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(controllerName: "Beneficiarios", actionName: "Index");
+        }
+
+        private bool DependenteExists(int id)
+        {
+            return _context.Dependente.Any(e => e.Id == id);
+        }
+    }
+}

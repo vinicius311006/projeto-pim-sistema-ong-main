@@ -1,0 +1,94 @@
+@model VestindoSonhos.ViewModels.CriacaoEventoViewModel
+<link rel="stylesheet" href="~/css/formularios.css" />
+
+@{
+    ViewData["Title"] = "Editar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-formulario">
+
+    <div class="btn-back">
+        <a asp-controller="Eventos" asp-action="Index"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
+    </div>
+
+
+    <div class="form-card">
+        <h1>Editar Eventos</h1>
+        <form class="form-context" asp-action="Editar">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input hidden asp-for="evento.Id" class="form-control" />
+            <div class="form-group">
+                <label asp-for="evento.Nome" class="control-label"></label>
+                <input asp-for="evento.Nome" class="form-control" />
+                <span asp-validation-for="evento.Nome" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="evento.data_inicio" class="control-label"></label>
+                <input asp-for="evento.data_inicio" type="datetime-local" value="@Model.evento.data_inicio?.ToString("yyyy-MM-ddTHH:mm")" class="form-control" />
+                <span asp-validation-for="evento.data_inicio" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="evento.data_fim" class="control-label"></label>
+                <input asp-for="evento.data_fim" type="datetime-local" value="@Model.evento.data_fim?.ToString("yyyy-MM-ddTHH:mm")" class="form-control" />
+                <span asp-validation-for="evento.data_fim" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="evento.Local" class="control-label"></label>
+                <input asp-for="evento.Local" class="form-control" />
+                <span asp-validation-for="evento.Local" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="evento.Responsavel" class="control-label"></label>
+                <select asp-for="evento.Responsavel" class="form-control" asp-items="ViewBag.Responsavel"></select>
+                <span asp-validation-for="evento.Responsavel" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="evento.Observacao" class="control-label"></label>
+                <textarea type="text" asp-for="evento.Observacao" class="form-control">
+                </textarea>
+                <span asp-validation-for="evento.Observacao" class="text-danger"></span>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Selecionar</th>
+                        <th>Voluntário</th>
+                        <th>Telefone</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.listaVoluntarios != null && Model.listaVoluntarios.Any())
+                    {
+                        @foreach (var item in Model.listaVoluntarios)
+                        {
+                            <tr>
+                                <td>
+                                    <input type="checkbox"
+                                           name="idVoluntarios"
+                                           value="@item.Id"
+                                    @(Model.idVoluntarios != null && Model.idVoluntarios.Contains(item.Id) ? "checked" : "") />
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Nome)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Telefone)
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" class="text-muted">Nenhum voluntário cadastrado no momento.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="form-group">
+                <input type="submit" value="Salvar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>

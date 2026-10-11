@@ -1,0 +1,30 @@
+﻿@model VestindoSonhos.Models.Categoria
+<link rel="stylesheet" href="~/css/formularios.css" />
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container-formulario">
+
+    <div class="btn-back">
+        <a asp-controller="Financeiro" asp-action="financeiro"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
+    </div>
+
+
+    <div class="form-card">
+        <h1>Editar Categoria</h1>
+        <form class="form-context" asp-action="Editar">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Nome" class="control-label"></label>
+                <input asp-for="Nome" class="form-control" />
+                <span asp-validation-for="Nome" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,177 @@
+.container-tabela h1 {
+  font-size: 30px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-1);
+}
+
+.container-tabela {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 10px;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 600px;
+  padding: 20px;
+  background: var(--color-5);
+
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  overflow-y: auto; 
+}
+
+.card-topo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-topo a {
+  margin-left: auto;
+}
+
+.card-topo h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.card table {
+  width: 100%;
+  table-layout: fixed;
+  font-size: 14px;
+  text-align: center;
+  white-space: nowrap;
+
+  border-collapse: separate; 
+  border-spacing: 0 1px; 
+  overflow-y: auto; 
+}
+
+.card table thead th {
+  white-space: nowrap;
+  background: var(--color-3);
+  color: #222;
+  padding: 15px;
+
+}
+
+.card table tbody td {
+  padding: 5px;
+  color: #444;
+  border: transparent;
+}
+
+.card table a {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  
+}
+
+
+/* arredondar a borda do cabeçalho*/
+.table tr th:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.table tr th:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* arredondar a borda do conteudo*/
+.table tr td:first-child { 
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.table tr td:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* estilo zebra na tabela*/ 
+.table-striped > tbody > tr:nth-child(odd) > td {
+  background-color: #faf7ff;
+}
+
+.table-striped > tbody > tr:nth-child(even) > td {
+  background-color: #f8f7f7a9;
+}
+
+/* ---------------------------------------------------- */
+
+@media (max-width: 1450px) {
+/* some com a descrição dos icones */
+  .card table a{
+    font-size: 0;
+  }
+}
+
+
+@media (max-width: 700px) {
+  .card{
+    height: 700px;
+  }
+
+  /* retorna com a descrição dos icones  */
+  .card table a{
+    font-size: 15px;
+  }
+
+  /* some com o cabeçalho */
+  .card thead {
+    display: none;
+  }
+
+  .card tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    background: #fff;
+  }
+
+  /* células */
+  .card tbody td {
+    display: flex;
+    justify-content: space-between;
+    border: none;
+  }
+
+  /* label */
+  .card tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #333;
+  }
+}
+

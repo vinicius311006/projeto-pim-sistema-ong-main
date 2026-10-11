@@ -1,0 +1,93 @@
+@model VestindoSonhos.ViewModels.EventosViewModel
+
+<link rel="stylesheet" href="~/css/eventos.css">
+  
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Campanhas</h1>
+
+<div class="container-eventos">
+
+<!-- -----------------------------------Tabelas da Esquerda ---------------------------------------------------->
+<div>
+  <div class="card-header">
+    <h3>Detalhes das Campanhas</h3>
+    <a class="btn btn-primary" asp-action="Criar"><span class="material-symbols-outlined">add</span>Novo</a>
+  </div>
+
+  <hr />
+
+  
+    <div class="card card-eventos">
+        <h2>Próximos Eventos</h2>
+        @foreach (var item in Model.Eventos)
+        {
+        <div class="card-evento">
+            <h3><strong>@item.data_inicio.ToString().Split(" ")[0]</strong></h3>
+
+            <div class=card-info>
+              <p> <strong>@item.Nome</strong></p>
+              <p> <strong>@item.data_inicio - @item.data_fim</strong></p>
+              <p>@item.ResponsavelNavigation.Nome</p>
+              <p>@item.Local</p>
+            </div>
+
+            <div class="btn-group">
+                  <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span>Editar</a> 
+                        <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span>Details</a>
+                  <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
+              </div>
+        </div>
+        }
+    </div>
+</div>
+
+<!-- -----------------------------------Tabelas da Direita ---------------------------------------------------->
+<div>
+<div class="card card-calendario">
+  <h2>Calendário</h2>
+</div>
+
+<div class="card card-voluntario">
+  <h2>Voluntários</h2>
+  <a class="btn btn-primary" asp-controller="Voluntarios" asp-action="Criar"><span class="material-symbols-outlined">add</span>Novo</a>
+
+  <table class="table table-striped">
+    <thead>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Voluntarios[0].Nome)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Voluntarios[0].Telefone)
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody> 
+@foreach (var item in Model.Voluntarios){ 
+
+      <tr>
+        <td data-label="Nome">
+            @Html.DisplayFor(modelItem => item.Nome)
+        </td >
+        <td data-label="Telefone">
+            @Html.DisplayFor(modelItem => item.Telefone)
+        </td>
+          <td>
+              <a asp-controller="Voluntarios" asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span></a> 
+              <a asp-controller="Voluntarios" asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span> </a> 
+              <a asp-controller="Voluntarios" asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span> </a>
+          </td>
+      </tr>
+}
+      </tbody>
+    </table>
+</div>
+</div>
+
+</div>

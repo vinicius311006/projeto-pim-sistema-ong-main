@@ -1,0 +1,52 @@
+﻿@model VestindoSonhos.Models.Beneficiario
+<link rel="stylesheet" href="~/css/formularios.css" />
+
+@{
+    ViewData["Title"] = "Editar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-formulario">
+
+    <div class="btn-back">
+        <a asp-controller="Beneficiarios" asp-action="Index"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
+    </div>
+
+
+    <div class="form-card">
+        <h1>Editar Beneficiário</h1>
+        <form class="form-context" asp-action="Editar">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Nome" class="control-label"></label>
+                <input asp-for="Nome" class="form-control" />
+                <span asp-validation-for="Nome" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Telefone" class="control-label"></label>
+                <input asp-for="Telefone" class="form-control" />
+                <span asp-validation-for="Telefone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Endereco" class="control-label"></label>
+                <input asp-for="Endereco" class="form-control" />
+                <span asp-validation-for="Endereco" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Situacao" class="control-label"></label>
+                <select asp-for="Situacao" class="form-control" asp-items="ViewBag.Situacao"></select>
+                <span asp-validation-for="Situacao" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Observacao" class="control-label"></label>
+                <input asp-for="Observacao" class="form-control" />
+                <span asp-validation-for="Observacao" class="text-danger"></span>
+                <p>Inicie palavras com <strong>#</strong> para adicionar à lista de necessidades.</p>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,54 @@
+﻿@model IEnumerable<VestindoSonhos.Models.Produto>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a class="btn-transferencia" asp-area="" asp-controller="Produtos" asp-action="Criar"><i class="material-symbols-outlined">add</i><span>Novo Produto</span></a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Nome)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Descricao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Cor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Categoria)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nome)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Descricao)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Cor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CategoriaNavigation.Categoria)
+            </td>
+                <td>
+                    <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span></a>
+                    <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span></a>
+                    <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span></a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

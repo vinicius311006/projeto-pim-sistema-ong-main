@@ -1,0 +1,145 @@
+h1 {
+  font-size: 30px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-1);
+  margin: 20px;
+}
+
+.container-eventos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  padding: 10px;
+  gap: 20px;
+}
+
+.card {
+  position: relative;
+  padding: 15px;
+  margin-bottom: 30px;
+
+  border: none;
+  background: transparent;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow-y: auto;
+}
+
+.card h2{
+  text-align: center;
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--color-1);
+}
+
+
+/* ------------ Card Header ---------- */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 100px;
+  margin-left: 10px;
+}
+.card-header a {
+  margin-left: auto;
+}
+
+.card-header h3 {
+  font-size: 25px;
+  font-weight: 600;
+  color: #333;
+}
+
+
+/* ------------ Card dos Eventos ---------- */
+.card-eventos{
+  height: 500px;
+}
+
+.card-evento{
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+
+  background-color: #d0caf7;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.068);
+  border-radius: 10px;
+  padding: 10px;
+
+  align-items: center;
+}
+
+.card-evento h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #222;
+}
+
+.card-info p {
+    margin: 2px 0;
+    font-size: 14px;
+    color: #222;
+}
+
+.btn-group {
+    display: flex;
+    gap: 25px;
+    text-align: center;
+}
+
+.btn-group a {
+    text-decoration: none;
+    font-size: 14px;
+    color: #020202;
+}
+
+.btn-group span {
+    font-size: 20px;
+}
+
+/* ------------ Card do Calendário ---------- */
+
+.card-calendario{
+  height: 280px;
+}
+
+
+/* ------------ Card dos Voluntários ---------- */
+.card-voluntario{
+  height: 325px;
+}
+
+.card-voluntario .btn{
+  display: flex;
+  position: absolute;
+  right: 5px;
+  margin-right: 15px;
+}
+
+
+/*------------------------------------------------------ */
+@media (max-width:1000px){
+  .card h2{
+    font-size: 22px;
+  }
+  /*------------------------------------- */
+   .card-evento{
+    grid-template-columns: 1fr;
+    text-align: left;
+    gap: 8px;
+  }
+
+  .btn-group a, .card-voluntario a {
+    font-size: 0; 
+    flex-direction: end;
+  }
+
+  .btn-group a span{
+    font-size: 22px;
+  }
+
+  .card-voluntario a span{
+    font-size: 20px;
+    margin-left: 5px;
+  }
+
+}

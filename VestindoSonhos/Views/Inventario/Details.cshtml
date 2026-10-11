@@ -1,0 +1,113 @@
+﻿@model VestindoSonhos.ViewModels.TransacaoInventarioViewModel
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-formulario">
+
+    <div class="btn-back">
+        <a asp-controller="Inventario" asp-action="Index"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
+    </div>
+
+
+    <div class="form-card">
+        <h1>Detalhes</h1>
+
+        <div>
+            <h4>Inventário</h4>
+            <hr />
+            <dl class="form-context row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Usuario)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.UsuarioNavigation.Nome)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Categoria)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CategoriaNavigation.Nome)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Hora)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Hora)
+        </dd>
+        <dt class="col-sm-2">
+            Observação
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Observacao)
+        </dd>
+        <dt class="col-sm-2">
+            Razão
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Razao)
+        </dd>
+        <dt class = "col-sm-2">
+            Beneficiário
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BeneficiarioNavigation.Nome)
+        </dd>
+    </dl>
+</div>
+<input hidden name="Id" value=@Model.IdTransacao />
+<div class="container-tabela">
+    <div class="card">
+        
+        <table class="table-striped table">
+            <thead>
+                <tr>
+                    <th>
+                        Id
+                    </th>
+                    <th>
+                        Nome
+                    </th>
+                    <th>
+                        Cor
+                    </th>
+                    <th>
+                        Categoria
+                    </th>
+                    <th>
+                        Quantidade
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.listaItensAtribuidos)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ProdutoNavigation.Id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ProdutoNavigation.Nome)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ProdutoNavigation.Cor)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CategoriaNavigation.Categoria)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Quantidade)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div>
+    <a asp-controller="Inventario" asp-action="Editar" asp-route-id="@Model.IdTransacao">Editar</a>
+</div>
+</div>
+</div>

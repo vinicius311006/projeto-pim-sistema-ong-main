@@ -1,0 +1,158 @@
+﻿@model VestindoSonhos.ViewModels.DetalhesBeneficiarioViewModel
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-tabela">
+    <h1>Beneficiários</h1>
+
+    <div class="card">
+
+        <div class="card-topo">
+            <h3>Detalhes dos Beneficiários</h3>
+            <a class="btn btn-primary" asp-action="Criar"><span class="material-symbols-outlined">add</span>Novo</a>
+        </div>
+
+        <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.listaBeneficiario[0].Nome)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.listaBeneficiario[0].Telefone)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.listaBeneficiario[0].Endereco)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.listaBeneficiario[0].Situacao)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.listaBeneficiario[0].Observacao)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.listaBeneficiario)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Nome)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Telefone)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Endereco)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Situacao)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Observacao)
+                    </td>
+                    <td>
+                        <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span>Editar</a>
+                        <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span>Detalhes</a>
+                        <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+</div>
+<hr />
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.beneficiario.Nome)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.beneficiario.Nome)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.beneficiario.Telefone)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.beneficiario.Telefone)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.beneficiario.Endereco)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.beneficiario.Endereco)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.beneficiario.Situacao)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.beneficiario.Situacao)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.beneficiario.Observacao)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.beneficiario.Observacao)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Editar" asp-route-id="@Model.beneficiario.Id"><span class="material-symbols-outlined">edit</span>Editar</a>
+    <a asp-action="Apagar" asp-route-id="@Model.beneficiario.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
+</div>
+
+
+<div class="container-tabela">
+    <div class="card-topo">
+        <h3>Dependentes</h3>
+        <a class="btn btn-primary" asp-controller="Dependentes" asp-action="Criar" asp-route-idBeneficiario="@Model.beneficiario.Id"><span class="material-symbols-outlined">add</span>Novo dependente</a>
+    </div>
+    <div class="card">
+        <table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.listaDependentes[0].Nome)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.listaDependentes[0].Idade)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.listaDependentes[0].Sexo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.listaDependentes[0].Parentesco)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.listaDependentes)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Nome)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Idade)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Sexo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Parentesco)
+                </td>
+                <td>
+                    <a asp-controller="Dependentes" asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span></a>
+                    <a asp-controller="Dependentes" asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span></a>
+                    <a asp-controller="Dependentes" asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

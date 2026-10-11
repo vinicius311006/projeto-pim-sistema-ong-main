@@ -1,0 +1,60 @@
+﻿@model IEnumerable<VestindoSonhos.ViewModels.HomeUsuarioViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="container-tabela">
+<h1>Usuários</h1>
+
+<div class="card">
+
+<div class="card-topo">
+    <h3>Detalhes dos Usuários</h3>
+    <a class="btn btn-primary" asp-action="Criar"><span class="material-symbols-outlined">add</span>Novo</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Nome)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CargoNome)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Telefone)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td data-label="Nome">
+                @item.Nome
+            </td>
+            <td data-label="Cargo">
+                @item.CargoNome
+            </td>
+            <td data-label="Telefone">
+                @item.Telefone
+            </td>
+            <td data-label="Email">
+                @item.Email
+            </td>
+            <td>
+                <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span>Editar</a>
+                <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">filter_alt</span>Detalhes</a> 
+                <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+</div>
+</div>

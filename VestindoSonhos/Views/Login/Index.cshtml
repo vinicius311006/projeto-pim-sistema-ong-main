@@ -1,0 +1,39 @@
+﻿@model VestindoSonhos.ViewModels.LoginViewModel
+<link rel="stylesheet" href="~/css/formularios.css" />
+
+@{
+    ViewData["Title"] = "Login";
+}
+<div class="container-formulario">
+
+    <div class="form-card">
+        <h1>Login</h1>
+        <form class="form-context" asp-action="Index">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input hidden asp-for="Id" class="form-control" />
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input type="email" asp-for="Email" class="form-control" required/>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Senha" class="control-label"></label>
+                <input type="password" asp-for="Senha" class="form-control" required />
+                <span asp-validation-for="Senha" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Login" class="btn btn-primary" />
+            </div>
+            <div>
+                <a asp-action="RecuperarSenha">Esqueci minha senha</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

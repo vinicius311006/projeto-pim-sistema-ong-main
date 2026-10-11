@@ -1,0 +1,52 @@
+name: CI/CD Pipeline - Vestindo Sonhos
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Compilação e Validação (.NET 10 & Docker)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: 2. Configuração do SDK .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: 3. Localização do Projeto e Restauração de Pacotes NuGet
+        run: |
+          PROJ_PATH=$(find . -name "VestindoSonhos.csproj" | head -n 1)
+          echo "Arquivo do projeto encontrado em: $PROJ_PATH"
+          dotnet restore "$PROJ_PATH"
+
+      - name: 4. Build do Projeto .NET (Modo Release)
+        run: |
+          PROJ_PATH=$(find . -name "VestindoSonhos.csproj" | head -n 1)
+          dotnet build "$PROJ_PATH" --configuration Release --no-restore
+
+      - name: 5. Publicação dos Binários Otimizados
+        run: |
+          PROJ_PATH=$(find . -name "VestindoSonhos.csproj" | head -n 1)
+          dotnet publish "$PROJ_PATH" --configuration Release --output ./publish /p:UseAppHost=false
+
+      - name: 6. Validação do Build da Imagem Docker
+        run: |
+          DOCKERFILE_PATH=$(find . -name "Dockerfile" | head -n 1)
+          CONTEXT_DIR=$(dirname "$DOCKERFILE_PATH")
+          echo "Executando docker build no diretório: $CONTEXT_DIR"
+          docker build -t vestindo-sonhos-app:latest "$CONTEXT_DIR"
+
+      - name: 7. Upload dos Artefatos de Deploy
+        uses: actions/upload-artifact@v4
+        with:
+          name: vestindo-sonhos-build-artifact
+          path: ./publish
+          retention-days: 7

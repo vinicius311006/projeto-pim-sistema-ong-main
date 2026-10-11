@@ -1,0 +1,63 @@
+﻿@model IEnumerable<VestindoSonhos.ViewModels.TransacaoFinanceiraViewModel>
+<link rel="stylesheet" href="~/css/tabela.css">
+
+@{
+    ViewData["Title"] = "View";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class='container-tabela'>
+<h1>Doações</h1>
+
+<div class="card">
+@* <a asp-controller="Criar" asp-action="Criar" asp-route-origem="Doacoes"> *@
+<div class="card-topo">
+    <h3>Detalhes de Doações</h3>
+    <a class="btn btn-primary" asp-action="Criar" asp-route-origem="Doacoes"><span class="material-symbols-outlined">add</span>Create New</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Razao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Observacao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Usuario)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Hora)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Valor)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td data-label="Razão">
+                @Html.DisplayFor(modelItem => item.Razao)
+            </td>
+            <td data-label="Obs.">
+                @Html.DisplayFor(modelItem => item.Observacao)
+            </td>
+            <td data-label="Usuário">
+                @Html.DisplayFor(modelItem => item.Usuario)
+            </td>
+            <td data-label="Hora">
+                @Html.DisplayFor(modelItem => item.Hora)
+            </td>
+            <td data-label="Valor">
+                @Html.DisplayFor(modelItem => item.Valor)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+</div>
+</div>

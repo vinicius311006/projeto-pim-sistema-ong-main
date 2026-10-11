@@ -1,0 +1,182 @@
+.container-home h1 {
+    font-size: 30px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--color-1);
+    margin: 30px 0px;
+}
+
+.container-home {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 15px;
+    height: 100vh;
+}
+
+
+/* -------------------------- card inicial ---------------------- */
+.card-superior {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-bottom: 20px;
+}
+
+.card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 40px;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background: #ccc6f7;
+    ;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+    .card span {
+        font-size: 45px;
+        color: #fff;
+    }
+
+    .card h2 {
+        margin-top: 10px;
+        font-size: 20px;
+        color: var(--color-1);
+    }
+
+    .card h3 {
+        font-size: 20px;
+        color: #444;
+    }
+
+/* -------------------------- card do meio ---------------------- */
+.card-inferior {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+    height: 400px;
+    width: 100%;
+}
+
+    .card-inferior h3 {
+        margin-top: 10px;
+        font-size: 25px;
+        color: var(--color-1);
+    }
+
+
+.campanhas {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px 15px;
+    gap: 10px;
+    min-height: 400px;
+    background: transparent;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    overflow-y: auto;
+}
+
+.lista-itens {
+    counter-reset: item; /*contador numerico*/
+    width: 100%;
+    max-width: 450px;
+    text-align: left;
+}
+
+#necessidade {
+    padding: 5px 15px;
+    border-radius: 12px;
+    transition: transform 0.3s ease-in-out;
+}
+
+    #necessidade:hover {
+        scale: 1.1;
+        background: #fce7f3;
+    }
+
+    #necessidade::before {
+        counter-increment: item; /*contador numerico*/
+        content: counter(item) "º";
+        font-weight: bold;
+        margin-right: 10px;
+        color: #3b82f6;
+    }
+
+.evento {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 10px;
+    width: 100%;
+    background-color: #d0caf7;
+    border-radius: 10px;
+}
+
+    .evento p {
+        margin: 10px 30px;
+    }
+
+#ultimo-evento {
+    background-color: #d9d5f7;
+
+    p {
+        color: gray;
+    }
+}
+
+.campanhas canvas {
+    max-width: 280px;
+    max-height: 250px;
+}
+
+
+
+
+@media (max-width: 1100px) {
+    .card-superior {
+        gap: 10px;
+    }
+
+        .card-superior span {
+            font-size: 0;
+        }
+
+    .card {
+        flex-direction: column;
+        gap: 5px;
+        padding: 10px;
+    }
+
+        .card h2 {
+            font-size: 14px;
+        }
+
+    /* ------------------------------ */
+    .card-inferior {
+        grid-template-columns: 1fr;
+    }
+
+    .evento {
+        flex-direction: column;
+        text-align: center;
+        gap: 0px;
+        padding: 5px;
+    }
+
+        .evento p {
+            margin: 0px;
+        }
+
+    .campanhas canvas {
+        max-width: 250px;
+        max-height: 200px;
+    }
+}

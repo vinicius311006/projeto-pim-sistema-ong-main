@@ -1,0 +1,180 @@
+h1{
+  text-align: center;
+  margin: 20px;
+  font-size: 40px;
+  color: var(--color-1)
+}
+
+a{
+  text-decoration: none;
+  list-style: none;
+}
+
+
+.container-financeiro {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  padding: 10px;
+  gap: 10px;
+}
+
+.card {
+  position: relative;
+  padding: 15px;
+  border: none;
+  background: transparent;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 30px;;
+
+  h2{
+  text-align: center;
+  color: var(--color-2);
+}
+}
+
+
+.card-saldo{
+  padding: 15px;
+  position: relative;
+  height: 130px;
+  margin-bottom: 40px;
+
+  th{
+    background: transparent;
+    border: none;
+    font-size: 15px;
+    font-weight: 500;
+
+  }
+  td{
+    font-size: 15px; 
+    background: transparent;
+  }
+
+  & .valor{
+    color: green;
+  } 
+
+}
+
+.card-extrato{
+  overflow-x: auto;
+  height: 480px;
+}
+
+.card-doacoes{
+  overflow-x: auto;
+  height: 340px;
+  
+}
+
+.card-dashboard{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  height: 180px;
+  gap:10px;
+
+  & canvas{
+    width: 100%;
+    height: 100%;
+
+    border: 1px solid var(--text-1);
+    background-color: rgb(248, 239, 239);
+  }
+}
+
+
+table{
+  border-collapse: collapse;
+
+  th{
+    padding: 12px;
+    font-size: px;
+    text-align: left;
+    background: var(--color--8);
+    font-weight: 700;
+    font-size: 12px;
+    background: transparent; 
+  }
+
+  td{
+    padding: 10px;
+    font-size: 12px;
+    border-bottom: 1px solid #eee;
+    background: transparent;
+  } 
+}
+
+/* Posição do botão filtrar e expandir */
+.btn-group{
+  display: flex;
+  position: absolute;
+
+  gap: 10px;
+  left: 20px;
+
+  & span{
+    color: var(--text-1);
+  }
+
+} 
+
+.btn-transferencia{
+  display: flex;
+  background-color: var(--color-3);
+  position: absolute;
+  right: 10px;
+
+  gap: 5px;
+  padding:5px;
+  border-radius: 10px; 
+  font-size: 18px;
+
+  color: var(--text-1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  
+}
+
+.card-saldo .btn-abrir{
+    display: flex;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    color: var(--text-1);
+
+    & span{
+      font-size: 15px;
+    }
+}
+
+
+@media (max-width: 1200px){
+  .container-financeiro {
+    grid-template-columns: 1fr; 
+
+  }
+
+  .card, .card-saldo{
+    max-height: 400px;
+    align-items: center;
+  }
+
+  .card-dashboard{
+    height: 400px;
+   }
+}
+ 
+
+@media (max-width: 700px) {
+  .card, .card-saldo{
+    max-width: 100%;
+  }
+
+  .btn-transferencia span{
+    display: none;
+  }
+
+  .card-dashboard {
+    grid-template-columns: 1fr; 
+  }
+}

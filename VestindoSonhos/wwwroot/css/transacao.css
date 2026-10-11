@@ -1,0 +1,83 @@
+.container-transacao {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  min-height: 100vh; 
+  width: 100%;
+
+  background-color: var(--color-4);
+}
+
+/* Botão de voltar */
+.container-transacao .btn-back {
+  align-self: flex-start;
+  margin: 20px 0 0 30px;
+}
+
+.container-transacao .btn-back a {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--color-1);
+  font-weight: 500;
+  font-size: 20px;
+}
+
+
+.form-card {
+  width: 60%;
+}
+
+
+.form-card h1 {
+  color: var(--color-1);
+}
+
+
+.form-context {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 50px;
+  gap: 10px;
+
+  background-color: var(--color-5);
+  box-shadow: 5px 5px 10px rgba(0,0,0,0.212);
+  border-radius: 20px;
+}
+
+.form-group {
+  padding-bottom: 5px;
+}
+
+.form-group label {
+  font-weight: 600;
+}
+
+.form-group .btn {
+  border: none;
+  font-size: 15px;
+  width: 100px;
+}
+
+
+@media (max-width: 500px) {
+
+  .container-transacao {
+    min-height: 100vh;
+  }
+
+  .form-card {
+    width: 100%;
+    margin-top: 50px;
+    padding: 0 10px;
+  }
+
+  .form-context {
+    padding: 20px;
+  }
+
+  .container-transacao .btn-back {
+    margin: 20px;
+  }
+}

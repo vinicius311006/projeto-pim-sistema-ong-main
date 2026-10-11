@@ -1,0 +1,118 @@
+﻿@model VestindoSonhos.ViewModels.TransacaoInventarioCriacaoEdicaoViewModel
+@{
+	ViewData["Title"] = "Criar";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container-formulario">
+	<div class="btn-back">
+		<a asp-controller="Inventario" asp-action="Index"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
+	</div>
+	<div class="form-card">
+		<h1>Criar Transação</h1>
+		<form class="form-context" asp-action="Criar">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="form-group">
+				<label asp-for="Razao" class="control-label">Razão</label>
+				<select asp-for="Razao" class="form-control" asp-items="ViewBag.Razao"></select>
+				<span asp-validation-for="Razao" asp-items="ViewBag.Razao" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="CategoriaTransacao" class="control-label">Categoria</label>
+				<select asp-for="CategoriaTransacao" class="form-control" asp-items="ViewBag.Categoria"></select>
+				<span asp-validation-for="CategoriaTransacao" asp-items="ViewBag.Categoria" class="text-danger"></span>
+				<a asp-controller="Categoria" asp-action="Criar" asp-route-returnUrl="@Context.Request.Path"> + </a>
+			</div>
+			<div class="form-group">
+				<label asp-for="Beneficiario" class="control-label">Beneficiários</label>
+				<select asp-for="Beneficiario" class="form-control" asp-items="ViewBag.Beneficiarios">
+				<option value="">Sem beneficiário atribuído.</option>
+				</select>
+				<span asp-validation-for="Beneficiario" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Observacao" class="control-label">Observação</label>
+				<textarea asp-for="Observacao" class="form-control"></textarea>
+				<span asp-validation-for="Observacao" class="text-danger"></span>
+			</div>
+			<div class="container-tabela">
+				<div class="card">
+
+					<table class="table table-striped">
+
+						<thead>
+							<tr>
+								<th></th>
+								<th>Nome</th>
+								<th>Descrição</th>
+								<th>Categoria</th>
+								<th>Cor</th>
+								<th>Quantidade</th>
+							</tr>
+						</thead>
+
+						<tbody>
+
+							@for (int i = 0; i < Model.Produtos.Count; i++)
+							{
+								<tr class="produto-item">
+
+									<td>
+										<input type="hidden" name="Produtos[@i].ProdutoId" value="@Model.Produtos[i].ProdutoId" />
+										@Html.CheckBoxFor(m => m.Produtos[i].Selecionado, new { @class = "produto-check" })
+									</td>
+
+									<td>
+										@Model.Produtos[i].NomeProduto
+									</td>
+									<td>
+										@Model.Produtos[i].Descricao
+									</td>
+									<td>
+										@Model.Produtos[i].NomeCategoriaProduto
+									</td>
+									<td>
+										@Model.Produtos[i].Cor
+									</td>
+
+									<td>
+										<input style="max-width: 50px" type="number" name="Produtos[@i].Quantidade" min="1" disabled class="quantidade-input" />
+									</td>
+
+								</tr>
+							}
+
+						</tbody>
+
+					</table>
+
+				</div>
+			</div>
+			<div class="form-group">
+				<input type="submit" value="Criar" class="btn btn-primary" />
+			</div>
+			</form>
+		</div>
+	<script>
+		document.querySelectorAll(".produto-check")
+			.forEach(check => {
+	
+				check.addEventListener("change", function () {
+	
+					const quantidade =
+						this.closest(".produto-item")
+							.querySelector(".quantidade-input");
+	
+					quantidade.disabled = !this.checked;
+	
+				if (!this.checked)
+				{
+					quantidade.value = "";
+				}
+				else
+				{
+					quantidade.value = 1;
+				}
+					});	
+			});
+	
+	</script>

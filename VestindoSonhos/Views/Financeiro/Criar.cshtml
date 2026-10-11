@@ -1,0 +1,54 @@
+﻿@model VestindoSonhos.ViewModels.TransacaoFinanceiraViewModel
+<link rel="stylesheet" href="~/css/formularios.css" />
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-formulario">
+
+    <div class="btn-back">
+        <a asp-controller="Financeiro" asp-action="financeiro"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
+    </div>
+
+
+    <div class="form-card">
+        <h1>Criar Transação</h1>
+        <form class="form-context" asp-action="Criar">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Hora" class="control-label"></label>
+                <input asp-for="Hora" class="form-control" />
+                <span asp-validation-for="Hora" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Observacao" class="control-label"></label>
+                <input asp-for="Observacao" class="form-control" />
+                <span asp-validation-for="Observacao" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Categoria" class="control-label"></label>
+                <select asp-for="Categoria" class="form-control" asp-items="ViewBag.Categoria"></select>
+                <a asp-controller="Categoria" asp-action="Criar" asp-route-returnUrl="@Context.Request.Path"> + </a>
+            </div>
+            <div class="form-group">
+                <label asp-for="Valor" class="control-label"></label>
+                <input asp-for="Valor" class="form-control text-success"/>
+                <span asp-validation-for="Valor" class="text-success"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Carteira" class="control-label"></label>
+                <select asp-for="Carteira" class="form-control" asp-items="ViewBag.Carteira"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Razao" class="control-label"></label>
+                <select asp-for="Razao" class="form-control" asp-items="ViewBag.Razao"></select>
+                <span asp-validation-for="Razao" asp-items="ViewBag.Razao" class="text-danger"></span>
+            </div> 
+            <div class="form-group">
+                <input type="submit" value="Criar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>

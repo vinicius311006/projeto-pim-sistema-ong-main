@@ -1,0 +1,96 @@
+@model VestindoSonhos.ViewModels.HomeViewModel
+
+<link rel="stylesheet" href="~/css/home.css">
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container-home">
+    <h1>Vestindo Sonhos</h1>
+
+<div class="card-superior">
+
+    <div class="card">
+    <span class="material-symbols-outlined">folder</span>
+
+       <div>
+        <a asp-controller="Eventos" asp-action="Index">
+            <h2>Eventos futuros</h2>
+            <h3>@Model.projetosAtivos</h3>
+        </a>
+       </div>
+
+    </div>
+
+    <div class="card">
+    <span class="material-symbols-outlined">event</span>
+       <div >
+        <a asp-controller="Eventos" asp-action="Index">
+        <h2>Eventos do Mês</h2> 
+        <h3>@Model.eventosPendentesMesVigente</h3>
+        </a>
+       </div>
+    </div>
+
+    <div class="card">
+    <span class="material-symbols-outlined">group</span>
+
+    <div>
+        <a asp-controller="Voluntarios" asp-action="Index">
+        <h2>Voluntários Cadastrados</h2> 
+        <h3>@Model.voluntariosCadastrados</h3>
+        </a>
+       </div>
+    </div>
+</div>
+
+<div class="card-inferior">
+<div class="campanhas"> 
+<h3>Campanhas próximas</h3>
+
+    @if (Model.ultimoEvento != null)
+    {
+        <div class="evento" id="ultimo-evento">
+            <p>@Model.ultimoEvento.Nome</p>
+            <p><strong>@(Model.ultimoEvento.data_inicio.HasValue ? Model.ultimoEvento.data_inicio.Value.ToString("dd/MM/yyyy") : "")</strong></p>
+            <p><strong>à</strong></p>
+            <p><strong>@(Model.ultimoEvento.data_fim.HasValue ? Model.ultimoEvento.data_fim.Value.ToString("dd/MM/yyyy") : "")</strong></p>
+        </div>
+    }
+    else
+    {
+        <div class="evento" id="ultimo-evento">
+            <p>Nenhum evento encerrado recentemente.</p>
+        </div>
+    }
+    @if (Model.proximosEventos != null && Model.proximosEventos.Any())
+    {
+        @foreach(var evento in Model.proximosEventos)
+        {
+            <div class="evento">
+                <a asp-controller="Eventos" asp-action="Details" asp-route-id="@evento.Id"><p>@evento.Nome</p></a>
+                <p><strong>@(evento.data_inicio.HasValue ? evento.data_inicio.Value.ToString("dd/MM/yyyy") : "")</strong></p>
+                <p><strong>à</strong></p>
+                <p><strong>@(evento.data_fim.HasValue ? evento.data_fim.Value.ToString("dd/MM/yyyy") : "")</strong></p>
+            </div>
+        }
+    }
+    </div>
+
+    <div class="campanhas" style="gap: 2px">
+    <a asp-controller="Beneficiarios" asp-action="Index"><h3>Necessidades frequentes</h3></a>
+        <div class="lista-itens">
+        @{
+            int i = 30;
+        }
+        @foreach (var necessidade in Model.necessidades)
+        {
+                <a asp-controller="Beneficiarios" asp-action="Index"><p style="font-size: @(i)px; margin: 0px" id="necessidade" >@necessidade.Key</p></a>
+            i -= 3;
+        }
+        </div>
+    </div>
+
+</div>
+</div>

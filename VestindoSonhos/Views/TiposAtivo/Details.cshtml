@@ -1,0 +1,32 @@
+﻿@model VestindoSonhos.Models.TiposAtivo
+<link rel="stylesheet" href="~/css/formularios.css" />
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-formulario">
+
+    <div class="btn-back">
+        <a asp-controller="TiposAtivo" asp-action="Index"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
+    </div>
+
+
+    <div class="form-card">
+        <h1>Detalhes</h1>
+
+        <div>
+            <h4>Tipos de Ativo</h4>
+            <hr />
+            <dl class="form-context row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Categoria)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Categoria)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+</div>
