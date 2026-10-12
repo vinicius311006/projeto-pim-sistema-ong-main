@@ -3,12 +3,14 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/evento_model.dart';
+import '../models/dashboard_model.dart';
+import '../models/beneficiario_model.dart';
+import '../models/inventario_model.dart';
+import '../models/financeiro_model.dart';
 
 /// Serviço responsável pela integração HTTP com o backend ASP.NET Core da ONG Vestindo Sonhos.
 class ApiService {
   /// URL base da API REST.
-  /// - Para Emulador Android: utilize 'http://10.0.2.2:5000/api' ou a porta configurada no backend.
-  /// - Para Dispositivo Físico: utilize o IP local da máquina na mesma rede Wi-Fi (ex: 'http://192.168.1.100:5000/api').
   static String get baseUrl {
     try {
       if (Platform.isAndroid) {
@@ -23,7 +25,7 @@ class ApiService {
   static const String _keyUserEmail = 'user_email';
   static const String _keyUserCargo = 'user_cargo';
 
-  /// Realiza o login do voluntário/usuário na API REST.
+  /// Realiza o login na API REST.
   /// Endpoint: POST /api/auth/login
   Future<Map<String, dynamic>> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/auth/login');
@@ -65,9 +67,30 @@ class ApiService {
     }
   }
 
-  /// Obtém a lista de eventos ativos a partir da API REST.
+  /// Obtém dados consolidados do Dashboard.
+  /// Endpoint: GET /api/dashboard
+  Future<DashboardModel> getDashboard(String token) async {
+    final url = Uri.parse('$baseUrl/dashboard');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode == 200) {
+      return DashboardModel.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 401) {
+      throw Exception('Sessão expirada. Faça login novamente.');
+    } else {
+      throw Exception('Falha ao carregar dashboard (${response.statusCode}).');
+    }
+  }
+
+  /// Obtém a lista de eventos ativos.
   /// Endpoint: GET /api/eventos
-  /// Requer token JWT no cabeçalho Authorization: Bearer <token>
   Future<List<EventoModel>> getEventos(String token) async {
     final url = Uri.parse('$baseUrl/eventos');
 
@@ -101,23 +124,88 @@ class ApiService {
     }
   }
 
+  /// Obtém a lista de beneficiários atendidos.
+  /// Endpoint: GET /api/beneficiarios
+  Future<List<BeneficiarioModel>> getBeneficiarios(String token) async {
+    final url = Uri.parse('$baseUrl/beneficiarios');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> lista = jsonDecode(response.body);
+      return lista.map((item) => BeneficiarioModel.fromJson(item as Map<String, dynamic>)).toList();
+    } else if (response.statusCode == 401) {
+      throw Exception('Sessão expirada. Faça login novamente.');
+    } else {
+      throw Exception('Falha ao carregar beneficiários (${response.statusCode}).');
+    }
+  }
+
+  /// Obtém a lista de itens e quantidades do inventário/estoque.
+  /// Endpoint: GET /api/inventario
+  Future<List<InventarioModel>> getInventario(String token) async {
+    final url = Uri.parse('$baseUrl/inventario');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> lista = jsonDecode(response.body);
+      return lista.map((item) => InventarioModel.fromJson(item as Map<String, dynamic>)).toList();
+    } else if (response.statusCode == 401) {
+      throw Exception('Sessão expirada. Faça login novamente.');
+    } else {
+      throw Exception('Falha ao carregar inventário (${response.statusCode}).');
+    }
+  }
+
+  /// Obtém o resumo financeiro com carteiras e movimentações.
+  /// Endpoint: GET /api/financeiro
+  Future<FinanceiroModel> getFinanceiro(String token) async {
+    final url = Uri.parse('$baseUrl/financeiro');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode == 200) {
+      return FinanceiroModel.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 401) {
+      throw Exception('Sessão expirada. Faça login novamente.');
+    } else {
+      throw Exception('Falha ao carregar dados financeiros (${response.statusCode}).');
+    }
+  }
+
   // ==========================================
   // Métodos Auxiliares de Persistência Local
   // ==========================================
 
-  /// Salva o token JWT de autenticação no SharedPreferences.
   Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyToken, token);
   }
 
-  /// Recupera o token JWT salvo localmente.
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_keyToken);
   }
 
-  /// Salva informações resumidas do usuário logado.
   Future<void> saveUserData({
     required String nome,
     required String email,
@@ -129,13 +217,21 @@ class ApiService {
     await prefs.setString(_keyUserCargo, cargo);
   }
 
-  /// Recupera o nome do usuário salvo.
   Future<String?> getUserNome() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_keyUserNome);
   }
 
-  /// Remove o token e os dados locais ao realizar logout.
+  Future<String?> getUserEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyUserEmail);
+  }
+
+  Future<String?> getUserCargo() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyUserCargo);
+  }
+
   Future<void> clearAuthData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_keyToken);
