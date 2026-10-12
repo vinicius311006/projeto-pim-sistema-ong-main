@@ -12,7 +12,7 @@ USE VESTINDOSONHOSDB;
 
 CREATE TABLE IF NOT EXISTS Cargos (
     id INT NOT NULL AUTO_INCREMENT,
-    nome VARCHAR(15) NOT NULL,
+    nome VARCHAR(50) NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -268,7 +268,11 @@ CREATE OR REPLACE VIEW voluntario_atribuido AS SELECT * FROM VoluntarioAtribuido
 -- Cargos
 INSERT IGNORE INTO Cargos (id, nome) VALUES 
 (1, 'Administrador'),
-(2, 'Voluntário');
+(2, 'Coordenador Geral'),
+(3, 'Gestor Financeiro'),
+(4, 'Assistente Social'),
+(5, 'Líder de Estoque'),
+(6, 'Voluntário');
 
 -- Categorias de itens
 INSERT IGNORE INTO TiposAtivo (id, categoria) VALUES
@@ -276,9 +280,14 @@ INSERT IGNORE INTO TiposAtivo (id, categoria) VALUES
 (2, 'Calçados'),
 (3, 'Alimentos');
 
--- Usuário Administrador (Login: admin@teste.org / Senha: 123456)
-INSERT IGNORE INTO Usuario (id, nome, cargo, cpf, email, senha) 
-VALUES (1, 'Admin Teste', 1, '12345678901', 'admin@teste.org', '123456');
+-- Usuários do Sistema para testes e apresentação (Todos com Senha inicial: 123456)
+INSERT IGNORE INTO Usuario (id, nome, cargo, cpf, email, telefone, senha) VALUES 
+(1, 'Admin Teste', 1, '12345678901', 'admin@teste.org', '(11) 98765-4321', '123456'),
+(2, 'Mariana Coordenadora', 2, '23456789012', 'mariana@teste.org', '(11) 97654-3210', '123456'),
+(3, 'Carlos Financeiro', 3, '34567890123', 'carlos@teste.org', '(11) 96543-2109', '123456'),
+(4, 'Juliana Assistente Social', 4, '45678901234', 'juliana@teste.org', '(11) 95432-1098', '123456'),
+(5, 'Lucas Almoxarife', 5, '56789012345', 'lucas@teste.org', '(11) 94321-0987', '123456'),
+(6, 'Fernanda Voluntária', 6, '67890123456', 'fernanda@teste.org', '(11) 93210-9876', '123456');
 
 -- Carteiras financeiras (Essenciais para registro financeiro)
 INSERT IGNORE INTO Carteira (id, nome, saldo) VALUES 

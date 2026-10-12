@@ -1,60 +1,399 @@
-﻿@model IEnumerable<VestindoSonhos.ViewModels.HomeUsuarioViewModel>
+@model IEnumerable<VestindoSonhos.ViewModels.HomeUsuarioViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Gestão de Usuários";
+
+    string ObterClasseBadge(string cargoNome)
+    {
+        if (string.IsNullOrEmpty(cargoNome)) return "badge-default";
+        var c = cargoNome.ToLower();
+        if (c.Contains("admin")) return "badge-admin";
+        if (c.Contains("coordenad")) return "badge-coordenador";
+        if (c.Contains("financ") || c.Contains("gestor")) return "badge-financeiro";
+        if (c.Contains("social") || c.Contains("assistente")) return "badge-social";
+        if (c.Contains("estoque") || c.Contains("almoxarife")) return "badge-estoque";
+        return "badge-voluntario";
+    }
+
+    string ObterIconeCargo(string cargoNome)
+    {
+        if (string.IsNullOrEmpty(cargoNome)) return "person";
+        var c = cargoNome.ToLower();
+        if (c.Contains("admin")) return "shield_person";
+        if (c.Contains("coordenad")) return "groups";
+        if (c.Contains("financ") || c.Contains("gestor")) return "payments";
+        if (c.Contains("social") || c.Contains("assistente")) return "volunteer_activism";
+        if (c.Contains("estoque") || c.Contains("almoxarife")) return "inventory_2";
+        return "badge";
+    }
 }
+
+<style>
+    /* Estilos Modernos para a Gestão de Usuários */
+    .metricas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .metrica-card {
+        background: #FFFFFF;
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .metrica-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .metrica-icone {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .metrica-icone .material-symbols-outlined {
+        font-size: 26px;
+    }
+
+    .metrica-info h4 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        color: #1F2937;
+    }
+
+    .metrica-info p {
+        margin: 2px 0 0;
+        font-size: 12px;
+        color: #6B7280;
+        font-weight: 500;
+    }
+
+    /* Badges de Cargos */
+    .badge-cargo {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+    }
+
+    .badge-cargo .material-symbols-outlined {
+        font-size: 14px;
+    }
+
+    .badge-admin { background: #EDE9FE; color: #6D28D9; border: 1px solid #DDD6FE; }
+    .badge-coordenador { background: #DBEAFE; color: #1D4ED8; border: 1px solid #BFDBFE; }
+    .badge-financeiro { background: #D1FAE5; color: #047857; border: 1px solid #A7F3D0; }
+    .badge-social { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
+    .badge-estoque { background: #E0E7FF; color: #4338CA; border: 1px solid #C7D2FE; }
+    .badge-voluntario { background: #CCFBF1; color: #0F766E; border: 1px solid #99F6E4; }
+    .badge-default { background: #F3F4F6; color: #4B5563; border: 1px solid #E5E7EB; }
+
+    /* Barra de Filtros e Busca */
+    .barra-filtros {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .busca-box {
+        position: relative;
+        flex: 1;
+        min-width: 240px;
+    }
+
+    .busca-box input {
+        width: 100%;
+        padding: 10px 14px 10px 38px;
+        border-radius: 10px;
+        border: 1px solid #D1D5DB;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .busca-box input:focus {
+        border-color: #7C6FE0;
+        box-shadow: 0 0 0 3px rgba(124, 111, 224, 0.15);
+    }
+
+    .busca-box .material-symbols-outlined {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9CA3AF;
+        font-size: 20px;
+    }
+
+    .select-filtro {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid #D1D5DB;
+        font-size: 14px;
+        color: #374151;
+        outline: none;
+        background: #FFFFFF;
+        cursor: pointer;
+    }
+
+    .select-filtro:focus {
+        border-color: #7C6FE0;
+    }
+
+    /* Ações na Tabela */
+    .acoes-container {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        justify-content: center;
+    }
+
+    .btn-acao {
+        padding: 5px 9px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        text-decoration: none;
+        transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn-acao:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+    }
+
+    .btn-acao-editar { background: #EEF2FF; color: #4F46E5; }
+    .btn-acao-senha { background: #FEF3C7; color: #B45309; }
+    .btn-acao-detalhes { background: #F3F4F6; color: #4B5563; }
+    .btn-acao-apagar { background: #FEE2E2; color: #DC2626; }
+
+    .btn-acao .material-symbols-outlined {
+        font-size: 15px;
+    }
+
+    /* Avatar do Usuário */
+    .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #7C6FE0;
+        color: #FFFFFF;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+</style>
 
 <div class="container-tabela">
-<h1>Usuários</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 6px;">
+        <div>
+            <h1 style="text-align: left; margin: 0; font-size: 26px;">Gestão de Usuários & Colaboradores</h1>
+            <p style="margin: 4px 0 0; color: #6F6F85; font-size: 13px;">Controle de acesso, funções administrativas e permissões do sistema da ONG</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <a class="btn btn-primary" asp-action="Criar" style="background: #7C6FE0; color: white; padding: 10px 18px; border-radius: 10px; font-weight: 600;">
+                <span class="material-symbols-outlined">person_add</span>Novo Usuário
+            </a>
+        </div>
+    </div>
 
-<div class="card">
+    <!-- Alertas de Feedback -->
+    @if (TempData["Sucesso"] != null)
+    {
+        <div style="background: #ECFDF5; border: 1px solid #A7F3D0; color: #065F46; padding: 12px 18px; border-radius: 10px; display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <span class="material-symbols-outlined" style="color: #10B981;">check_circle</span>
+            <span style="font-size: 14px; font-weight: 500;">@TempData["Sucesso"]</span>
+        </div>
+    }
 
-<div class="card-topo">
-    <h3>Detalhes dos Usuários</h3>
-    <a class="btn btn-primary" asp-action="Criar"><span class="material-symbols-outlined">add</span>Novo</a>
+    @if (TempData["Erro"] != null)
+    {
+        <div style="background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; padding: 12px 18px; border-radius: 10px; display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <span class="material-symbols-outlined" style="color: #EF4444;">error</span>
+            <span style="font-size: 14px; font-weight: 500;">@TempData["Erro"]</span>
+        </div>
+    }
+
+    <!-- Cards de Métricas e Indicadores -->
+    <div class="metricas-grid">
+        <div class="metrica-card">
+            <div class="metrica-icone" style="background: rgba(124, 111, 224, 0.12); color: #7C6FE0;">
+                <span class="material-symbols-outlined">badge</span>
+            </div>
+            <div class="metrica-info">
+                <h4>@(ViewBag.TotalUsuarios ?? Model.Count())</h4>
+                <p>Total de Usuários</p>
+            </div>
+        </div>
+
+        <div class="metrica-card">
+            <div class="metrica-icone" style="background: rgba(220, 38, 38, 0.12); color: #DC2626;">
+                <span class="material-symbols-outlined">admin_panel_settings</span>
+            </div>
+            <div class="metrica-info">
+                <h4>@(ViewBag.TotalAdmins ?? 1)</h4>
+                <p>Administradores</p>
+            </div>
+        </div>
+
+        <div class="metrica-card">
+            <div class="metrica-icone" style="background: rgba(59, 130, 246, 0.12); color: #2563EB;">
+                <span class="material-symbols-outlined">diversity_3</span>
+            </div>
+            <div class="metrica-info">
+                <h4>@(ViewBag.TotalCoordenadores ?? 0)</h4>
+                <p>Coordenação & Gestão</p>
+            </div>
+        </div>
+
+        <div class="metrica-card">
+            <div class="metrica-icone" style="background: rgba(16, 185, 129, 0.12); color: #059669;">
+                <span class="material-symbols-outlined">volunteer_activism</span>
+            </div>
+            <div class="metrica-info">
+                <h4>@(ViewBag.TotalVoluntarios ?? 0)</h4>
+                <p>Operação & Voluntários</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card Principal da Tabela -->
+    <div class="card" style="max-height: none; overflow: visible;">
+        <!-- Barra de Busca e Filtros -->
+        <div class="barra-filtros">
+            <div class="busca-box">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" id="campoBusca" placeholder="Pesquisar por nome, e-mail ou telefone..." onkeyup="filtrarUsuarios()" />
+            </div>
+
+            <select id="filtroCargo" class="select-filtro" onchange="filtrarUsuarios()">
+                <option value="">Todos os Cargos</option>
+                @if (ViewBag.Cargos != null)
+                {
+                    foreach (var c in (IEnumerable<VestindoSonhos.Models.Cargo>)ViewBag.Cargos)
+                    {
+                        <option value="@c.Nome">@c.Nome</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="table table-striped" id="tabelaUsuarios">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; padding-left: 20px;">Usuário / Colaborador</th>
+                        <th>Cargo no Sistema</th>
+                        <th>Telefone</th>
+                        <th>E-mail</th>
+                        <th style="text-align: center;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model) {
+                    var primeiraLetra = !string.IsNullOrEmpty(item.Nome) ? item.Nome[0].ToString().ToUpper() : "U";
+                    <tr class="linha-usuario" data-nome="@item.Nome.ToLower()" data-cargo="@item.CargoNome.ToLower()" data-email="@(item.Email?.ToLower() ?? "")" data-telefone="@(item.Telefone ?? "")">
+                        <td data-label="Nome" style="text-align: left; padding-left: 20px;">
+                            <span class="user-avatar">@primeiraLetra</span>
+                            <strong style="color: #1F2937;">@item.Nome</strong>
+                        </td>
+                        <td data-label="Cargo">
+                            <span class="badge-cargo @ObterClasseBadge(item.CargoNome)">
+                                <span class="material-symbols-outlined">@ObterIconeCargo(item.CargoNome)</span>
+                                @item.CargoNome
+                            </span>
+                        </td>
+                        <td data-label="Telefone">
+                            @(string.IsNullOrEmpty(item.Telefone) ? "-" : item.Telefone)
+                        </td>
+                        <td data-label="Email">
+                            @(string.IsNullOrEmpty(item.Email) ? "-" : item.Email)
+                        </td>
+                        <td style="text-align: center;">
+                            <div class="acoes-container">
+                                <a asp-action="Editar" asp-route-id="@item.Id" class="btn-acao btn-acao-editar" title="Editar Informações">
+                                    <span class="material-symbols-outlined">edit</span>Editar
+                                </a>
+                                <a asp-action="RedefinirSenha" asp-route-id="@item.Id" class="btn-acao btn-acao-senha" title="Redefinir Senha deste Usuário">
+                                    <span class="material-symbols-outlined">key</span>Senha
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn-acao btn-acao-detalhes" title="Ver Detalhes">
+                                    <span class="material-symbols-outlined">visibility</span>Detalhes
+                                </a> 
+                                <a asp-action="Apagar" asp-route-id="@item.Id" class="btn-acao btn-acao-apagar" title="Remover Usuário">
+                                    <span class="material-symbols-outlined">delete</span>Apagar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                    <tr id="linhaVazia" style="display: none;">
+                        <td colspan="5" style="padding: 30px; text-align: center; color: #9CA3AF;">
+                            <span class="material-symbols-outlined" style="font-size: 32px; display: block; margin-bottom: 6px;">search_off</span>
+                            Nenhum usuário encontrado com os filtros informados.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nome)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CargoNome)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Telefone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td data-label="Nome">
-                @item.Nome
-            </td>
-            <td data-label="Cargo">
-                @item.CargoNome
-            </td>
-            <td data-label="Telefone">
-                @item.Telefone
-            </td>
-            <td data-label="Email">
-                @item.Email
-            </td>
-            <td>
-                <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span>Editar</a>
-                <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">filter_alt</span>Detalhes</a> 
-                <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
-            </td>
-        </tr>
+@section Scripts {
+    <script>
+        function filtrarUsuarios() {
+            var termo = document.getElementById('campoBusca').value.toLowerCase().trim();
+            var cargoFiltro = document.getElementById('filtroCargo').value.toLowerCase().trim();
+            var linhas = document.querySelectorAll('.linha-usuario');
+            var visiveis = 0;
+
+            linhas.forEach(function(linha) {
+                var nome = linha.getAttribute('data-nome') || '';
+                var cargo = linha.getAttribute('data-cargo') || '';
+                var email = linha.getAttribute('data-email') || '';
+                var telefone = linha.getAttribute('data-telefone') || '';
+
+                var matchTexto = termo === '' || nome.indexOf(termo) !== -1 || email.indexOf(termo) !== -1 || telefone.indexOf(termo) !== -1 || cargo.indexOf(termo) !== -1;
+                var matchCargo = cargoFiltro === '' || cargo === cargoFiltro;
+
+                if (matchTexto && matchCargo) {
+                    linha.style.display = '';
+                    visiveis++;
+                } else {
+                    linha.style.display = 'none';
+                }
+            });
+
+            var linhaVazia = document.getElementById('linhaVazia');
+            if (linhaVazia) {
+                linhaVazia.style.display = visiveis === 0 ? '' : 'none';
+            }
+        }
+    </script>
 }
-    </tbody>
-</table>
-</div>
-</div>

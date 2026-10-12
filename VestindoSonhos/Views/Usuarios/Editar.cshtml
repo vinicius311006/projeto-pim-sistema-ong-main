@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.ViewModels.EditUsuariosViewModel
+@model VestindoSonhos.ViewModels.EditUsuariosViewModel
 <link rel="stylesheet" href="~/css/formularios.css" />
 
 @{
@@ -47,8 +47,30 @@
                 <input asp-for="Endereco" class="form-control" />
                 <span asp-validation-for="Endereco" class="text-danger"></span>
             </div>
+
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #E5E7EB;" />
+            <div style="margin-bottom: 15px;">
+                <h3 style="font-size: 16px; color: #2C2C35; margin: 0 0 4px; display: flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-outlined" style="font-size: 18px; color: #7C6FE0;">lock_reset</span>
+                    Redefinir Senha (Opcional)
+                </h3>
+                <small style="color: #6B7280;">Deixe em branco caso deseje manter a senha atual do usuário.</small>
+            </div>
+
             <div class="form-group">
-                <input type="submit" value="Salvar" class="btn btn-primary" />
+                <label asp-for="NovaSenha" class="control-label">Nova Senha</label>
+                <input asp-for="NovaSenha" type="password" class="form-control" placeholder="Deixe em branco para manter a atual" />
+                <span asp-validation-for="NovaSenha" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ConfirmarNovaSenha" class="control-label">Confirmar Nova Senha</label>
+                <input asp-for="ConfirmarNovaSenha" type="password" class="form-control" placeholder="Repita a nova senha" />
+                <span asp-validation-for="ConfirmarNovaSenha" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Salvar Alterações" class="btn btn-primary" />
             </div>
         </form>
     </div>

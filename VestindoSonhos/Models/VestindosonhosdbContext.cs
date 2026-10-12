@@ -80,7 +80,7 @@ public partial class VestindosonhosdbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Nome)
-                .HasMaxLength(15)
+                .HasMaxLength(50)
                 .HasColumnName("nome");
         });
 

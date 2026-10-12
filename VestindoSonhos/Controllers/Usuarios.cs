@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -37,6 +37,12 @@ namespace VestindoSonhos.Controllers
                                 Email = u.Email,
                                 Id = u.Id
                             }).ToListAsync();
+
+            ViewBag.TotalUsuarios = usuarios.Count;
+            ViewBag.TotalAdmins = usuarios.Count(u => u.CargoNome == "Administrador");
+            ViewBag.TotalCoordenadores = usuarios.Count(u => u.CargoNome.Contains("Coordenador") || u.CargoNome.Contains("Gestor") || u.CargoNome.Contains("Social"));
+            ViewBag.TotalVoluntarios = usuarios.Count(u => u.CargoNome.Contains("Voluntário") || u.CargoNome.Contains("Estoque"));
+            ViewBag.Cargos = await _context.Cargo.OrderBy(c => c.Nome).ToListAsync();
 
             return View(usuarios);
         }
@@ -124,6 +130,7 @@ namespace VestindoSonhos.Controllers
                 {
                     _context.Add(novo_usuario);
                     await _context.SaveChangesAsync();
+                    TempData["Sucesso"] = $"Novo usuário '{novo_usuario.Nome}' cadastrado com sucesso!";
                 }
                 catch (Exception e)
                 {
@@ -166,49 +173,124 @@ namespace VestindoSonhos.Controllers
         }
 
         // POST: Usuarios/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(int id, [Bind("Id,Nome,Cargo,DataNascimento,Telefone,Email,Endereco")] EditUsuariosViewModel usuario)
+        public async Task<IActionResult> Editar(int id, [Bind("Id,Nome,Cargo,DataNascimento,Telefone,Email,Endereco,NovaSenha,ConfirmarNovaSenha")] EditUsuariosViewModel usuario)
         {
-            Console.WriteLine(usuario.Id);
             if (id != usuario.Id)
             {
                 return NotFound();
             }
 
-            foreach (var erro in ModelState)
+            if (!string.IsNullOrWhiteSpace(usuario.NovaSenha))
             {
-                foreach (var subErro in erro.Value.Errors)
+                if (usuario.NovaSenha.Length < 6)
                 {
-                    Console.WriteLine($"{erro.Key}: {subErro.ErrorMessage}");
+                    ModelState.AddModelError(nameof(usuario.NovaSenha), "A nova senha deve ter no mínimo 6 caracteres.");
+                }
+                if (usuario.NovaSenha != usuario.ConfirmarNovaSenha)
+                {
+                    ModelState.AddModelError(nameof(usuario.ConfirmarNovaSenha), "As senhas não coincidem.");
                 }
             }
+
             if (ModelState.IsValid)
+            {
+                var usuario_bd = await _context.Usuario.FirstOrDefaultAsync(u => u.Id == id);
+                if (usuario_bd == null)
                 {
-                    var usuario_bd = await _context.Usuario.FirstOrDefaultAsync(u => u.Id == id);
-                    var cargoId = usuario.Cargo;
-                    var cargoEntity = await _context.Cargo.FirstOrDefaultAsync(c => c.Id == cargoId);
-                    if (cargoEntity == null)
-                    {
-                        ModelState.AddModelError(nameof(usuario.Cargo), "Cargo inválido.");
-                        CarregarDropdowns();
-                        return View(usuario);
-                    }
-                    usuario_bd.Nome = usuario.Nome;
-                    usuario_bd.Cargo = usuario.Cargo;
-                    usuario_bd.DataNascimento = usuario.DataNascimento;
-                    usuario_bd.Telefone = usuario.Telefone;
-                    usuario_bd.Email = usuario.Email;
-                    usuario_bd.Endereco = usuario.Endereco;
-                    _context.Update(usuario_bd);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction("Index");
+                    return NotFound();
                 }
-                CarregarDropdowns();
-                return View(usuario);
+
+                var cargoEntity = await _context.Cargo.FirstOrDefaultAsync(c => c.Id == usuario.Cargo);
+                if (cargoEntity == null)
+                {
+                    ModelState.AddModelError(nameof(usuario.Cargo), "Cargo inválido.");
+                    CarregarDropdowns();
+                    return View(usuario);
+                }
+
+                usuario_bd.Nome = usuario.Nome;
+                usuario_bd.Cargo = usuario.Cargo;
+                usuario_bd.DataNascimento = usuario.DataNascimento;
+                usuario_bd.Telefone = usuario.Telefone;
+                usuario_bd.Email = usuario.Email;
+                usuario_bd.Endereco = usuario.Endereco;
+
+                if (!string.IsNullOrWhiteSpace(usuario.NovaSenha))
+                {
+                    var passwordHasher = new PasswordHasher<Usuario>();
+                    usuario_bd.Senha = passwordHasher.HashPassword(usuario_bd, usuario.NovaSenha);
+                    TempData["Sucesso"] = $"Usuário '{usuario_bd.Nome}' atualizado com nova senha definida!";
+                }
+                else
+                {
+                    TempData["Sucesso"] = $"Usuário '{usuario_bd.Nome}' atualizado com sucesso!";
+                }
+
+                _context.Update(usuario_bd);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            CarregarDropdowns();
+            return View(usuario);
+        }
+
+        // GET: Usuarios/RedefinirSenha/5
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> RedefinirSenha(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var usuario = await _context.Usuario
+                .Include(u => u.CargoNavigation)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            var model = new RedefinirSenhaUsuarioViewModel
+            {
+                Id = usuario.Id,
+                Nome = usuario.Nome,
+                Email = usuario.Email,
+                CargoNome = usuario.CargoNavigation?.Nome ?? "Usuário"
+            };
+
+            return View(model);
+        }
+
+        // POST: Usuarios/RedefinirSenha
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RedefinirSenha(RedefinirSenhaUsuarioViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var usuario = await _context.Usuario.FindAsync(model.Id);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            var passwordHasher = new PasswordHasher<Usuario>();
+            usuario.Senha = passwordHasher.HashPassword(usuario, model.NovaSenha);
+            _context.Update(usuario);
+            await _context.SaveChangesAsync();
+
+            TempData["Sucesso"] = $"Senha do usuário '{usuario.Nome}' redefinida com sucesso para: {model.NovaSenha}";
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Usuarios/Delete/5

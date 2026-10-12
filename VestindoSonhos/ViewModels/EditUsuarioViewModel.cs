@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using VestindoSonhos.Models;
 
 namespace VestindoSonhos.ViewModels
@@ -18,6 +19,13 @@ namespace VestindoSonhos.ViewModels
         public string? Email { get; set; }
 
         public string? Endereco { get; set; }
+
+        [DataType(DataType.Password)]
+        public string? NovaSenha { get; set; }
+
+        [DataType(DataType.Password)]
+        [Compare(nameof(NovaSenha), ErrorMessage = "As senhas informadas não conferem.")]
+        public string? ConfirmarNovaSenha { get; set; }
 
         public virtual ICollection<Evento> Evento { get; set; } = new List<Evento>();
 

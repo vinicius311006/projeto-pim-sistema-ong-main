@@ -1,0 +1,107 @@
+@model VestindoSonhos.ViewModels.RedefinirSenhaUsuarioViewModel
+<link rel="stylesheet" href="~/css/formularios.css" />
+
+@{
+    ViewData["Title"] = "Redefinir Senha";
+}
+
+<div class="container-formulario">
+    <div class="btn-back">
+        <a asp-controller="Usuarios" asp-action="Index">
+            <i class="material-symbols-outlined">arrow_back_ios</i>Voltar para Usuários
+        </a>
+    </div>
+
+    <div class="form-card" style="max-width: 580px; margin: 0 auto;">
+        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(124, 111, 224, 0.15); display: flex; align-items: center; justify-content: center;">
+                <span class="material-symbols-outlined" style="font-size: 28px; color: #7C6FE0;">key</span>
+            </div>
+            <div>
+                <h1 style="margin: 0; font-size: 24px; color: #2C2C35;">Redefinir Senha</h1>
+                <p style="margin: 2px 0 0; font-size: 13px; color: #6F6F85;">Gestão de Acesso - Painel do Administrador</p>
+            </div>
+        </div>
+
+        <div style="background: #F8F9FD; border-radius: 12px; padding: 14px 18px; margin-bottom: 22px; border: 1px solid #E5E7EB;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 14px; font-weight: 600; color: #1F2937;">@Model.Nome</span>
+                <span style="background: #7C6FE0; color: white; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">@Model.CargoNome</span>
+            </div>
+            <div style="font-size: 13px; color: #6B7280;">
+                <span>E-mail: <strong>@(string.IsNullOrEmpty(Model.Email) ? "Não informado" : Model.Email)</strong></span>
+            </div>
+            <div style="margin-top: 8px; font-size: 12px; color: #4B5563; line-height: 1.4;">
+                <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle; color: #F59E0B;">info</span>
+                Como administrador, você pode alterar a senha deste usuário diretamente, sem precisar da senha anterior.
+            </div>
+        </div>
+
+        <form class="form-context" asp-action="RedefinirSenha" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="Nome" />
+            <input type="hidden" asp-for="Email" />
+            <input type="hidden" asp-for="CargoNome" />
+
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label asp-for="NovaSenha" class="control-label" style="font-weight: 600;">Nova Senha</label>
+                <div style="position: relative;">
+                    <input asp-for="NovaSenha" id="campoNovaSenha" type="password" class="form-control" placeholder="Mínimo de 6 caracteres" style="padding-right: 42px;" />
+                    <button type="button" onclick="toggleSenha('campoNovaSenha', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6B7280;">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">visibility</span>
+                    </button>
+                </div>
+                <span asp-validation-for="NovaSenha" class="text-danger"></span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label asp-for="ConfirmarNovaSenha" class="control-label" style="font-weight: 600;">Confirmar Nova Senha</label>
+                <div style="position: relative;">
+                    <input asp-for="ConfirmarNovaSenha" id="campoConfirmarSenha" type="password" class="form-control" placeholder="Repita a nova senha" style="padding-right: 42px;" />
+                    <button type="button" onclick="toggleSenha('campoConfirmarSenha', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6B7280;">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">visibility</span>
+                    </button>
+                </div>
+                <span asp-validation-for="ConfirmarNovaSenha" class="text-danger"></span>
+            </div>
+
+            <!-- Botão de Atalho para Senha Padrão -->
+            <div style="margin-bottom: 24px;">
+                <button type="button" onclick="preencherSenhaPadrao()" style="background: #EFF6FF; border: 1px dashed #3B82F6; color: #1D4ED8; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">autorenew</span>
+                    Preencher Senha Padrão (Ong@2026)
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <a asp-action="Index" class="btn" style="background: #E5E7EB; color: #374151; padding: 10px 18px; border-radius: 8px; font-weight: 500;">Cancelar</a>
+                <input type="submit" value="Salvar Nova Senha" class="btn btn-primary" style="background: #7C6FE0; border: none; padding: 10px 22px; border-radius: 8px; font-weight: 600; color: white;" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function toggleSenha(campoId, btn) {
+            var campo = document.getElementById(campoId);
+            var icon = btn.querySelector('.material-symbols-outlined');
+            if (campo.type === 'password') {
+                campo.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                campo.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        }
+
+        function preencherSenhaPadrao() {
+            var senha = 'Ong@2026';
+            document.getElementById('campoNovaSenha').value = senha;
+            document.getElementById('campoConfirmarSenha').value = senha;
+            alert('Senha preenchida com: ' + senha + '\nClique em "Salvar Nova Senha" para confirmar.');
+        }
+    </script>
+}
