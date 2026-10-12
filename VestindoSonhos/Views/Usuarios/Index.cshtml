@@ -322,6 +322,12 @@
                         <td data-label="Nome" style="text-align: left; padding-left: 20px;">
                             <span class="user-avatar">@primeiraLetra</span>
                             <strong style="color: #1F2937;">@item.Nome</strong>
+                            @if (item.ExigirTrocaSenha)
+                            {
+                                <span style="display: inline-flex; align-items: center; gap: 4px; background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-left: 8px;" title="Este usuário deve definir uma nova senha no próximo login">
+                                    <span class="material-symbols-outlined" style="font-size: 13px;">lock_clock</span> Troca pendente
+                                </span>
+                            }
                         </td>
                         <td data-label="Cargo">
                             <span class="badge-cargo @ObterClasseBadge(item.CargoNome)">

@@ -27,6 +27,9 @@ namespace VestindoSonhos.ViewModels
         [Compare(nameof(NovaSenha), ErrorMessage = "As senhas informadas não conferem.")]
         public string? ConfirmarNovaSenha { get; set; }
 
+        [Display(Name = "Exigir troca de senha no próximo login")]
+        public bool ExigirTrocaSenha { get; set; } = false;
+
         public virtual ICollection<Evento> Evento { get; set; } = new List<Evento>();
 
         public virtual ICollection<Transacao> Transacao { get; set; } = new List<Transacao>();

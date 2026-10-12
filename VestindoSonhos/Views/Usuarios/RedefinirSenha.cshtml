@@ -67,11 +67,26 @@
             </div>
 
             <!-- Botão de Atalho para Senha Padrão -->
-            <div style="margin-bottom: 24px;">
+            <div style="margin-bottom: 16px;">
                 <button type="button" onclick="preencherSenhaPadrao()" style="background: #EFF6FF; border: 1px dashed #3B82F6; color: #1D4ED8; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                     <span class="material-symbols-outlined" style="font-size: 16px;">autorenew</span>
                     Preencher Senha Padrão (Ong@2026)
                 </button>
+            </div>
+
+            <!-- Checkbox para Exigir Troca de Senha no Próximo Login -->
+            <div style="background: #F8F9FD; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px 16px; margin-bottom: 24px;">
+                <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                    <input type="checkbox" asp-for="ExigirTrocaSenha" id="chkExigirTroca" style="width: 18px; height: 18px; margin-top: 2px; accent-color: #7C6FE0; cursor: pointer;" />
+                    <div>
+                        <span style="font-weight: 600; font-size: 13px; color: #1F2937; display: block;">
+                            Exigir que o usuário defina uma nova senha no próximo login
+                        </span>
+                        <span style="font-size: 12px; color: #6B7280; display: block; margin-top: 2px; line-height: 1.4;">
+                            Ao marcar esta opção, quando o usuário fizer login com a senha informada, o sistema exigirá que ele cadastre sua própria senha pessoal para continuar.
+                        </span>
+                    </div>
+                </label>
             </div>
 
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -101,7 +116,9 @@
             var senha = 'Ong@2026';
             document.getElementById('campoNovaSenha').value = senha;
             document.getElementById('campoConfirmarSenha').value = senha;
-            alert('Senha preenchida com: ' + senha + '\nClique em "Salvar Nova Senha" para confirmar.');
+            var chk = document.getElementById('chkExigirTroca');
+            if (chk) chk.checked = true;
+            alert('Senha preenchida com: ' + senha + '\nOpção "Exigir nova senha no próximo login" marcada!');
         }
     </script>
 }

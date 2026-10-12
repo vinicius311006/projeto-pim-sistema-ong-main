@@ -109,6 +109,28 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Interceptador para forçar alteração de senha temporária
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated == true && context.User.HasClaim(c => c.Type == "ExigeTrocaSenha" && c.Value == "true"))
+    {
+        var path = context.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
+        if (!path.StartsWith("/login/trocarsenhaobrigatoria") &&
+            !path.StartsWith("/login/logout") &&
+            !path.StartsWith("/css") &&
+            !path.StartsWith("/js") &&
+            !path.StartsWith("/lib") &&
+            !path.StartsWith("/img") &&
+            !path.StartsWith("/images") &&
+            !path.StartsWith("/mobile"))
+        {
+            context.Response.Redirect("/Login/TrocarSenhaObrigatoria");
+            return;
+        }
+    }
+    await next();
+});
+
 app.MapControllers();
 app.MapDefaultControllerRoute();
 

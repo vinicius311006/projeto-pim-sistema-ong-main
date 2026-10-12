@@ -1,4 +1,4 @@
-﻿using AspNetCoreGeneratedDocument;
+using AspNetCoreGeneratedDocument;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -59,13 +59,36 @@ namespace VestindoSonhos.Controllers
                 return View(model);
             }
 
+            // Verifica se o administrador exigiu a troca de senha temporária
+            if (usuario.ExigirTrocaSenha)
+            {
+                var claimsObrigatorias = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, usuario.Email ?? string.Empty),
+                    new Claim("Nome", usuario.Nome),
+                    new Claim("UserId", usuario.Id.ToString()),
+                    new Claim(ClaimTypes.Role, usuario.CargoNavigation?.Nome ?? "Usuário"),
+                    new Claim("ExigeTrocaSenha", "true")
+                };
+
+                var claimsIdentityObrigatoria = new ClaimsIdentity(
+                    claimsObrigatorias, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentityObrigatoria));
+
+                TempData["AvisoTroca"] = "Para sua segurança, defina uma nova senha pessoal antes de continuar.";
+                return RedirectToAction(nameof(TrocarSenhaObrigatoria));
+            }
+
             var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, usuario.Email),
-            new Claim("Nome", usuario.Nome),
-            new Claim("UserId", usuario.Id.ToString()),
-            new Claim(ClaimTypes.Role, usuario.CargoNavigation.Nome),
-        };
+            {
+                new Claim(ClaimTypes.Name, usuario.Email),
+                new Claim("Nome", usuario.Nome),
+                new Claim("UserId", usuario.Id.ToString()),
+                new Claim(ClaimTypes.Role, usuario.CargoNavigation.Nome),
+            };
 
             var claimsIdentity = new ClaimsIdentity(
                 claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -73,27 +96,6 @@ namespace VestindoSonhos.Controllers
             var authProperties = new AuthenticationProperties
             {
                 AllowRefresh = true,
-
-                //AllowRefresh = <bool>,
-                // Refreshing the authentication session should be allowed.
-
-                //ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
-                // The time at which the authentication ticket expires. A 
-                // value set here overrides the ExpireTimeSpan option of 
-                // CookieAuthenticationOptions set with AddCookie.
-
-                //IsPersistent = true,
-                // Whether the authentication session is persisted across 
-                // multiple requests. When used with cookies, controls
-                // whether the cookie's lifetime is absolute (matching the
-                // lifetime of the authentication ticket) or session-based.
-
-                //IssuedUtc = <DateTimeOffset>,
-                // The time at which the authentication ticket was issued.
-
-                //RedirectUri = <string>
-                // The full path or absolute URI to be used as an http 
-                // redirect response value.
             };
 
             await HttpContext.SignInAsync(
@@ -101,9 +103,104 @@ namespace VestindoSonhos.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
-            
-
             return RedirectToAction(controllerName: nameof(Home), actionName: nameof(Index));
+        }
+
+        // GET: /Login/TrocarSenhaObrigatoria
+        [AllowAnonymous]
+        public async Task<IActionResult> TrocarSenhaObrigatoria()
+        {
+            if (User.Identity?.IsAuthenticated != true)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var userIdStr = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out var userId))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var usuario = await _context.Usuario.FindAsync(userId);
+            if (usuario == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (!usuario.ExigirTrocaSenha)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var model = new TrocarSenhaObrigatoriaViewModel
+            {
+                Nome = usuario.Nome,
+                Email = usuario.Email ?? string.Empty
+            };
+
+            return View(model);
+        }
+
+        // POST: /Login/TrocarSenhaObrigatoria
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> TrocarSenhaObrigatoria(TrocarSenhaObrigatoriaViewModel model)
+        {
+            if (User.Identity?.IsAuthenticated != true)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var userIdStr = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out var userId))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var usuario = await _context.Usuario.Include(u => u.CargoNavigation).FirstOrDefaultAsync(u => u.Id == userId);
+            if (usuario == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Não permite reutilizar senhas padrão conhecidas
+            if (model.NovaSenha == "123456" || model.NovaSenha.Equals("Ong@2026", StringComparison.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError(nameof(model.NovaSenha), "Por motivos de segurança, você não pode reutilizar a senha padrão inicial. Escolha uma nova senha pessoal.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.Nome = usuario.Nome;
+                model.Email = usuario.Email ?? string.Empty;
+                return View(model);
+            }
+
+            var passwordHasher = new PasswordHasher<Usuario>();
+            usuario.Senha = passwordHasher.HashPassword(usuario, model.NovaSenha);
+            usuario.ExigirTrocaSenha = false;
+            _context.Update(usuario);
+            await _context.SaveChangesAsync();
+
+            // Re-autentica sem a claim ExigeTrocaSenha
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, usuario.Email ?? string.Empty),
+                new Claim("Nome", usuario.Nome),
+                new Claim("UserId", usuario.Id.ToString()),
+                new Claim(ClaimTypes.Role, usuario.CargoNavigation?.Nome ?? "Usuário")
+            };
+
+            var claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity));
+
+            TempData["Sucesso"] = "Sua nova senha foi cadastrada com sucesso! Bem-vindo ao sistema da ONG Vestindo Sonhos.";
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: /Login/RecuperarSenha

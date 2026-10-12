@@ -21,5 +21,8 @@ namespace VestindoSonhos.ViewModels
         [Compare(nameof(NovaSenha), ErrorMessage = "As senhas informadas não conferem.")]
         [DataType(DataType.Password)]
         public string ConfirmarNovaSenha { get; set; } = string.Empty;
+
+        [Display(Name = "Exigir troca de senha no próximo login")]
+        public bool ExigirTrocaSenha { get; set; } = true;
     }
 }

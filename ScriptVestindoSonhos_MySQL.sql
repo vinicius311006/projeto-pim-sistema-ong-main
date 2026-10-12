@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS Usuario (
     endereco VARCHAR(80),
     cpf VARCHAR(11) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL,
+    exigir_troca_senha TINYINT(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     CONSTRAINT FK_Usuario_Cargo FOREIGN KEY (cargo) REFERENCES Cargos(id)
 );

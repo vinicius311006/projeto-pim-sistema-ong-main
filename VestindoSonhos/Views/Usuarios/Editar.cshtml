@@ -69,6 +69,20 @@
                 <span asp-validation-for="ConfirmarNovaSenha" class="text-danger"></span>
             </div>
 
+            <div class="form-group" style="background: #F8F9FD; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px 14px; margin-bottom: 20px;">
+                <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                    <input type="checkbox" asp-for="ExigirTrocaSenha" style="width: 18px; height: 18px; margin-top: 2px; accent-color: #7C6FE0; cursor: pointer;" />
+                    <div>
+                        <span style="font-weight: 600; font-size: 13px; color: #1F2937; display: block;">
+                            Exigir alteração de senha no próximo login
+                        </span>
+                        <span style="font-size: 12px; color: #6B7280; display: block; margin-top: 2px; line-height: 1.4;">
+                            Marque se desejar que o usuário seja obrigado a definir uma nova senha no próximo acesso.
+                        </span>
+                    </div>
+                </label>
+            </div>
+
             <div class="form-group">
                 <input type="submit" value="Salvar Alterações" class="btn btn-primary" />
             </div>

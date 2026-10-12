@@ -285,6 +285,9 @@ public partial class VestindosonhosdbContext : DbContext
             entity.Property(e => e.Telefone)
                 .HasMaxLength(14)
                 .HasColumnName("telefone");
+            entity.Property(e => e.ExigirTrocaSenha)
+                .HasColumnName("exigir_troca_senha")
+                .HasDefaultValue(false);
 
             entity.HasOne(d => d.CargoNavigation).WithMany(p => p.Usuario)
                 .HasForeignKey(d => d.Cargo)

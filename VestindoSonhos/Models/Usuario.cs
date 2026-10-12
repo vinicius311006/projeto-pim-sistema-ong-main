@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace VestindoSonhos.Models;
@@ -22,6 +22,8 @@ public partial class Usuario
     public string Cpf { get; set; } = null!;
 
     public string Senha { get; set; } = null!;
+
+    public bool ExigirTrocaSenha { get; set; } = false;
 
     public virtual Cargo CargoNavigation { get; set; } = null!;
 

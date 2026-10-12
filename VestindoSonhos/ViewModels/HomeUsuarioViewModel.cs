@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using VestindoSonhos.Models;
 
@@ -23,6 +23,8 @@ namespace VestindoSonhos.ViewModels
         public string? Endereco { get; set; }
 
         public string Cpf { get; set; } = null!;
+
+        public bool ExigirTrocaSenha { get; set; } = false;
 
         public virtual Cargo CargoNavigation { get; set; } = null!;
 

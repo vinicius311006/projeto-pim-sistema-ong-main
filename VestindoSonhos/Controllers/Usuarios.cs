@@ -35,7 +35,8 @@ namespace VestindoSonhos.Controllers
                                 CargoNome = c.Nome,
                                 Telefone = u.Telefone,
                                 Email = u.Email,
-                                Id = u.Id
+                                Id = u.Id,
+                                ExigirTrocaSenha = u.ExigirTrocaSenha
                             }).ToListAsync();
 
             ViewBag.TotalUsuarios = usuarios.Count;
@@ -86,7 +87,7 @@ namespace VestindoSonhos.Controllers
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Criar([Bind("Nome,Cargo,DataNascimento,Telefone,Email,Endereco,Cpf,Senha")] UsuarioViewModel usuario)
+        public async Task<IActionResult> Criar([Bind("Nome,Cargo,DataNascimento,Telefone,Email,Endereco,Cpf,Senha,ExigirTrocaSenha")] UsuarioViewModel usuario)
         {
             CarregarDropdowns();
             foreach (var erro in ModelState)
@@ -123,6 +124,7 @@ namespace VestindoSonhos.Controllers
                     Email = usuario.Email,
                     Endereco = usuario.Endereco,
                     Cpf = usuario.Cpf,
+                    ExigirTrocaSenha = usuario.ExigirTrocaSenha
                 };
                 var senhaCriptografada = passwordHasher.HashPassword(novo_usuario, usuario.Senha);
                 novo_usuario.Senha = senhaCriptografada;
@@ -162,7 +164,8 @@ namespace VestindoSonhos.Controllers
                                  DataNascimento = u.DataNascimento,
                                  Telefone = u.Telefone,
                                  Email = u.Email,
-                                 Endereco = u.Endereco
+                                 Endereco = u.Endereco,
+                                 ExigirTrocaSenha = u.ExigirTrocaSenha
                              }).FirstOrDefault();
             if (usuario == null)
             {
@@ -176,7 +179,7 @@ namespace VestindoSonhos.Controllers
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(int id, [Bind("Id,Nome,Cargo,DataNascimento,Telefone,Email,Endereco,NovaSenha,ConfirmarNovaSenha")] EditUsuariosViewModel usuario)
+        public async Task<IActionResult> Editar(int id, [Bind("Id,Nome,Cargo,DataNascimento,Telefone,Email,Endereco,NovaSenha,ConfirmarNovaSenha,ExigirTrocaSenha")] EditUsuariosViewModel usuario)
         {
             if (id != usuario.Id)
             {
@@ -217,6 +220,7 @@ namespace VestindoSonhos.Controllers
                 usuario_bd.Telefone = usuario.Telefone;
                 usuario_bd.Email = usuario.Email;
                 usuario_bd.Endereco = usuario.Endereco;
+                usuario_bd.ExigirTrocaSenha = usuario.ExigirTrocaSenha;
 
                 if (!string.IsNullOrWhiteSpace(usuario.NovaSenha))
                 {
@@ -261,7 +265,8 @@ namespace VestindoSonhos.Controllers
                 Id = usuario.Id,
                 Nome = usuario.Nome,
                 Email = usuario.Email,
-                CargoNome = usuario.CargoNavigation?.Nome ?? "Usuário"
+                CargoNome = usuario.CargoNavigation?.Nome ?? "Usuário",
+                ExigirTrocaSenha = true
             };
 
             return View(model);
@@ -286,10 +291,19 @@ namespace VestindoSonhos.Controllers
 
             var passwordHasher = new PasswordHasher<Usuario>();
             usuario.Senha = passwordHasher.HashPassword(usuario, model.NovaSenha);
+            usuario.ExigirTrocaSenha = model.ExigirTrocaSenha;
             _context.Update(usuario);
             await _context.SaveChangesAsync();
 
-            TempData["Sucesso"] = $"Senha do usuário '{usuario.Nome}' redefinida com sucesso para: {model.NovaSenha}";
+            if (model.ExigirTrocaSenha)
+            {
+                TempData["Sucesso"] = $"Senha do usuário '{usuario.Nome}' redefinida para '{model.NovaSenha}' (o usuário precisará cadastrar uma nova senha no próximo login)!";
+            }
+            else
+            {
+                TempData["Sucesso"] = $"Senha do usuário '{usuario.Nome}' redefinida com sucesso para: {model.NovaSenha}";
+            }
+
             return RedirectToAction(nameof(Index));
         }
 

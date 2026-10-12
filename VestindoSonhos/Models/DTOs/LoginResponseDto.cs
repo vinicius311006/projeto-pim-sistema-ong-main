@@ -23,5 +23,6 @@ namespace VestindoSonhos.Models.DTOs
         public string? Email { get; set; }
         public string Cargo { get; set; } = string.Empty;
         public int? VoluntarioId { get; set; }
+        public bool ExigirTrocaSenha { get; set; } = false;
     }
 }

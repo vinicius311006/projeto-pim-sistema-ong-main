@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
 
@@ -22,4 +22,7 @@ public partial class UsuarioViewModel
     public string Cpf { get; set; } = null!;
 
     public string Senha { get; set; } = null!;
+
+    [System.ComponentModel.DataAnnotations.Display(Name = "Exigir troca de senha no primeiro login")]
+    public bool ExigirTrocaSenha { get; set; } = true;
 }

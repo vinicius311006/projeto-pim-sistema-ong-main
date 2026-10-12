@@ -147,7 +147,8 @@ namespace VestindoSonhos.Controllers.Api
                     Nome = usuario.Nome,
                     Email = usuario.Email,
                     Cargo = cargoNome,
-                    VoluntarioId = voluntario?.Id
+                    VoluntarioId = voluntario?.Id,
+                    ExigirTrocaSenha = usuario.ExigirTrocaSenha
                 }
             });
         }

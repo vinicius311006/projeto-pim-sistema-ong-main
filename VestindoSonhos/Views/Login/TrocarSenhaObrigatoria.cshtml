@@ -1,0 +1,103 @@
+@model VestindoSonhos.ViewModels.TrocarSenhaObrigatoriaViewModel
+<link rel="stylesheet" href="~/css/formularios.css" />
+
+@{
+    ViewData["Title"] = "Definir Nova Senha";
+    Layout = "_Layout";
+}
+
+<div class="container-formulario" style="min-height: calc(100vh - 120px); display: flex; align-items: center; justify-content: center; padding: 24px 16px;">
+    <div class="form-card" style="max-width: 520px; width: 100%; margin: 0 auto; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05); border-radius: 16px; padding: 32px; background: #ffffff;">
+        
+        <div style="text-align: center; margin-bottom: 24px;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: #EEF2FF; color: #4F46E5; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1);">
+                <span class="material-symbols-outlined" style="font-size: 34px;">lock_reset</span>
+            </div>
+            <h1 style="font-size: 22px; font-weight: 700; color: #1F2937; margin: 0 0 6px;">Defina sua Nova Senha</h1>
+            <p style="font-size: 13px; color: #6B7280; margin: 0; line-height: 1.5;">
+                Olá, <strong>@Model.Nome</strong>! Por segurança, como você está acessando com uma senha inicial ou temporária, é obrigatório criar uma nova senha pessoal para continuar.
+            </p>
+        </div>
+
+        @if (TempData["AvisoTroca"] != null)
+        {
+            <div style="background: #FFFBEB; border-left: 4px solid #F59E0B; padding: 12px 14px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; color: #92400E; display: flex; align-items: center; gap: 8px;">
+                <span class="material-symbols-outlined" style="font-size: 18px; color: #F59E0B;">security</span>
+                <span>@TempData["AvisoTroca"]</span>
+            </div>
+        }
+
+        <form class="form-context" asp-action="TrocarSenhaObrigatoria" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 14px; font-size: 13px;"></div>
+            
+            <input type="hidden" asp-for="Nome" />
+            <input type="hidden" asp-for="Email" />
+
+            <div class="form-group" style="margin-bottom: 18px;">
+                <label asp-for="NovaSenha" class="control-label" style="font-weight: 600; font-size: 13px; color: #374151; margin-bottom: 6px; display: block;">Nova Senha Pessoal</label>
+                <div style="position: relative;">
+                    <input asp-for="NovaSenha" id="campoNovaSenha" type="password" class="form-control" placeholder="Mínimo de 6 caracteres" style="width: 100%; padding-right: 42px; border-radius: 8px; border: 1px solid #D1D5DB; padding: 10px 14px;" required />
+                    <button type="button" onclick="toggleSenha('campoNovaSenha', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #9CA3AF; padding: 4px;">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">visibility</span>
+                    </button>
+                </div>
+                <span asp-validation-for="NovaSenha" class="text-danger" style="font-size: 12px;"></span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 22px;">
+                <label asp-for="ConfirmarNovaSenha" class="control-label" style="font-weight: 600; font-size: 13px; color: #374151; margin-bottom: 6px; display: block;">Confirmar Nova Senha</label>
+                <div style="position: relative;">
+                    <input asp-for="ConfirmarNovaSenha" id="campoConfirmarSenha" type="password" class="form-control" placeholder="Digite exatamente a mesma senha" style="width: 100%; padding-right: 42px; border-radius: 8px; border: 1px solid #D1D5DB; padding: 10px 14px;" required />
+                    <button type="button" onclick="toggleSenha('campoConfirmarSenha', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #9CA3AF; padding: 4px;">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">visibility</span>
+                    </button>
+                </div>
+                <span asp-validation-for="ConfirmarNovaSenha" class="text-danger" style="font-size: 12px;"></span>
+            </div>
+
+            <div style="background: #F9FAFB; border-radius: 8px; padding: 12px 14px; margin-bottom: 24px; font-size: 12px; color: #6B7280; border: 1px solid #E5E7EB;">
+                <div style="font-weight: 600; color: #4B5563; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                    <span class="material-symbols-outlined" style="font-size: 16px; color: #10B981;">check_circle</span>
+                    Requisitos para sua nova senha:
+                </div>
+                <ul style="margin: 0; padding-left: 20px; line-height: 1.6;">
+                    <li>No mínimo 6 caracteres</li>
+                    <li>Não reutilizar a senha padrão inicial (ex: 123456 ou Ong@2026)</li>
+                    <li>Escolha algo que você lembre com facilidade</li>
+                </ul>
+            </div>
+
+            <div style="display: flex; gap: 12px; align-items: center; justify-content: flex-end;">
+                <button type="submit" class="btn btn-primary" style="background: #7C6FE0; border: none; color: white; padding: 11px 26px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">save</span>
+                    Salvar Nova Senha e Continuar
+                </button>
+            </div>
+        </form>
+
+        <div style="margin-top: 18px; text-align: center; border-top: 1px solid #F3F4F6; padding-top: 16px;">
+            <form asp-action="Logout" method="post" style="display: inline;">
+                <button type="submit" style="background: none; border: none; color: #9CA3AF; font-size: 12px; cursor: pointer; text-decoration: underline;">
+                    Deseja sair do sistema por enquanto? Clique aqui para deslogar
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function toggleSenha(campoId, btn) {
+            var campo = document.getElementById(campoId);
+            var icon = btn.querySelector('.material-symbols-outlined');
+            if (campo.type === 'password') {
+                campo.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                campo.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        }
+    </script>
+}
