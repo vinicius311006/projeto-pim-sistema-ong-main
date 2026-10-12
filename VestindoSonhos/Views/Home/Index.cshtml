@@ -51,8 +51,10 @@
 
     @if (Model.ultimoEvento != null)
     {
-        <div class="evento" id="ultimo-evento">
-            <p>@Model.ultimoEvento.Nome</p>
+        <div class="evento" id="ultimo-evento" title="Campanha já encerrada">
+            <a asp-controller="Eventos" asp-action="Details" asp-route-id="@Model.ultimoEvento.Id" style="color: inherit; text-decoration: none;">
+                <p>@Model.ultimoEvento.Nome <small style="font-size: 11px; opacity: 0.75;">(Encerrado)</small></p>
+            </a>
             <p><strong>@(Model.ultimoEvento.data_inicio.HasValue ? Model.ultimoEvento.data_inicio.Value.ToString("dd/MM/yyyy") : "")</strong></p>
             <p><strong>à</strong></p>
             <p><strong>@(Model.ultimoEvento.data_fim.HasValue ? Model.ultimoEvento.data_fim.Value.ToString("dd/MM/yyyy") : "")</strong></p>
