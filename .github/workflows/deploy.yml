@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-test:
-    name: Compilação e Validação (.NET 10 & Docker)
+    name: Compilação e Validação (.NET 10)
     runs-on: ubuntu-latest
 
     steps:
@@ -35,16 +35,7 @@ jobs:
       - name: 5. Publicação dos Binários Otimizados
         run: |
           PROJ_PATH=$(find . -name "VestindoSonhos.csproj" | head -n 1)
-          dotnet publish "$PROJ_PATH" --configuration Release --output ./publish /p:UseAppHost=false
-
-      - name: 6. Validação do Build da Imagem Docker
-        run: |
-          DOCKERFILE_PATH=$(find . -name "Dockerfile" | head -n 1)
-          CONTEXT_DIR=$(dirname "$DOCKERFILE_PATH")
-          echo "Executando docker build no diretório: $CONTEXT_DIR"
-          docker build -t vestindo-sonhos-app:latest "$CONTEXT_DIR"
-
-      - name: 7. Upload dos Artefatos de Deploy
+      - name: 6. Upload dos Artefatos de Build
         uses: actions/upload-artifact@v4
         with:
           name: vestindo-sonhos-build-artifact

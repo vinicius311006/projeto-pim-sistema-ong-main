@@ -60,53 +60,35 @@ Solução corporativa completa para a gestão de doações, inventário, volunta
   - `Financeiro`: Consolidação das movimentações contábeis.
   - Views de compatibilidade para entidades relacionais.
 
-### 4. DevOps & Integração Contínua
-- **Dockerfile Multi-Stage:**
-  - Imagem de runtime ultra-leve baseada em `mcr.microsoft.com/dotnet/aspnet:10.0` para contêineres Linux de alta segurança.
+### 4. Integração Contínua (CI/CD)
 - **GitHub Actions CI/CD (`.github/workflows/deploy.yml`):**
   - Pipeline automatizado disparado em `push` e `pull_request` na branch `main`:
     1. Checkout do código-fonte.
     2. Instalação e cache do SDK .NET 10.
     3. Restauração e compilação do projeto em modo `Release`.
-    4. Validação da construção da imagem Docker.
-    5. Upload dos artefatos publicados prontos para deploy.
+    4. Upload dos binários compilados e prontos para execução.
 
 ---
 
-## 💻 Formas de Execução (Padronização para Diferentes Ambientes)
+## 💻 Formas de Execução no Ambiente Acadêmico
 
-Você pode rodar o sistema de **3 formas diferentes**, dependendo do que estiver instalado na máquina:
-
----
-
-### Opção 1: Docker Compose (Recomendado - Zero Instalação de SDK ou MySQL)
-Se a máquina tiver o [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado:
-1. Dê dois cliques em [`iniciar-docker.bat`](./iniciar-docker.bat) ou execute no terminal:
-   ```bash
-   docker compose up -d --build
-   ```
-2. O Docker baixará o MySQL 8.0, criará as tabelas e dados iniciais automaticamente com [`ScriptVestindoSonhos_MySQL.sql`](./ScriptVestindoSonhos_MySQL.sql) e subirá a aplicação Web.
-3. Acesse:
-   - **Sistema Web:** [http://localhost:5000/Login](http://localhost:5000/Login)
-   - **phpMyAdmin (Banco no Navegador):** [http://localhost:8080](http://localhost:8080) (Usuário: `root`, Senha: `root`)
-4. Para parar: dê dois cliques em [`parar-docker.bat`](./parar-docker.bat) ou rode `docker compose down`.
+O sistema foi preparado para rodar de forma simples e 100% local:
 
 ---
 
-### Opção 2: Executável Portátil Standalone (Sem precisar baixar o .NET SDK)
-Para rodar em computadores Windows que **NÃO possuem o .NET SDK instalado**:
-1. No computador de desenvolvimento, gere o pacote executando [`gerar-executavel-portatil.bat`](./gerar-executavel-portatil.bat).
-2. Será gerada a pasta `VestindoSonhos_Portavel`.
-3. Copie/zipe essa pasta para qualquer computador.
-4. No outro PC, basta abrir a pasta e dar **dois cliques em `VestindoSonhos.exe`**.
-*(O runtime do .NET já vai embutido no executável, sem precisar instalar nada!)*
+### Opção 1: Executável Portátil Standalone (Recomendado para Apresentação no PIM)
+Para rodar em qualquer computador Windows **SEM precisar instalar o .NET SDK, VS Code ou Android Studio**:
+1. Execute o script [`gerar-executavel-portatil.bat`](./gerar-executavel-portatil.bat) (ou use a pasta já gerada `VestindoSonhos_Portavel`).
+2. Abra a pasta `VestindoSonhos_Portavel` e dê **dois cliques em `1-CLIQUE_INICIAR_SISTEMA.bat`** (ou em `VestindoSonhos.exe`).
+3. O sistema abrirá automaticamente no navegador em: [http://localhost:5000/Login](http://localhost:5000/Login)
+*(O runtime do .NET 10 já vai totalmente embutido no executável!)*
 
 ---
 
-### Opção 3: Execução Convencional (Ambiente de Desenvolvimento)
-Caso a máquina já possua o [.NET SDK 10.0](https://dotnet.microsoft.com/) e o [MySQL Server 8.0](https://dev.mysql.com/downloads/installer/):
-1. **Configurar o Banco:**
-   - Dê dois cliques em [`importar-banco-local.bat`](./importar-banco-local.bat) ou execute o script [`ScriptVestindoSonhos_MySQL.sql`](./ScriptVestindoSonhos_MySQL.sql) no **MySQL Workbench**.
+### Opção 2: Execução em Ambiente de Desenvolvimento (.NET SDK 10)
+Caso a máquina de desenvolvimento possua o [.NET SDK 10.0](https://dotnet.microsoft.com/) e o [MySQL Workbench](https://dev.mysql.com/downloads/workbench/):
+1. **Configurar o Banco de Dados:**
+   - Abra o MySQL Workbench e execute o script [`ScriptVestindoSonhos_MySQL.sql`](./ScriptVestindoSonhos_MySQL.sql) (ou dê dois cliques em [`importar-banco-local.bat`](./importar-banco-local.bat)).
 2. **Rodar a Aplicação Web:**
    ```bash
    cd VestindoSonhos
