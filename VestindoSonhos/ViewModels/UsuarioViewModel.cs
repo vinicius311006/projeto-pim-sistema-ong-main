@@ -11,7 +11,7 @@ public partial class UsuarioViewModel
 
     public int Cargo { get; set; } = 1;
 
-    public DateOnly? DataNascimento { get; set; }
+    public DateTime? DataNascimento { get; set; }
 
     public string? Telefone { get; set; }
 

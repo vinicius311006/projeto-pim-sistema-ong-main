@@ -75,7 +75,7 @@ namespace VestindoSonhos.Controllers
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Criar()
         {
-            ViewData["Responsavel"] = new SelectList(_context.Usuario, "Id", "Nome");
+            ViewData["Responsavel"] = new SelectList(_context.Usuario.Select(u => new { u.Id, u.Nome }), "Id", "Nome");
 
             var contexto = new CriacaoEventoViewModel
             {
@@ -142,7 +142,7 @@ namespace VestindoSonhos.Controllers
                 
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["Responsavel"] = new SelectList(_context.Usuario, "Id", "Nome");
+            ViewData["Responsavel"] = new SelectList(_context.Usuario.Select(u => new { u.Id, u.Nome }), "Id", "Nome");
             var contexto = new CriacaoEventoViewModel
             {
                 evento = model.evento,
@@ -182,11 +182,11 @@ namespace VestindoSonhos.Controllers
                 .ToListAsync()
             };
 
-            if (contexto == null)
+            if (contexto == null || contexto.evento == null)
             {
                 return NotFound();
             }
-            ViewData["Responsavel"] = new SelectList(_context.Usuario, "Id", "Nome", contexto.evento.Responsavel);
+            ViewData["Responsavel"] = new SelectList(_context.Usuario.Select(u => new { u.Id, u.Nome }), "Id", "Nome", contexto.evento.Responsavel);
             return View(contexto);
         }
 

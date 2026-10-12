@@ -12,7 +12,7 @@ namespace VestindoSonhos.ViewModels
 
         public int Cargo { get; set; }
 
-        public DateOnly? DataNascimento { get; set; }
+        public DateTime? DataNascimento { get; set; }
 
         public string? Telefone { get; set; }
 

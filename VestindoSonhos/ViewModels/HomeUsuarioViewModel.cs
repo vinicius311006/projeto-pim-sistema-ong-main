@@ -14,7 +14,7 @@ namespace VestindoSonhos.ViewModels
 
         public string CargoNome { get; set; }
 
-        public DateOnly? DataNascimento { get; set; }
+        public DateTime? DataNascimento { get; set; }
 
         public string? Telefone { get; set; }
 
