@@ -111,6 +111,8 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapDefaultControllerRoute();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.MapStaticAssets();
 
 app.MapControllerRoute(
