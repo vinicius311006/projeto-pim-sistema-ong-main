@@ -50,9 +50,8 @@ Solução corporativa completa para a gestão de doações, inventário, volunta
   - Suporte adaptativo de conectividade (reconhece emulador Android `10.0.2.2`, redes locais e desktop `localhost`).
 
 ### 3. Banco de Dados & Recursos Avançados
-- **Scripts Disponíveis:**
-  - `ScriptVestindoSonhos_MySQL.sql`: Totalmente preparado para MySQL 8.0 (MySQL Workbench).
-  - `ScriptVestindoSonhos.sql`: Versão original em T-SQL (Microsoft SQL Server).
+- **Script do Banco de Dados:**
+  - `ScriptVestindoSonhos_MySQL.sql`: Script oficial e completo preparado para MySQL 8.0 (MySQL Workbench), incluindo tabelas, Stored Procedure, Trigger e dados de teste iniciais.
 - **Stored Procedure (`sp_RelatorioFinanceiroResumido`):**
   - Consolida receitas, despesas, saldo líquido e volume de transações por mês/ano com alta performance analítica.
 - **Trigger (`trg_AtualizaEstoque`):**
@@ -135,27 +134,28 @@ Selecione o emulador Android ou dispositivo físico. O app se conecta automatica
 
 ```
 projeto-pim-sistema-ong/
-├── .github/workflows/
-│   └── deploy.yml                     # Pipeline de CI/CD do GitHub Actions
-├── VestindoSonhos/                    # Back-end ASP.NET Core .NET 10
+├── VestindoSonhos/                    # Back-end ASP.NET Core .NET 10 (MVC + APIs REST)
 │   ├── Controllers/
-│   │   ├── Api/                       # Controladores RESTful (AuthApiController, EventosApiController)
+│   │   ├── Api/                       # APIs RESTful (Dashboard, Beneficiários, Inventário, Financeiro, etc.)
 │   │   └── ...                        # Controladores Web MVC
 │   ├── Models/
-│   │   ├── DTOs/                      # Objetos de Transferência de Dados (Login, Eventos)
-│   │   └── ...                        # Entidades do EF Core
-│   ├── Views/                         # Telas Razor MVC (Login, Home, Financeiro, etc.)
-│   ├── Dockerfile                     # Multi-stage Dockerfile
-│   └── appsettings.json               # Configurações de conexão e chaves JWT
-├── vestindo_sonhos_mobile/            # Aplicativo Móvel em Flutter
+│   ├── Views/                         # Telas Razor MVC (Design institucional)
+│   └── wwwroot/mobile/                # Aplicativo mobile embutido na Web
+├── vestindo_sonhos_mobile/            # Aplicativo Móvel em Flutter (Android & iOS)
 │   ├── lib/
-│   │   ├── models/                    # Modelos de dados Dart
-│   │   ├── services/                  # Serviço de comunicação HTTP com a API REST
-│   │   ├── screens/                   # Telas (Login, Home, Eventos)
-│   │   └── main.dart                  # Ponto de entrada do app
+│   │   ├── models/                    # Modelos de dados
+│   │   ├── screens/                   # Telas (Login, Home, Beneficiários, Inventário, Financeiro, Eventos)
+│   │   ├── services/                  # Comunicação com a API REST
+│   │   └── widgets/                   # Componentes (Configurador de IP dinâmico)
 │   └── pubspec.yaml                   # Dependências do Flutter
-├── ScriptVestindoSonhos_MySQL.sql      # Script completo para MySQL (DDL + SP + Trigger)
-├── ScriptVestindoSonhos.sql            # Script para SQL Server
+├── VestindoSonhos_Portavel/           # Pacote independente portátil para rodar em qualquer PC
+│   ├── VestindoSonhos.exe             # Executável sem necessidade de .NET SDK
+│   ├── VestindoSonhos_Mobile.apk      # Aplicativo Android pronto para instalar
+│   └── 1-CLIQUE_INICIAR_SISTEMA.bat   # Inicializador automático
+├── ScriptVestindoSonhos_MySQL.sql      # Script oficial completo do MySQL (Tabelas + Procedure + Trigger + Carga)
+├── importar-banco-local.bat           # Importador automático do banco de dados
+├── subir-para-github.bat              # Sincronizador automático com o GitHub em 1 clique
+├── gerar-executavel-portatil.bat      # Compilador do pacote portátil
 └── README.md                          # Documentação geral da solução
 ```
 
