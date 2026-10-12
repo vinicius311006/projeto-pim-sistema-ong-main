@@ -5,6 +5,7 @@ import 'beneficiarios_screen.dart';
 import 'inventario_screen.dart';
 import 'financeiro_screen.dart';
 import 'eventos_screen.dart';
+import '../widgets/server_config_dialog.dart';
 
 /// Tela Principal (Home) com Dashboard idêntico à Web e Navegação Completa.
 class HomeScreen extends StatefulWidget {
@@ -257,6 +258,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
           const Spacer(),
           const Divider(),
+
+          ListTile(
+            leading: const Icon(Icons.settings_outlined, color: Color(0xFF6F6F85)),
+            title: const Text('Configurar Servidor', style: TextStyle(color: Color(0xFF2C2C35), fontWeight: FontWeight.w600)),
+            onTap: () {
+              Navigator.pop(context);
+              ServerConfigDialog.show(context);
+            },
+          ),
 
           ListTile(
             leading: const Icon(Icons.logout, color: Color(0xFFE25555)),

@@ -10,14 +10,85 @@ import '../models/financeiro_model.dart';
 
 /// Serviço responsável pela integração HTTP com o backend ASP.NET Core da ONG Vestindo Sonhos.
 class ApiService {
-  /// URL base da API REST.
-  static String get baseUrl {
+  static const String _keyServerUrl = 'custom_server_url';
+  static String? _cachedServerUrl;
+
+  /// Retorna a URL base do servidor por padrão dependendo da plataforma
+  static String getDefaultServerUrl() {
     try {
       if (Platform.isAndroid) {
-        return 'http://10.0.2.2:5000/api';
+        return 'http://10.0.2.2:5000';
       }
     } catch (_) {}
-    return 'http://localhost:5000/api';
+    return 'http://localhost:5000';
+  }
+
+  /// Obtém a URL do servidor configurada ou padrão
+  static Future<String> getServerUrl() async {
+    if (_cachedServerUrl != null && _cachedServerUrl!.isNotEmpty) {
+      return _cachedServerUrl!;
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getString(_keyServerUrl);
+      if (saved != null && saved.trim().isNotEmpty) {
+        _cachedServerUrl = saved.trim();
+        return _cachedServerUrl!;
+      }
+    } catch (_) {}
+    _cachedServerUrl = getDefaultServerUrl();
+    return _cachedServerUrl!;
+  }
+
+  /// Salva uma nova URL/IP de servidor (remove barras finais ou /api se houver)
+  static Future<void> setServerUrl(String url) async {
+    var clean = url.trim();
+    if (clean.endsWith('/')) {
+      clean = clean.substring(0, clean.length - 1);
+    }
+    if (clean.endsWith('/api')) {
+      clean = clean.substring(0, clean.length - 4);
+    }
+    if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+      clean = 'http://$clean';
+    }
+    _cachedServerUrl = clean;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyServerUrl, clean);
+  }
+
+  /// Retorna o endpoint base com sufixo /api
+  static Future<String> getBaseUrl() async {
+    final server = await getServerUrl();
+    return '$server/api';
+  }
+
+  /// Getter síncrono para compatibilidade
+  static String get baseUrl {
+    final s = _cachedServerUrl ?? getDefaultServerUrl();
+    return '$s/api';
+  }
+
+  /// Testa se o servidor backend está online e respondendo
+  static Future<bool> testConnection(String url) async {
+    try {
+      var clean = url.trim();
+      if (clean.endsWith('/')) {
+        clean = clean.substring(0, clean.length - 1);
+      }
+      if (clean.endsWith('/api')) {
+        clean = clean.substring(0, clean.length - 4);
+      }
+      if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+        clean = 'http://$clean';
+      }
+      final testUri = Uri.parse('$clean/api/eventos');
+      final response = await http.get(testUri).timeout(const Duration(seconds: 4));
+      // Se responder qualquer código HTTP (mesmo 401 não autenticado), o servidor existe e está vivo!
+      return response.statusCode >= 200 && response.statusCode < 500;
+    } catch (_) {
+      return false;
+    }
   }
 
   static const String _keyToken = 'jwt_auth_token';
@@ -28,7 +99,8 @@ class ApiService {
   /// Realiza o login na API REST.
   /// Endpoint: POST /api/auth/login
   Future<Map<String, dynamic>> login(String email, String password) async {
-    final url = Uri.parse('$baseUrl/auth/login');
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/auth/login');
 
     try {
       final response = await http
@@ -70,7 +142,8 @@ class ApiService {
   /// Obtém dados consolidados do Dashboard.
   /// Endpoint: GET /api/dashboard
   Future<DashboardModel> getDashboard(String token) async {
-    final url = Uri.parse('$baseUrl/dashboard');
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/dashboard');
     final response = await http.get(
       url,
       headers: {
@@ -92,7 +165,8 @@ class ApiService {
   /// Obtém a lista de eventos ativos.
   /// Endpoint: GET /api/eventos
   Future<List<EventoModel>> getEventos(String token) async {
-    final url = Uri.parse('$baseUrl/eventos');
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/eventos');
 
     try {
       final response = await http
@@ -127,7 +201,8 @@ class ApiService {
   /// Obtém a lista de beneficiários atendidos.
   /// Endpoint: GET /api/beneficiarios
   Future<List<BeneficiarioModel>> getBeneficiarios(String token) async {
-    final url = Uri.parse('$baseUrl/beneficiarios');
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/beneficiarios');
     final response = await http.get(
       url,
       headers: {
@@ -150,7 +225,8 @@ class ApiService {
   /// Obtém a lista de itens e quantidades do inventário/estoque.
   /// Endpoint: GET /api/inventario
   Future<List<InventarioModel>> getInventario(String token) async {
-    final url = Uri.parse('$baseUrl/inventario');
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/inventario');
     final response = await http.get(
       url,
       headers: {
@@ -173,7 +249,8 @@ class ApiService {
   /// Obtém o resumo financeiro com carteiras e movimentações.
   /// Endpoint: GET /api/financeiro
   Future<FinanceiroModel> getFinanceiro(String token) async {
-    final url = Uri.parse('$baseUrl/financeiro');
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/financeiro');
     final response = await http.get(
       url,
       headers: {

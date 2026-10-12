@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../widgets/server_config_dialog.dart';
 
 /// Tela de Login para Voluntários da ONG Vestindo Sonhos.
 /// Autentica com e-mail e senha, salva o token JWT localmente e redireciona para a Home.
@@ -97,6 +98,18 @@ class _LoginScreenState extends State<LoginScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: Color(0xFF7C6FE0)),
+            tooltip: 'Configurar Servidor / IP',
+            onPressed: () => ServerConfigDialog.show(context),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
