@@ -152,5 +152,37 @@ namespace VestindoSonhos.Controllers.Api
                 }
             });
         }
+
+        /// <summary>
+        /// Endpoint para troca obrigatória de senha temporária/inicial via aplicativo móvel.
+        /// </summary>
+        [HttpPost("trocar-senha-obrigatoria")]
+        public async Task<IActionResult> TrocarSenhaObrigatoria([FromBody] TrocarSenhaObrigatoriaApiRequestDto request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.NovaSenha) || request.NovaSenha.Length < 6)
+            {
+                return BadRequest(new { mensagem = "A nova senha deve ter no mínimo 6 caracteres." });
+            }
+
+            if (request.NovaSenha == "123456" || request.NovaSenha.Equals("Ong@2026", StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest(new { mensagem = "Por motivos de segurança, você não pode reutilizar a senha padrão inicial. Escolha uma nova senha pessoal." });
+            }
+
+            var usuario = await _context.Usuario.FindAsync(request.UsuarioId);
+            if (usuario == null)
+            {
+                return NotFound(new { mensagem = "Usuário não encontrado." });
+            }
+
+            var passwordHasher = new PasswordHasher<Usuario>();
+            usuario.Senha = passwordHasher.HashPassword(usuario, request.NovaSenha);
+            usuario.ExigirTrocaSenha = false;
+            _context.Update(usuario);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Senha atualizada via API mobile com sucesso para o usuário ID: {Id}", usuario.Id);
+            return Ok(new { sucesso = true, mensagem = "Senha alterada com sucesso!" });
+        }
     }
 }

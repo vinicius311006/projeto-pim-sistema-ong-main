@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../widgets/server_config_dialog.dart';
+import 'trocar_senha_screen.dart';
 
 /// Tela de Login para Voluntários da ONG Vestindo Sonhos.
 /// Autentica com e-mail e senha, salva o token JWT localmente e redireciona para a Home.
@@ -61,6 +62,28 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       if (!mounted) return;
+
+      // Verifica se o usuário precisa obrigatoriamente trocar a senha temporária/padrão
+      final bool exigeTroca = (usuario?['exigirTrocaSenha'] == true) ||
+          (usuario?['ExigirTrocaSenha'] == true) ||
+          (usuario?['exigirTrocaSenha']?.toString().toLowerCase() == 'true');
+
+      if (exigeTroca) {
+        final rawId = usuario?['id'] ?? usuario?['Id'];
+        final usuarioId = rawId is int ? rawId : (int.tryParse(rawId?.toString() ?? '') ?? 0);
+        final nomeUsuario = usuario?['nome']?.toString() ?? usuario?['Nome']?.toString() ?? 'Voluntário';
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TrocarSenhaScreen(
+              usuarioId: usuarioId,
+              nome: nomeUsuario,
+            ),
+          ),
+        );
+        return;
+      }
 
       // Exibe mensagem de boas-vindas
       ScaffoldMessenger.of(context).showSnackBar(

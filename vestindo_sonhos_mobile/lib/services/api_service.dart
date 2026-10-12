@@ -139,6 +139,44 @@ class ApiService {
     }
   }
 
+  /// Realiza a troca obrigatória de senha temporária/padrão via API.
+  /// Endpoint: POST /api/auth/trocar-senha-obrigatoria
+  Future<void> trocarSenhaObrigatoria(int usuarioId, String novaSenha) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/auth/trocar-senha-obrigatoria');
+    final token = await getToken();
+
+    try {
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+            },
+            body: jsonEncode({
+              'usuarioId': usuarioId,
+              'novaSenha': novaSenha,
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        final data = jsonDecode(response.body);
+        final mensagem = data['mensagem'] ?? 'Não foi possível alterar a senha. Tente novamente.';
+        throw Exception(mensagem);
+      }
+    } on SocketException {
+      throw Exception('Não foi possível conectar ao servidor. Verifique sua conexão.');
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('Erro ao trocar a senha: $e');
+    }
+  }
+
   /// Obtém dados consolidados do Dashboard.
   /// Endpoint: GET /api/dashboard
   Future<DashboardModel> getDashboard(String token) async {
