@@ -8,7 +8,7 @@ namespace VestindoSonhos.Controllers.Api
 {
     [ApiController]
     [Route("api/financeiro")]
-    [Authorize]
+    [Authorize(Roles = "Administrador")]
     public class FinanceiroApiController : ControllerBase
     {
         private readonly VestindosonhosdbContext _context;

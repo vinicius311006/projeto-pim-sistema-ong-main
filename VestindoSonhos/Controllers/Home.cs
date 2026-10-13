@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -6,6 +7,7 @@ using VestindoSonhos.ViewModels;
 
 namespace VestindoSonhos.Controllers
 {
+    [Authorize(Roles = "Administrador,Colaborador")]
     public class Home : Controller
     {
         private readonly VestindosonhosdbContext _context;

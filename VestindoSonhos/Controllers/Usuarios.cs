@@ -41,8 +41,7 @@ namespace VestindoSonhos.Controllers
 
             ViewBag.TotalUsuarios = usuarios.Count;
             ViewBag.TotalAdmins = usuarios.Count(u => u.CargoNome == "Administrador");
-            ViewBag.TotalCoordenadores = usuarios.Count(u => u.CargoNome.Contains("Coordenador") || u.CargoNome.Contains("Gestor") || u.CargoNome.Contains("Social"));
-            ViewBag.TotalVoluntarios = usuarios.Count(u => u.CargoNome.Contains("Voluntário") || u.CargoNome.Contains("Estoque"));
+            ViewBag.TotalColaboradores = usuarios.Count(u => u.CargoNome == "Colaborador");
             ViewBag.Cargos = await _context.Cargo.OrderBy(c => c.Nome).ToListAsync();
 
             return View(usuarios);

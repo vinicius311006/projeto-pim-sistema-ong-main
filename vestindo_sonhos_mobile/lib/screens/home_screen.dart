@@ -30,7 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _carregarPerfil();
-    _carregarDashboard();
   }
 
   Future<void> _carregarPerfil() async {
@@ -43,6 +42,9 @@ class _HomeScreenState extends State<HomeScreen> {
         if (cargo != null && cargo.isNotEmpty) _cargoUsuario = cargo;
         if (email != null && email.isNotEmpty) _emailUsuario = email;
       });
+      if (_cargoUsuario.toLowerCase().contains('admin')) {
+        _carregarDashboard();
+      }
     }
   }
 
@@ -112,58 +114,90 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // As 5 telas principais acessíveis tanto pelo Drawer lateral quanto pela barra inferior:
-    final telas = [
-      _buildDashboardView(),
-      const InventarioScreen(),
-      const BeneficiariosScreen(),
-      const FinanceiroScreen(),
-      const EventosScreen(),
-    ];
+    final bool isAdmin = _cargoUsuario.toLowerCase().contains('admin');
+
+    // Telas e navegação de acordo com o perfil:
+    // Administrador: Dashboard, Inventário, Beneficiários, Financeiro, Eventos
+    // Colaborador: Inventário, Beneficiários, Eventos (sem Financeiro e sem Dashboard)
+    final telas = isAdmin
+        ? [
+            _buildDashboardView(),
+            const InventarioScreen(),
+            const BeneficiariosScreen(),
+            const FinanceiroScreen(),
+            const EventosScreen(),
+          ]
+        : [
+            const InventarioScreen(),
+            const BeneficiariosScreen(),
+            const EventosScreen(),
+          ];
+
+    final destinos = isAdmin
+        ? const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: 'Início',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.inventory_2_outlined),
+              selectedIcon: Icon(Icons.inventory_2),
+              label: 'Inventário',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.diversity_1_outlined),
+              selectedIcon: Icon(Icons.diversity_1),
+              label: 'Beneficiários',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.volunteer_activism_outlined),
+              selectedIcon: Icon(Icons.volunteer_activism),
+              label: 'Financeiro',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.calendar_month_outlined),
+              selectedIcon: Icon(Icons.calendar_month),
+              label: 'Eventos',
+            ),
+          ]
+        : const [
+            NavigationDestination(
+              icon: Icon(Icons.inventory_2_outlined),
+              selectedIcon: Icon(Icons.inventory_2),
+              label: 'Inventário',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.diversity_1_outlined),
+              selectedIcon: Icon(Icons.diversity_1),
+              label: 'Beneficiários',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.calendar_month_outlined),
+              selectedIcon: Icon(Icons.calendar_month),
+              label: 'Eventos',
+            ),
+          ];
+
+    final int indiceValido = _indiceAba < telas.length ? _indiceAba : 0;
 
     return Scaffold(
-      drawer: _buildDrawerLateral(),
-      body: telas[_indiceAba],
+      drawer: _buildDrawerLateral(isAdmin, indiceValido),
+      body: telas[indiceValido],
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _indiceAba,
+        selectedIndex: indiceValido,
         onDestinationSelected: (index) {
           setState(() {
             _indiceAba = index;
           });
         },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Início',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.inventory_2_outlined),
-            selectedIcon: Icon(Icons.inventory_2),
-            label: 'Inventário',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.diversity_1_outlined),
-            selectedIcon: Icon(Icons.diversity_1),
-            label: 'Beneficiários',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.volunteer_activism_outlined),
-            selectedIcon: Icon(Icons.volunteer_activism),
-            label: 'Financeiro',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_month_outlined),
-            selectedIcon: Icon(Icons.calendar_month),
-            label: 'Eventos',
-          ),
-        ],
+        destinations: destinos,
       ),
     );
   }
 
   /// Menu lateral idêntico à Sidebar da Web (_Layout.cshtml)
-  Widget _buildDrawerLateral() {
+  Widget _buildDrawerLateral(bool isAdmin, int indiceAtual) {
     return Drawer(
       child: Column(
         children: [
@@ -209,50 +243,52 @@ class _HomeScreenState extends State<HomeScreen> {
             accountEmail: Text(_emailUsuario.isNotEmpty ? _emailUsuario : 'Vestindo Sonhos ONG'),
           ),
 
-          // Itens do menu iguais aos da Web:
-          _buildItemDrawer(
-            icon: Icons.home,
-            titulo: 'Home (Dashboard)',
-            selecionado: _indiceAba == 0,
-            onTap: () {
-              Navigator.pop(context);
-              _abrirModulo(0);
-            },
-          ),
-          _buildItemDrawer(
-            icon: Icons.volunteer_activism,
-            titulo: 'Financeiro & Doações',
-            selecionado: _indiceAba == 3,
-            onTap: () {
-              Navigator.pop(context);
-              _abrirModulo(3);
-            },
-          ),
+          // Itens do menu conforme permissões:
+          if (isAdmin) ...[
+            _buildItemDrawer(
+              icon: Icons.home,
+              titulo: 'Home (Dashboard)',
+              selecionado: indiceAtual == 0,
+              onTap: () {
+                Navigator.pop(context);
+                _abrirModulo(0);
+              },
+            ),
+            _buildItemDrawer(
+              icon: Icons.volunteer_activism,
+              titulo: 'Financeiro & Doações',
+              selecionado: indiceAtual == 3,
+              onTap: () {
+                Navigator.pop(context);
+                _abrirModulo(3);
+              },
+            ),
+          ],
           _buildItemDrawer(
             icon: Icons.inventory_2,
             titulo: 'Inventário (Estoque)',
-            selecionado: _indiceAba == 1,
+            selecionado: isAdmin ? indiceAtual == 1 : indiceAtual == 0,
             onTap: () {
               Navigator.pop(context);
-              _abrirModulo(1);
+              _abrirModulo(isAdmin ? 1 : 0);
             },
           ),
           _buildItemDrawer(
             icon: Icons.diversity_1,
             titulo: 'Beneficiários',
-            selecionado: _indiceAba == 2,
+            selecionado: isAdmin ? indiceAtual == 2 : indiceAtual == 1,
             onTap: () {
               Navigator.pop(context);
-              _abrirModulo(2);
+              _abrirModulo(isAdmin ? 2 : 1);
             },
           ),
           _buildItemDrawer(
             icon: Icons.calendar_month,
             titulo: 'Eventos & Campanhas',
-            selecionado: _indiceAba == 4,
+            selecionado: isAdmin ? indiceAtual == 4 : indiceAtual == 2,
             onTap: () {
               Navigator.pop(context);
-              _abrirModulo(4);
+              _abrirModulo(isAdmin ? 4 : 2);
             },
           ),
 
