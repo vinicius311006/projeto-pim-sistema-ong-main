@@ -75,6 +75,15 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Id,Nome,Telefone,Endereco,Situacao,Observacao")] Beneficiario beneficiario)
         {
+            if (!string.IsNullOrEmpty(beneficiario.Telefone))
+            {
+                beneficiario.Telefone = System.Text.RegularExpressions.Regex.Replace(beneficiario.Telefone, @"\D", "");
+                if (beneficiario.Telefone.Length > 11)
+                {
+                    beneficiario.Telefone = beneficiario.Telefone.Substring(0, 11);
+                }
+            }
+
             List<string> situacoes = new List<string> { "Ok", "Aguardando Doacao", "Bloqueado" };
             if (!string.IsNullOrEmpty(beneficiario.Situacao) && !situacoes.Contains(beneficiario.Situacao))
             {
@@ -120,6 +129,15 @@ namespace VestindoSonhos.Controllers
             if (id != beneficiario.Id)
             {
                 return NotFound();
+            }
+
+            if (!string.IsNullOrEmpty(beneficiario.Telefone))
+            {
+                beneficiario.Telefone = System.Text.RegularExpressions.Regex.Replace(beneficiario.Telefone, @"\D", "");
+                if (beneficiario.Telefone.Length > 11)
+                {
+                    beneficiario.Telefone = beneficiario.Telefone.Substring(0, 11);
+                }
             }
 
             if (ModelState.IsValid)
