@@ -8,8 +8,6 @@ echo =====================================================================
 set "SQLFILE="
 if exist "%~dp0ScriptVestindoSonhos_MySQL.sql" (
     set "SQLFILE=%~dp0ScriptVestindoSonhos_MySQL.sql"
-) else if exist "%~dp0projeto-pim-sistema-ong-main\ScriptVestindoSonhos_MySQL.sql" (
-    set "SQLFILE=%~dp0projeto-pim-sistema-ong-main\ScriptVestindoSonhos_MySQL.sql"
 ) else (
     for /r "%~dp0" %%f in (ScriptVestindoSonhos_MySQL.sql) do (
         if exist "%%f" set "SQLFILE=%%f"
