@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.Models.TiposAtivo
+@model VestindoSonhos.Models.TiposAtivo
 <link rel="stylesheet" href="~/css/formularios.css" />
 @{
     ViewData["Title"] = "Criar";
@@ -17,7 +17,7 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Categoria" class="control-label"></label>
-                <input asp-for="Categoria" class="form-control" />
+                <input asp-for="Categoria" class="form-control" maxlength="15" />
                 <span asp-validation-for="Categoria" class="text-danger"></span>
             </div>
             <div class="form-group">

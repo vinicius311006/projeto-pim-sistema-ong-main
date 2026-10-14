@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.Models.Dependente
+@model VestindoSonhos.Models.Dependente
 <link rel="stylesheet" href="~/css/formularios.css" />
 
 @{
@@ -23,12 +23,12 @@
             </div>
             <div class="form-group">
                 <label asp-for="Nome" class="control-label"></label>
-                <input asp-for="Nome" class="form-control" />
+                <input asp-for="Nome" class="form-control" maxlength="60" />
                 <span asp-validation-for="Nome" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Idade" class="control-label"></label>
-                <input asp-for="Idade" class="form-control" />
+                <input asp-for="Idade" class="form-control" type="number" min="0" max="120" oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3)" />
                 <span asp-validation-for="Idade" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -38,7 +38,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Parentesco" class="control-label"></label>
-                <input asp-for="Parentesco" class="form-control" />
+                <input asp-for="Parentesco" class="form-control" maxlength="20" />
                 <span asp-validation-for="Parentesco" class="text-danger"></span>
             </div>
             <div class="form-group">

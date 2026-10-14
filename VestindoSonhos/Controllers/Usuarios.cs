@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using VestindoSonhos.Models;
 using VestindoSonhos.ViewModels;
@@ -88,6 +89,31 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Nome,Cargo,DataNascimento,Telefone,Email,Endereco,Cpf,Senha,ExigirTrocaSenha")] UsuarioViewModel usuario)
         {
+            if (!string.IsNullOrEmpty(usuario.Telefone))
+            {
+                usuario.Telefone = Regex.Replace(usuario.Telefone, @"\D", "");
+                if (usuario.Telefone.Length > 11)
+                    usuario.Telefone = usuario.Telefone.Substring(0, 11);
+            }
+            if (!string.IsNullOrEmpty(usuario.Cpf))
+            {
+                usuario.Cpf = Regex.Replace(usuario.Cpf, @"\D", "");
+                if (usuario.Cpf.Length > 11)
+                    usuario.Cpf = usuario.Cpf.Substring(0, 11);
+            }
+            if (!string.IsNullOrEmpty(usuario.Nome) && usuario.Nome.Length > 50)
+            {
+                usuario.Nome = usuario.Nome.Substring(0, 50);
+            }
+            if (!string.IsNullOrEmpty(usuario.Email) && usuario.Email.Length > 40)
+            {
+                usuario.Email = usuario.Email.Substring(0, 40);
+            }
+            if (!string.IsNullOrEmpty(usuario.Endereco) && usuario.Endereco.Length > 80)
+            {
+                usuario.Endereco = usuario.Endereco.Substring(0, 80);
+            }
+
             CarregarDropdowns();
             foreach (var erro in ModelState)
             {
@@ -183,6 +209,25 @@ namespace VestindoSonhos.Controllers
             if (id != usuario.Id)
             {
                 return NotFound();
+            }
+
+            if (!string.IsNullOrEmpty(usuario.Telefone))
+            {
+                usuario.Telefone = Regex.Replace(usuario.Telefone, @"\D", "");
+                if (usuario.Telefone.Length > 11)
+                    usuario.Telefone = usuario.Telefone.Substring(0, 11);
+            }
+            if (!string.IsNullOrEmpty(usuario.Nome) && usuario.Nome.Length > 50)
+            {
+                usuario.Nome = usuario.Nome.Substring(0, 50);
+            }
+            if (!string.IsNullOrEmpty(usuario.Email) && usuario.Email.Length > 40)
+            {
+                usuario.Email = usuario.Email.Substring(0, 40);
+            }
+            if (!string.IsNullOrEmpty(usuario.Endereco) && usuario.Endereco.Length > 80)
+            {
+                usuario.Endereco = usuario.Endereco.Substring(0, 80);
             }
 
             if (!string.IsNullOrWhiteSpace(usuario.NovaSenha))

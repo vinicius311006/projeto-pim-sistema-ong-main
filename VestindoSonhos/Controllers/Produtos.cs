@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -67,6 +67,13 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Id,Nome,Descrição,Cor,Categoria")] Produto produto)
         {
+            if (!string.IsNullOrEmpty(produto.Nome) && produto.Nome.Length > 60)
+                produto.Nome = produto.Nome.Substring(0, 60);
+            if (!string.IsNullOrEmpty(produto.Descricao) && produto.Descricao.Length > 255)
+                produto.Descricao = produto.Descricao.Substring(0, 255);
+            if (!string.IsNullOrEmpty(produto.Cor) && produto.Cor.Length > 15)
+                produto.Cor = produto.Cor.Substring(0, 15);
+
             if (ModelState.IsValid)
             {
                 _context.Add(produto);
@@ -107,6 +114,13 @@ namespace VestindoSonhos.Controllers
             {
                 return NotFound();
             }
+
+            if (!string.IsNullOrEmpty(produto.Nome) && produto.Nome.Length > 60)
+                produto.Nome = produto.Nome.Substring(0, 60);
+            if (!string.IsNullOrEmpty(produto.Descricao) && produto.Descricao.Length > 255)
+                produto.Descricao = produto.Descricao.Substring(0, 255);
+            if (!string.IsNullOrEmpty(produto.Cor) && produto.Cor.Length > 15)
+                produto.Cor = produto.Cor.Substring(0, 15);
 
             if (ModelState.IsValid)
             {

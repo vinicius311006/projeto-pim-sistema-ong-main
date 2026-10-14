@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -66,14 +66,15 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("IdResponsavel,Nome,Idade,Sexo,Parentesco")] Dependente model)
         {
-            //FOREACH para DEBUG
-            foreach (var erro in ModelState)
-            {
-                foreach (var subErro in erro.Value.Errors)
-                {
-                    Console.WriteLine($"{erro.Key}: {subErro.ErrorMessage}");
-                }
-            }
+            if (!string.IsNullOrEmpty(model.Nome) && model.Nome.Length > 60)
+                model.Nome = model.Nome.Substring(0, 60);
+            if (!string.IsNullOrEmpty(model.Parentesco) && model.Parentesco.Length > 20)
+                model.Parentesco = model.Parentesco.Substring(0, 20);
+            if (!string.IsNullOrEmpty(model.Sexo) && model.Sexo.Length > 1)
+                model.Sexo = model.Sexo.Substring(0, 1);
+            if (model.Idade < 0) model.Idade = 0;
+            if (model.Idade > 120) model.Idade = 120;
+
             if (ModelState.IsValid)
             {
                 _context.Add(model);
@@ -116,6 +117,16 @@ namespace VestindoSonhos.Controllers
             {
                 return NotFound();
             }
+
+            if (!string.IsNullOrEmpty(dependente.Nome) && dependente.Nome.Length > 60)
+                dependente.Nome = dependente.Nome.Substring(0, 60);
+            if (!string.IsNullOrEmpty(dependente.Parentesco) && dependente.Parentesco.Length > 20)
+                dependente.Parentesco = dependente.Parentesco.Substring(0, 20);
+            if (!string.IsNullOrEmpty(dependente.Sexo) && dependente.Sexo.Length > 1)
+                dependente.Sexo = dependente.Sexo.Substring(0, 1);
+            if (dependente.Idade < 0) dependente.Idade = 0;
+            if (dependente.Idade > 120) dependente.Idade = 120;
+
             if (ModelState.IsValid)
             {
                 try

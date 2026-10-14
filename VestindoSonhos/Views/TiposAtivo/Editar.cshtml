@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.Models.TiposAtivo
+@model VestindoSonhos.Models.TiposAtivo
 <link rel="stylesheet" href="~/css/formularios.css" />
 
 @{
@@ -20,7 +20,7 @@
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label asp-for="Categoria" class="control-label"></label>
-                <input asp-for="Categoria" class="form-control" />
+                <input asp-for="Categoria" class="form-control" maxlength="15" />
                 <span asp-validation-for="Categoria" class="text-danger"></span>
             </div>
             <div class="form-group">

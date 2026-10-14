@@ -99,6 +99,16 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("evento, idVoluntarios")] CriacaoEventoViewModel model)
         {
+            if (model?.evento != null)
+            {
+                if (!string.IsNullOrEmpty(model.evento.Nome) && model.evento.Nome.Length > 50)
+                    model.evento.Nome = model.evento.Nome.Substring(0, 50);
+                if (!string.IsNullOrEmpty(model.evento.Local) && model.evento.Local.Length > 70)
+                    model.evento.Local = model.evento.Local.Substring(0, 70);
+                if (!string.IsNullOrEmpty(model.evento.Observacao) && model.evento.Observacao.Length > 255)
+                    model.evento.Observacao = model.evento.Observacao.Substring(0, 255);
+            }
+
             ModelState.Remove("evento.ResponsavelNavigation");
             ModelState.Remove("evento.VoluntarioAtribuido");
             ModelState.Remove("evento.Responsavel");
@@ -203,6 +213,17 @@ namespace VestindoSonhos.Controllers
                 Console.WriteLine("{0} {1}" ,id, model.evento.Id);
                 return NotFound();
             }
+
+            if (model?.evento != null)
+            {
+                if (!string.IsNullOrEmpty(model.evento.Nome) && model.evento.Nome.Length > 50)
+                    model.evento.Nome = model.evento.Nome.Substring(0, 50);
+                if (!string.IsNullOrEmpty(model.evento.Local) && model.evento.Local.Length > 70)
+                    model.evento.Local = model.evento.Local.Substring(0, 70);
+                if (!string.IsNullOrEmpty(model.evento.Observacao) && model.evento.Observacao.Length > 255)
+                    model.evento.Observacao = model.evento.Observacao.Substring(0, 255);
+            }
+
             ModelState.Remove("evento.ResponsavelNavigation");
             ModelState.Remove("evento.VoluntarioAtribuido");
 

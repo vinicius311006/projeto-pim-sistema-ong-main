@@ -19,7 +19,7 @@
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label asp-for="Nome" class="control-label"></label>
-                <input asp-for="Nome" class="form-control" />
+                <input asp-for="Nome" class="form-control" maxlength="50" />
                 <span asp-validation-for="Nome" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -34,17 +34,17 @@
             </div>
             <div class="form-group">
                 <label asp-for="Telefone" class="control-label"></label>
-                <input asp-for="Telefone" class="form-control" />
+                <input asp-for="Telefone" class="form-control" type="tel" maxlength="11" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11)" placeholder="DDD + 9 dígitos (ex: 11987654321)" />
                 <span asp-validation-for="Telefone" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
+                <input asp-for="Email" class="form-control" maxlength="40" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Endereco" class="control-label"></label>
-                <input asp-for="Endereco" class="form-control" />
+                <input asp-for="Endereco" class="form-control" maxlength="80" />
                 <span asp-validation-for="Endereco" class="text-danger"></span>
             </div>
 
@@ -59,13 +59,13 @@
 
             <div class="form-group">
                 <label asp-for="NovaSenha" class="control-label">Nova Senha</label>
-                <input asp-for="NovaSenha" type="password" class="form-control" placeholder="Deixe em branco para manter a atual" />
+                <input asp-for="NovaSenha" type="password" class="form-control" maxlength="100" placeholder="Deixe em branco para manter a atual" />
                 <span asp-validation-for="NovaSenha" class="text-danger"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="ConfirmarNovaSenha" class="control-label">Confirmar Nova Senha</label>
-                <input asp-for="ConfirmarNovaSenha" type="password" class="form-control" placeholder="Repita a nova senha" />
+                <input asp-for="ConfirmarNovaSenha" type="password" class="form-control" maxlength="100" placeholder="Repita a nova senha" />
                 <span asp-validation-for="ConfirmarNovaSenha" class="text-danger"></span>
             </div>
 

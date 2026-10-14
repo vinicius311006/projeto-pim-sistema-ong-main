@@ -16,7 +16,7 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Nome" class="control-label"></label>
-                <input asp-for="Nome" class="form-control" />
+                <input asp-for="Nome" class="form-control" maxlength="50" />
                 <span asp-validation-for="Nome" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -30,27 +30,27 @@
             </div>
             <div class="form-group">
                 <label asp-for="Telefone" class="control-label"></label>
-                <input asp-for="Telefone" class="form-control" />
+                <input asp-for="Telefone" class="form-control" type="tel" maxlength="11" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11)" placeholder="DDD + 9 dígitos (ex: 11987654321)" />
                 <span asp-validation-for="Telefone" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Email" class="control-label"></label>
-                <input type="email" asp-for="Email" class="form-control" />
+                <input type="email" asp-for="Email" class="form-control" maxlength="40" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Endereco" class="control-label"></label>
-                <input asp-for="Endereco" class="form-control" />
+                <input asp-for="Endereco" class="form-control" maxlength="80" />
                 <span asp-validation-for="Endereco" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Cpf" class="control-label"></label>
-                <input maxlength="11" asp-for="Cpf" class="form-control" />
+                <input asp-for="Cpf" class="form-control" type="text" maxlength="11" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11)" placeholder="11 dígitos (somente números)" />
                 <span asp-validation-for="Cpf" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Senha" class="control-label"></label>
-                <input type="password" asp-for="Senha" class="form-control"/>
+                <input type="password" asp-for="Senha" class="form-control" maxlength="100" />
                 <span asp-validation-for="Senha" class="text-danger"></span>
             </div>
             <div class="form-group" style="background: #F8F9FD; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px 14px; margin-bottom: 20px;">

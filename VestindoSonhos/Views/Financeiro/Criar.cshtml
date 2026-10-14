@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.ViewModels.TransacaoFinanceiraViewModel
+@model VestindoSonhos.ViewModels.TransacaoFinanceiraViewModel
 <link rel="stylesheet" href="~/css/formularios.css" />
 
 @{
@@ -24,7 +24,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Observacao" class="control-label"></label>
-                <input asp-for="Observacao" class="form-control" />
+                <input asp-for="Observacao" class="form-control" maxlength="255" />
                 <span asp-validation-for="Observacao" class="text-danger"></span>
             </div>
             <div class="form-group">

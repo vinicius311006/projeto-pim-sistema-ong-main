@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using VestindoSonhos.Models;
 
@@ -60,6 +61,8 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Id,Nome,Cpf,Endereco,Telefone,Email")] Voluntario voluntario)
         {
+            SanitizarVoluntario(voluntario);
+
             if (ModelState.IsValid)
             {
                 _context.Add(voluntario);
@@ -98,6 +101,8 @@ namespace VestindoSonhos.Controllers
             {
                 return NotFound();
             }
+
+            SanitizarVoluntario(voluntario);
 
             if (ModelState.IsValid)
             {
@@ -155,6 +160,40 @@ namespace VestindoSonhos.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(actionName: "Index", controllerName: "Eventos");
+        }
+
+        private void SanitizarVoluntario(Voluntario voluntario)
+        {
+            if (voluntario == null) return;
+
+            if (!string.IsNullOrEmpty(voluntario.Telefone))
+            {
+                voluntario.Telefone = Regex.Replace(voluntario.Telefone, @"\D", "");
+                if (voluntario.Telefone.Length > 11)
+                    voluntario.Telefone = voluntario.Telefone.Substring(0, 11);
+            }
+
+            if (!string.IsNullOrEmpty(voluntario.Cpf))
+            {
+                voluntario.Cpf = Regex.Replace(voluntario.Cpf, @"\D", "");
+                if (voluntario.Cpf.Length > 11)
+                    voluntario.Cpf = voluntario.Cpf.Substring(0, 11);
+            }
+
+            if (!string.IsNullOrEmpty(voluntario.Nome) && voluntario.Nome.Length > 60)
+            {
+                voluntario.Nome = voluntario.Nome.Substring(0, 60);
+            }
+
+            if (!string.IsNullOrEmpty(voluntario.Endereco) && voluntario.Endereco.Length > 50)
+            {
+                voluntario.Endereco = voluntario.Endereco.Substring(0, 50);
+            }
+
+            if (!string.IsNullOrEmpty(voluntario.Email) && voluntario.Email.Length > 40)
+            {
+                voluntario.Email = voluntario.Email.Substring(0, 40);
+            }
         }
 
         private bool VoluntarioExists(int id)

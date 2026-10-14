@@ -84,6 +84,19 @@ namespace VestindoSonhos.Controllers
                 }
             }
 
+            if (!string.IsNullOrEmpty(beneficiario.Nome) && beneficiario.Nome.Length > 80)
+            {
+                beneficiario.Nome = beneficiario.Nome.Substring(0, 80);
+            }
+            if (!string.IsNullOrEmpty(beneficiario.Endereco) && beneficiario.Endereco.Length > 60)
+            {
+                beneficiario.Endereco = beneficiario.Endereco.Substring(0, 60);
+            }
+            if (!string.IsNullOrEmpty(beneficiario.Observacao) && beneficiario.Observacao.Length > 255)
+            {
+                beneficiario.Observacao = beneficiario.Observacao.Substring(0, 255);
+            }
+
             List<string> situacoes = new List<string> { "Ok", "Aguardando Doacao", "Bloqueado" };
             if (!string.IsNullOrEmpty(beneficiario.Situacao) && !situacoes.Contains(beneficiario.Situacao))
             {
@@ -138,6 +151,19 @@ namespace VestindoSonhos.Controllers
                 {
                     beneficiario.Telefone = beneficiario.Telefone.Substring(0, 11);
                 }
+            }
+
+            if (!string.IsNullOrEmpty(beneficiario.Nome) && beneficiario.Nome.Length > 80)
+            {
+                beneficiario.Nome = beneficiario.Nome.Substring(0, 80);
+            }
+            if (!string.IsNullOrEmpty(beneficiario.Endereco) && beneficiario.Endereco.Length > 60)
+            {
+                beneficiario.Endereco = beneficiario.Endereco.Substring(0, 60);
+            }
+            if (!string.IsNullOrEmpty(beneficiario.Observacao) && beneficiario.Observacao.Length > 255)
+            {
+                beneficiario.Observacao = beneficiario.Observacao.Substring(0, 255);
             }
 
             if (ModelState.IsValid)
