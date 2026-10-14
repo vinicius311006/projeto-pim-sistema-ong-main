@@ -18,4 +18,13 @@ namespace VestindoSonhos.Models.DTOs
         public string ResponsavelNome { get; set; } = string.Empty;
         public int TotalVoluntarios { get; set; }
     }
+
+    public class CriarEditarEventoDto
+    {
+        public string Nome { get; set; } = string.Empty;
+        public DateTime? DataInicio { get; set; }
+        public DateTime? DataFim { get; set; }
+        public string? Local { get; set; }
+        public string? Observacao { get; set; }
+    }
 }

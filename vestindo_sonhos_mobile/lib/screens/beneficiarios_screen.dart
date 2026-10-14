@@ -142,6 +142,13 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _abrirDialogoSalvar(),
+        icon: const Icon(Icons.person_add),
+        label: const Text('Novo Beneficiário'),
+        backgroundColor: const Color(0xFF7C6FE0),
+        foregroundColor: Colors.white,
+      ),
     );
   }
 
@@ -251,21 +258,59 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
                         ],
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: corStatus.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: corStatus.withValues(alpha: 0.4)),
-                      ),
-                      child: Text(
-                        b.situacao,
-                        style: TextStyle(
-                          color: corStatus,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: corStatus.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: corStatus.withValues(alpha: 0.4)),
+                          ),
+                          child: Text(
+                            b.situacao,
+                            style: TextStyle(
+                              color: corStatus,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
                         ),
-                      ),
+                        PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_vert, size: 20, color: Colors.grey),
+                          tooltip: 'Opções',
+                          onSelected: (val) {
+                            if (val == 'editar') {
+                              _abrirDialogoSalvar(beneficiario: b);
+                            } else if (val == 'excluir') {
+                              _confirmarExclusao(b);
+                            }
+                          },
+                          itemBuilder: (ctx) => [
+                            const PopupMenuItem(
+                              value: 'editar',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.edit_outlined, size: 18, color: Color(0xFF7C6FE0)),
+                                  SizedBox(width: 8),
+                                  Text('Editar'),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem(
+                              value: 'excluir',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete_outline, size: 18, color: Color(0xFFE25555)),
+                                  SizedBox(width: 8),
+                                  Text('Excluir', style: TextStyle(color: Color(0xFFE25555))),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -326,5 +371,251 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
         );
       },
     );
+  }
+
+  Future<void> _abrirDialogoSalvar({BeneficiarioModel? beneficiario}) async {
+    final ehEdicao = beneficiario != null;
+    final formKey = GlobalKey<FormState>();
+    final nomeCtrl = TextEditingController(text: beneficiario?.nome ?? '');
+    final telCtrl = TextEditingController(text: beneficiario?.telefone ?? '');
+    final endCtrl = TextEditingController(text: beneficiario?.endereco ?? '');
+    final obsCtrl = TextEditingController(text: beneficiario?.observacao ?? '');
+    String situacao = beneficiario?.situacao ?? 'Ok';
+    bool salvando = false;
+
+    // Normaliza situacao para dropdown
+    if (!['Ok', 'Aguardando', 'Bloqueado'].contains(situacao)) {
+      situacao = 'Ok';
+    }
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Row(
+                children: [
+                  Icon(
+                    ehEdicao ? Icons.edit_outlined : Icons.person_add_outlined,
+                    color: const Color(0xFF7C6FE0),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    ehEdicao ? 'Editar Beneficiário' : 'Novo Beneficiário',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: 400,
+                child: Form(
+                  key: formKey,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextFormField(
+                          controller: nomeCtrl,
+                          decoration: const InputDecoration(
+                            labelText: 'Nome Completo *',
+                            prefixIcon: Icon(Icons.person_outline),
+                            border: OutlineInputBorder(),
+                          ),
+                          maxLength: 100,
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty) {
+                              return 'Informe o nome do beneficiário';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: telCtrl,
+                          keyboardType: TextInputType.phone,
+                          decoration: const InputDecoration(
+                            labelText: 'Telefone (máx. 11 dígitos)',
+                            prefixIcon: Icon(Icons.phone_outlined),
+                            hintText: '11999998888',
+                            border: OutlineInputBorder(),
+                          ),
+                          maxLength: 11,
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: endCtrl,
+                          decoration: const InputDecoration(
+                            labelText: 'Endereço',
+                            prefixIcon: Icon(Icons.location_on_outlined),
+                            border: OutlineInputBorder(),
+                          ),
+                          maxLength: 200,
+                        ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<String>(
+                          initialValue: situacao,
+                          decoration: const InputDecoration(
+                            labelText: 'Situação',
+                            prefixIcon: Icon(Icons.flag_outlined),
+                            border: OutlineInputBorder(),
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: 'Ok', child: Text('Ok / Ativo')),
+                            DropdownMenuItem(value: 'Aguardando', child: Text('Aguardando Doação')),
+                            DropdownMenuItem(value: 'Bloqueado', child: Text('Bloqueado')),
+                          ],
+                          onChanged: (val) {
+                            if (val != null) {
+                              setDialogState(() => situacao = val);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: obsCtrl,
+                          maxLines: 3,
+                          decoration: const InputDecoration(
+                            labelText: 'Necessidades / Observações',
+                            prefixIcon: Icon(Icons.notes_outlined),
+                            border: OutlineInputBorder(),
+                          ),
+                          maxLength: 500,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: salvando ? null : () => Navigator.pop(dialogCtx),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: salvando
+                      ? null
+                      : () async {
+                          if (!formKey.currentState!.validate()) return;
+                          setDialogState(() => salvando = true);
+
+                          final dados = {
+                            'nome': nomeCtrl.text.trim(),
+                            'telefone': telCtrl.text.trim(),
+                            'endereco': endCtrl.text.trim(),
+                            'situacao': situacao,
+                            'observacao': obsCtrl.text.trim(),
+                          };
+
+                          try {
+                            final token = await _apiService.getToken();
+                            if (token == null) throw Exception('Não autenticado.');
+
+                            if (ehEdicao) {
+                              await _apiService.editarBeneficiario(token, beneficiario.id, dados);
+                            } else {
+                              await _apiService.criarBeneficiario(token, dados);
+                            }
+
+                            if (dialogCtx.mounted) {
+                              Navigator.pop(dialogCtx);
+                            }
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    ehEdicao
+                                        ? 'Beneficiário atualizado com sucesso!'
+                                        : 'Beneficiário cadastrado com sucesso!',
+                                  ),
+                                  backgroundColor: const Color(0xFF2E9E5B),
+                                ),
+                              );
+                              _carregarBeneficiarios();
+                            }
+                          } catch (e) {
+                            setDialogState(() => salvando = false);
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(e.toString().replaceAll('Exception: ', '')),
+                                  backgroundColor: const Color(0xFFE25555),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                  child: salvando
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : Text(ehEdicao ? 'Salvar' : 'Cadastrar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmarExclusao(BeneficiarioModel b) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Color(0xFFE25555)),
+            SizedBox(width: 8),
+            Text('Confirmar Exclusão'),
+          ],
+        ),
+        content: Text('Deseja realmente excluir o beneficiário "${b.nome}"? Esta ação não pode ser desfeita.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE25555)),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Excluir', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+
+    try {
+      final token = await _apiService.getToken();
+      if (token == null) throw Exception('Não autenticado.');
+
+      await _apiService.excluirBeneficiario(token, b.id);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Beneficiário excluído com sucesso!'),
+            backgroundColor: Color(0xFF2E9E5B),
+          ),
+        );
+        _carregarBeneficiarios();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: const Color(0xFFE25555),
+          ),
+        );
+      }
+    }
   }
 }

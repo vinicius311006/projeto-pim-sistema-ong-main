@@ -63,6 +63,13 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
         onRefresh: _carregarFinanceiro,
         child: _buildConteudo(),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _abrirDialogoNovaTransacao,
+        icon: const Icon(Icons.add),
+        label: const Text('Novo Lançamento'),
+        backgroundColor: const Color(0xFF7C6FE0),
+        foregroundColor: Colors.white,
+      ),
     );
   }
 
@@ -316,13 +323,23 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 12),
                     ),
-                    trailing: Text(
-                      '${isEntrada ? '+' : '-'} ${_formatarMoeda(t.valor)}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: cor,
-                        fontSize: 14,
-                      ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${isEntrada ? '+' : '-'} ${_formatarMoeda(t.valor)}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: cor,
+                            fontSize: 14,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, size: 20, color: Color(0xFFE25555)),
+                          tooltip: 'Excluir Lançamento',
+                          onPressed: () => _confirmarExclusaoTransacao(t),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -331,5 +348,256 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _abrirDialogoNovaTransacao() async {
+    final f = _financeiro;
+    if (f == null || f.carteiras.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nenhuma carteira disponível para registrar lançamentos.'),
+          backgroundColor: Color(0xFFE25555),
+        ),
+      );
+      return;
+    }
+
+    final formKey = GlobalKey<FormState>();
+    int carteiraId = f.carteiras.first.id;
+    String tipo = 'Entrada';
+    final valorCtrl = TextEditingController();
+    final obsCtrl = TextEditingController();
+    bool salvando = false;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Row(
+                children: [
+                  Icon(Icons.monetization_on_outlined, color: Color(0xFF7C6FE0)),
+                  SizedBox(width: 8),
+                  Text('Novo Lançamento', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              content: SizedBox(
+                width: 400,
+                child: Form(
+                  key: formKey,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Tipo (Entrada ou Saída)
+                        DropdownButtonFormField<String>(
+                          initialValue: tipo,
+                          decoration: const InputDecoration(
+                            labelText: 'Tipo de Lançamento *',
+                            prefixIcon: Icon(Icons.compare_arrows),
+                            border: OutlineInputBorder(),
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: 'Entrada', child: Text('Entrada (Doação / Receita)')),
+                            DropdownMenuItem(value: 'Saída', child: Text('Saída (Despesa / Pagamento)')),
+                          ],
+                          onChanged: (val) {
+                            if (val != null) {
+                              setDialogState(() => tipo = val);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Seleção de Carteira
+                        DropdownButtonFormField<int>(
+                          initialValue: carteiraId,
+                          decoration: const InputDecoration(
+                            labelText: 'Carteira / Conta *',
+                            prefixIcon: Icon(Icons.account_balance_wallet_outlined),
+                            border: OutlineInputBorder(),
+                          ),
+                          items: f.carteiras.map((c) {
+                            return DropdownMenuItem<int>(
+                              value: c.id,
+                              child: Text('${c.nome} (Saldo: ${_formatarMoeda(c.saldo)})'),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            if (val != null) {
+                              setDialogState(() => carteiraId = val);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Valor
+                        TextFormField(
+                          controller: valorCtrl,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          decoration: const InputDecoration(
+                            labelText: 'Valor (R\$) *',
+                            hintText: 'Ex: 150,00 ou 150.00',
+                            prefixIcon: Icon(Icons.attach_money),
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty) {
+                              return 'Informe o valor da transação';
+                            }
+                            final normalizado = v.trim().replaceAll(',', '.');
+                            final num = double.tryParse(normalizado);
+                            if (num == null || num <= 0) {
+                              return 'Informe um valor numérico maior que zero';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Observação / Motivo
+                        TextFormField(
+                          controller: obsCtrl,
+                          maxLines: 2,
+                          maxLength: 255,
+                          decoration: const InputDecoration(
+                            labelText: 'Descrição / Motivo (Opcional)',
+                            prefixIcon: Icon(Icons.notes_outlined),
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: salvando ? null : () => Navigator.pop(dialogCtx),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: salvando
+                      ? null
+                      : () async {
+                          if (!formKey.currentState!.validate()) return;
+                          setDialogState(() => salvando = true);
+
+                          final normalizado = valorCtrl.text.trim().replaceAll(',', '.');
+                          final valorDouble = double.parse(normalizado);
+
+                          final dados = {
+                            'carteiraId': carteiraId,
+                            'razao': tipo,
+                            'valor': valorDouble,
+                            'observacao': obsCtrl.text.trim(),
+                          };
+
+                          try {
+                            final token = await _apiService.getToken();
+                            if (token == null) throw Exception('Não autenticado.');
+
+                            await _apiService.criarTransacaoFinanceira(token, dados);
+
+                            if (dialogCtx.mounted) {
+                              Navigator.pop(dialogCtx);
+                            }
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Lançamento registrado com sucesso!'),
+                                  backgroundColor: Color(0xFF2E9E5B),
+                                ),
+                              );
+                              _carregarFinanceiro();
+                            }
+                          } catch (e) {
+                            setDialogState(() => salvando = false);
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(e.toString().replaceAll('Exception: ', '')),
+                                  backgroundColor: const Color(0xFFE25555),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                  child: salvando
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('Salvar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmarExclusaoTransacao(TransacaoModel t) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Color(0xFFE25555)),
+            SizedBox(width: 8),
+            Text('Confirmar Exclusão'),
+          ],
+        ),
+        content: Text(
+          'Deseja excluir este lançamento de ${_formatarMoeda(t.valor)} (${t.carteira})?\n'
+          'O saldo da carteira será devidamente estornado.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE25555)),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Excluir', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+
+    try {
+      final token = await _apiService.getToken();
+      if (token == null) throw Exception('Não autenticado.');
+
+      await _apiService.excluirTransacaoFinanceira(token, t.id);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Lançamento excluído e saldo estornado com sucesso!'),
+            backgroundColor: Color(0xFF2E9E5B),
+          ),
+        );
+        _carregarFinanceiro();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: const Color(0xFFE25555),
+          ),
+        );
+      }
+    }
   }
 }

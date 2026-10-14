@@ -101,5 +101,112 @@ namespace VestindoSonhos.Controllers.Api
 
             return Ok(evento);
         }
+
+        [HttpPost]
+        public async Task<ActionResult<EventoDto>> Criar([FromBody] CriarEditarEventoDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+            {
+                return BadRequest(new { mensagem = "O nome do evento é obrigatório." });
+            }
+
+            var idUsuarioClaim = User.FindFirst("UserId")?.Value 
+                ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            int idUsuario = 1;
+            if (!string.IsNullOrEmpty(idUsuarioClaim) && int.TryParse(idUsuarioClaim, out int parsedId))
+            {
+                idUsuario = parsedId;
+            }
+
+            var nome = dto.Nome.Trim();
+            if (nome.Length > 50) nome = nome.Substring(0, 50);
+
+            var local = dto.Local?.Trim();
+            if (local != null && local.Length > 70) local = local.Substring(0, 70);
+
+            var obs = dto.Observacao?.Trim();
+            if (obs != null && obs.Length > 255) obs = obs.Substring(0, 255);
+
+            var evento = new Evento
+            {
+                Nome = nome,
+                data_inicio = dto.DataInicio ?? DateTime.Now,
+                data_fim = dto.DataFim ?? DateTime.Now.AddHours(2),
+                Local = local,
+                Observacao = obs,
+                Responsavel = idUsuario
+            };
+
+            _context.Evento.Add(evento);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(ObterPorId), new { id = evento.Id }, new EventoDto
+            {
+                Id = evento.Id,
+                Nome = evento.Nome,
+                DataInicio = evento.data_inicio,
+                DataFim = evento.data_fim,
+                Local = evento.Local,
+                Observacao = evento.Observacao,
+                ResponsavelId = evento.Responsavel,
+                TotalVoluntarios = 0
+            });
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Editar(int id, [FromBody] CriarEditarEventoDto dto)
+        {
+            var evento = await _context.Evento.FindAsync(id);
+            if (evento == null)
+            {
+                return NotFound(new { mensagem = "Evento não encontrado." });
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+            {
+                return BadRequest(new { mensagem = "O nome do evento é obrigatório." });
+            }
+
+            var nome = dto.Nome.Trim();
+            if (nome.Length > 50) nome = nome.Substring(0, 50);
+
+            var local = dto.Local?.Trim();
+            if (local != null && local.Length > 70) local = local.Substring(0, 70);
+
+            var obs = dto.Observacao?.Trim();
+            if (obs != null && obs.Length > 255) obs = obs.Substring(0, 255);
+
+            evento.Nome = nome;
+            evento.data_inicio = dto.DataInicio ?? evento.data_inicio;
+            evento.data_fim = dto.DataFim ?? evento.data_fim;
+            evento.Local = local;
+            evento.Observacao = obs;
+
+            _context.Evento.Update(evento);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensagem = "Evento atualizado com sucesso." });
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Excluir(int id)
+        {
+            var evento = await _context.Evento.FindAsync(id);
+            if (evento == null)
+            {
+                return NotFound(new { mensagem = "Evento não encontrado." });
+            }
+
+            var vols = await _context.VoluntarioAtribuido.Where(va => va.Evento == id).ToListAsync();
+            if (vols.Any())
+            {
+                _context.VoluntarioAtribuido.RemoveRange(vols);
+            }
+
+            _context.Evento.Remove(evento);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensagem = "Evento excluído com sucesso." });
+        }
     }
 }

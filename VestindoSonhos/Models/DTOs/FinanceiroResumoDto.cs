@@ -26,4 +26,13 @@ namespace VestindoSonhos.Models.DTOs
         public string? Observacao { get; set; }
         public DateTime? DataHora { get; set; }
     }
+
+    public class CriarTransacaoFinanceiraDto
+    {
+        public decimal Valor { get; set; }
+        public string Razao { get; set; } = "Entrada"; // Entrada ou Saída
+        public int? CarteiraId { get; set; }
+        public int? CategoriaId { get; set; }
+        public string? Observacao { get; set; }
+    }
 }

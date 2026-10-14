@@ -308,6 +308,262 @@ class ApiService {
   }
 
   // ==========================================
+  // Operações CRUD - Beneficiários
+  // ==========================================
+
+  Future<void> criarBeneficiario(String token, Map<String, dynamic> dados) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/beneficiarios');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(dados),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao cadastrar beneficiário');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> editarBeneficiario(String token, int id, Map<String, dynamic> dados) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/beneficiarios/$id');
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(dados),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao atualizar beneficiário');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> excluirBeneficiario(String token, int id) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/beneficiarios/$id');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao excluir beneficiário');
+      throw Exception(msg);
+    }
+  }
+
+  // ==========================================
+  // Operações CRUD - Eventos
+  // ==========================================
+
+  Future<void> criarEvento(String token, Map<String, dynamic> dados) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/eventos');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(dados),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao cadastrar evento');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> editarEvento(String token, int id, Map<String, dynamic> dados) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/eventos/$id');
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(dados),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao atualizar evento');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> excluirEvento(String token, int id) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/eventos/$id');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao excluir evento');
+      throw Exception(msg);
+    }
+  }
+
+  // ==========================================
+  // Operações CRUD - Inventário & Produtos
+  // ==========================================
+
+  Future<List<Map<String, dynamic>>> getProdutosInventario(String token) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/inventario/produtos');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> lista = jsonDecode(response.body);
+      return lista.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Falha ao obter lista de produtos (${response.statusCode}).');
+    }
+  }
+
+  Future<void> criarProduto(String token, Map<String, dynamic> dados) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/inventario/produtos');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(dados),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao cadastrar produto');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> excluirProduto(String token, int id) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/inventario/produtos/$id');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao excluir produto');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> registrarMovimentacaoInventario(String token, Map<String, dynamic> dados) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/inventario/movimentacao');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(dados),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao registrar movimentação');
+      throw Exception(msg);
+    }
+  }
+
+  // ==========================================
+  // Operações CRUD - Financeiro
+  // ==========================================
+
+  Future<void> criarTransacaoFinanceira(String token, Map<String, dynamic> dados) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/financeiro/transacao');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(dados),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao registrar lançamento financeiro');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> excluirTransacaoFinanceira(String token, int id) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/financeiro/transacao/$id');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao excluir lançamento financeiro');
+      throw Exception(msg);
+    }
+  }
+
+  static String _extrairMensagemErro(String responseBody, String padrao) {
+    try {
+      final decoded = jsonDecode(responseBody);
+      if (decoded is Map<String, dynamic>) {
+        if (decoded.containsKey('mensagem')) {
+          return decoded['mensagem'].toString();
+        }
+        if (decoded.containsKey('title')) {
+          return decoded['title'].toString();
+        }
+      }
+    } catch (_) {}
+    return padrao;
+  }
+
+  // ==========================================
   // Métodos Auxiliares de Persistência Local
   // ==========================================
 
