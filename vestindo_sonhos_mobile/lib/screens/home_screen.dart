@@ -184,14 +184,26 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       drawer: _buildDrawerLateral(isAdmin, indiceValido),
       body: telas[indiceValido],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: indiceValido,
-        onDestinationSelected: (index) {
-          setState(() {
-            _indiceAba = index;
-          });
-        },
-        destinations: destinos,
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            final isSelected = states.contains(WidgetState.selected);
+            return TextStyle(
+              fontSize: 11,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              letterSpacing: -0.2,
+            );
+          }),
+        ),
+        child: NavigationBar(
+          selectedIndex: indiceValido,
+          onDestinationSelected: (index) {
+            setState(() {
+              _indiceAba = index;
+            });
+          },
+          destinations: destinos,
+        ),
       ),
     );
   }

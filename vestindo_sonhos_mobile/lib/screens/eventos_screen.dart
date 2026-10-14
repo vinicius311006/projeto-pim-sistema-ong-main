@@ -383,7 +383,7 @@ class _EventosScreenState extends State<EventosScreen> {
                 ],
               ),
               content: SizedBox(
-                width: 420,
+                width: double.maxFinite,
                 child: Form(
                   key: formKey,
                   child: SingleChildScrollView(

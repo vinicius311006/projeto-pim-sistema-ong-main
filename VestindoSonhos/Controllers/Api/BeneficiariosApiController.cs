@@ -162,22 +162,31 @@ namespace VestindoSonhos.Controllers.Api
                 return NotFound(new { mensagem = "Beneficiário não encontrado." });
             }
 
-            var deps = await _context.Dependente.Where(d => d.IdResponsavel == id).ToListAsync();
-            if (deps.Any())
+            try
             {
-                _context.Dependente.RemoveRange(deps);
-            }
+                var deps = await _context.Dependente.Where(d => d.IdResponsavel == id).ToListAsync();
+                if (deps.Any())
+                {
+                    _context.Dependente.RemoveRange(deps);
+                }
 
-            var transacoesInv = await _context.TransacaoInventario.Where(ti => ti.Beneficiario == id).ToListAsync();
-            foreach (var ti in transacoesInv)
+                var transacoesInv = await _context.TransacaoInventario.Where(ti => ti.Beneficiario == id).ToListAsync();
+                foreach (var ti in transacoesInv)
+                {
+                    ti.Beneficiario = null;
+                }
+
+                await _context.SaveChangesAsync();
+
+                _context.Beneficiario.Remove(b);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { mensagem = "Beneficiário excluído com sucesso." });
+            }
+            catch (Exception ex)
             {
-                ti.Beneficiario = null;
+                return StatusCode(500, new { mensagem = $"Erro ao excluir beneficiário: {ex.Message}" });
             }
-
-            _context.Beneficiario.Remove(b);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { mensagem = "Beneficiário excluído com sucesso." });
         }
     }
 }

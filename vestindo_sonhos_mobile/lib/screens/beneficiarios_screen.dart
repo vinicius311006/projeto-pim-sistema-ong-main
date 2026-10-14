@@ -244,71 +244,74 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
                               color: Color(0xFF2E2E3A),
                             ),
                           ),
-                          const SizedBox(height: 2),
-                          Row(
+                          const SizedBox(height: 4),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
-                              const Icon(Icons.phone, size: 14, color: Colors.grey),
-                              const SizedBox(width: 4),
-                              Text(
-                                b.telefone.isNotEmpty ? b.telefone : 'Sem telefone',
-                                style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: corStatus.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: corStatus.withValues(alpha: 0.4)),
+                                ),
+                                child: Text(
+                                  b.situacao,
+                                  style: TextStyle(
+                                    color: corStatus,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.phone, size: 14, color: Colors.grey),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    b.telefone.isNotEmpty ? b.telefone : 'Sem telefone',
+                                    style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ],
                       ),
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: corStatus.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: corStatus.withValues(alpha: 0.4)),
-                          ),
-                          child: Text(
-                            b.situacao,
-                            style: TextStyle(
-                              color: corStatus,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert, size: 22, color: Colors.grey),
+                      tooltip: 'Opções',
+                      onSelected: (val) {
+                        if (val == 'editar') {
+                          _abrirDialogoSalvar(beneficiario: b);
+                        } else if (val == 'excluir') {
+                          _confirmarExclusao(b);
+                        }
+                      },
+                      itemBuilder: (ctx) => [
+                        const PopupMenuItem(
+                          value: 'editar',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit_outlined, size: 18, color: Color(0xFF7C6FE0)),
+                              SizedBox(width: 8),
+                              Text('Editar'),
+                            ],
                           ),
                         ),
-                        PopupMenuButton<String>(
-                          icon: const Icon(Icons.more_vert, size: 20, color: Colors.grey),
-                          tooltip: 'Opções',
-                          onSelected: (val) {
-                            if (val == 'editar') {
-                              _abrirDialogoSalvar(beneficiario: b);
-                            } else if (val == 'excluir') {
-                              _confirmarExclusao(b);
-                            }
-                          },
-                          itemBuilder: (ctx) => [
-                            const PopupMenuItem(
-                              value: 'editar',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.edit_outlined, size: 18, color: Color(0xFF7C6FE0)),
-                                  SizedBox(width: 8),
-                                  Text('Editar'),
-                                ],
-                              ),
-                            ),
-                            const PopupMenuItem(
-                              value: 'excluir',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.delete_outline, size: 18, color: Color(0xFFE25555)),
-                                  SizedBox(width: 8),
-                                  Text('Excluir', style: TextStyle(color: Color(0xFFE25555))),
-                                ],
-                              ),
-                            ),
-                          ],
+                        const PopupMenuItem(
+                          value: 'excluir',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete_outline, size: 18, color: Color(0xFFE25555)),
+                              SizedBox(width: 8),
+                              Text('Excluir', style: TextStyle(color: Color(0xFFE25555))),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -410,7 +413,7 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
                 ],
               ),
               content: SizedBox(
-                width: 400,
+                width: double.maxFinite,
                 child: Form(
                   key: formKey,
                   child: SingleChildScrollView(
@@ -457,6 +460,7 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
                         const SizedBox(height: 12),
                         DropdownButtonFormField<String>(
                           initialValue: situacao,
+                          isExpanded: true,
                           decoration: const InputDecoration(
                             labelText: 'Situação',
                             prefixIcon: Icon(Icons.flag_outlined),

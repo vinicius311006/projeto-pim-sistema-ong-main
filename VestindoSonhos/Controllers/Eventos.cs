@@ -72,7 +72,7 @@ namespace VestindoSonhos.Controllers
 
 
         // GET: Eventos/Criar
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Colaborador,Administrador")]
         public async Task<IActionResult> Criar()
         {
             ViewData["Responsavel"] = new SelectList(_context.Usuario.Select(u => new { u.Id, u.Nome }), "Id", "Nome");
@@ -94,7 +94,7 @@ namespace VestindoSonhos.Controllers
         // POST: Eventos/Criar
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Colaborador,Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("evento, idVoluntarios")] CriacaoEventoViewModel model)
@@ -319,7 +319,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Eventos/Apagar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Colaborador,Administrador")]
         public async Task<IActionResult> Apagar(int? id)
         {
             if (id == null)
@@ -339,6 +339,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // POST: Eventos/Apagar/5
+        [Authorize(Roles = "Colaborador,Administrador")]
         [HttpPost, ActionName("Apagar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

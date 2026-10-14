@@ -385,7 +385,7 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
                 ],
               ),
               content: SizedBox(
-                width: 400,
+                width: double.maxFinite,
                 child: Form(
                   key: formKey,
                   child: SingleChildScrollView(
@@ -395,6 +395,7 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
                         // Tipo (Entrada ou Saída)
                         DropdownButtonFormField<String>(
                           initialValue: tipo,
+                          isExpanded: true,
                           decoration: const InputDecoration(
                             labelText: 'Tipo de Lançamento *',
                             prefixIcon: Icon(Icons.compare_arrows),
@@ -415,6 +416,7 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
                         // Seleção de Carteira
                         DropdownButtonFormField<int>(
                           initialValue: carteiraId,
+                          isExpanded: true,
                           decoration: const InputDecoration(
                             labelText: 'Carteira / Conta *',
                             prefixIcon: Icon(Icons.account_balance_wallet_outlined),

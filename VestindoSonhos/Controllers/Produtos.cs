@@ -52,7 +52,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Produtos/Criar
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Colaborador,Administrador")]
         public IActionResult Criar()
         {
             CarregarDropdowns();
@@ -62,10 +62,10 @@ namespace VestindoSonhos.Controllers
         // POST: Produtos/Criar
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Colaborador,Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Criar([Bind("Id,Nome,Descrição,Cor,Categoria")] Produto produto)
+        public async Task<IActionResult> Criar([Bind("Id,Nome,Descricao,Cor,Categoria")] Produto produto)
         {
             if (!string.IsNullOrEmpty(produto.Nome) && produto.Nome.Length > 60)
                 produto.Nome = produto.Nome.Substring(0, 60);
@@ -85,7 +85,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Produtos/Editar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Colaborador,Administrador")]
         public async Task<IActionResult> Editar(int? id)
         {
             if (id == null)
@@ -105,10 +105,10 @@ namespace VestindoSonhos.Controllers
         // POST: Produtos/Editar/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Colaborador,Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(int id, [Bind("Id,Nome,Descrição,Cor,Categoria")] Produto produto)
+        public async Task<IActionResult> Editar(int id, [Bind("Id,Nome,Descricao,Cor,Categoria")] Produto produto)
         {
             if (id != produto.Id)
             {
@@ -147,7 +147,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Produtos/Apagar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Colaborador,Administrador")]
         public async Task<IActionResult> Apagar(int? id)
         {
             if (id == null)
@@ -167,7 +167,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // POST: Produtos/Apagar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Colaborador,Administrador")]
         [HttpPost, ActionName("Apagar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApagarConfirmed(int id)

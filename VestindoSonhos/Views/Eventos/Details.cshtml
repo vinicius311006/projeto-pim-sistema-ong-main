@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.ViewModels.DetalhesEventoViewModel
+@model VestindoSonhos.ViewModels.DetalhesEventoViewModel
 <link rel="stylesheet" href="~/css/formularios.css" />
 
 @{
@@ -62,21 +62,11 @@
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.listaVoluntarios[0].Nome)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.listaVoluntarios[0].Telefone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.listaVoluntarios[0].Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.listaVoluntarios[0].Endereco)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.listaVoluntarios[0].Cpf)
-            </th>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Email</th>
+            <th>Endereço</th>
+            <th>CPF</th>
             <th></th>
         </tr>
     </thead>

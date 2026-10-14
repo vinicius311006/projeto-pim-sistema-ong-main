@@ -191,7 +191,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Beneficiarios/Apagar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Colaborador,Administrador")]
         public async Task<IActionResult> Apagar(int? id)
         {
             if (id == null)
@@ -210,7 +210,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // POST: Beneficiarios/Apagar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Colaborador,Administrador")]
         [HttpPost, ActionName("Apagar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -218,10 +218,24 @@ namespace VestindoSonhos.Controllers
             var beneficiario = await _context.Beneficiario.FindAsync(id);
             if (beneficiario != null)
             {
+                var dependentes = await _context.Dependente.Where(d => d.IdResponsavel == id).ToListAsync();
+                if (dependentes.Any())
+                {
+                    _context.Dependente.RemoveRange(dependentes);
+                }
+
+                var transacoes = await _context.TransacaoInventario.Where(t => t.Beneficiario == id).ToListAsync();
+                foreach (var t in transacoes)
+                {
+                    t.Beneficiario = null;
+                }
+
+                await _context.SaveChangesAsync();
+
                 _context.Beneficiario.Remove(beneficiario);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

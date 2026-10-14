@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.ViewModels.DetalhesBeneficiarioViewModel
+@model VestindoSonhos.ViewModels.DetalhesBeneficiarioViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -18,21 +18,11 @@
         <table class="table table-striped">
         <thead>
             <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.listaBeneficiario[0].Nome)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.listaBeneficiario[0].Telefone)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.listaBeneficiario[0].Endereco)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.listaBeneficiario[0].Situacao)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.listaBeneficiario[0].Observacao)
-                </th>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>Endereço</th>
+                <th>Situação</th>
+                <th>Observação</th>
                 <th></th>
             </tr>
         </thead>
@@ -113,46 +103,45 @@
         <a class="btn btn-primary" asp-controller="Dependentes" asp-action="Criar" asp-route-idBeneficiario="@Model.beneficiario.Id"><span class="material-symbols-outlined">add</span>Novo dependente</a>
     </div>
     <div class="card">
-        <table class="table table-striped">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.listaDependentes[0].Nome)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.listaDependentes[0].Idade)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.listaDependentes[0].Sexo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.listaDependentes[0].Parentesco)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.listaDependentes)
+        @if (Model.listaDependentes.Any())
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Nome)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Idade)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Sexo)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Parentesco)
-                </td>
-                <td>
-                    <a asp-controller="Dependentes" asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span></a>
-                    <a asp-controller="Dependentes" asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span></a>
-                    <a asp-controller="Dependentes" asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span></a>
-                </td>
-            </tr>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Idade</th>
+                        <th>Sexo</th>
+                        <th>Parentesco</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.listaDependentes)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Nome)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Idade)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Sexo)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Parentesco)
+                            </td>
+                            <td>
+                                <a asp-controller="Dependentes" asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span></a>
+                                <a asp-controller="Dependentes" asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span></a>
+                                <a asp-controller="Dependentes" asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         }
-    </tbody>
-</table>
+        else
+        {
+            <p style="padding: 16px; margin: 0; color: #6F6F85; font-style: italic;">Nenhum dependente cadastrado para este beneficiário.</p>
+        }

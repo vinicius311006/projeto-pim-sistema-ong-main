@@ -517,7 +517,7 @@ class _InventarioScreenState extends State<InventarioScreen> {
                 ],
               ),
               content: SizedBox(
-                width: 400,
+                width: double.maxFinite,
                 child: Form(
                   key: formKey,
                   child: SingleChildScrollView(
@@ -527,6 +527,7 @@ class _InventarioScreenState extends State<InventarioScreen> {
                         // Seleção de Produto
                         DropdownButtonFormField<int>(
                           initialValue: produtoId,
+                          isExpanded: true,
                           decoration: const InputDecoration(
                             labelText: 'Produto *',
                             prefixIcon: Icon(Icons.inventory_2_outlined),
@@ -552,6 +553,7 @@ class _InventarioScreenState extends State<InventarioScreen> {
                         // Tipo (Entrada ou Saída)
                         DropdownButtonFormField<String>(
                           initialValue: tipo,
+                          isExpanded: true,
                           decoration: const InputDecoration(
                             labelText: 'Tipo de Movimentação *',
                             prefixIcon: Icon(Icons.compare_arrows),
@@ -692,7 +694,7 @@ class _InventarioScreenState extends State<InventarioScreen> {
                 ],
               ),
               content: SizedBox(
-                width: 400,
+                width: double.maxFinite,
                 child: Form(
                   key: formKey,
                   child: SingleChildScrollView(
