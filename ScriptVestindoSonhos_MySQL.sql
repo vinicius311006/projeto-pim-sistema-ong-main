@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS Beneficiario (
     nome VARCHAR(80) NOT NULL,
     telefone VARCHAR(15) NOT NULL,
     endereco VARCHAR(60) NOT NULL,
-    situacao INT,
+    situacao VARCHAR(20),
     observacao TEXT,
     PRIMARY KEY (id)
 );

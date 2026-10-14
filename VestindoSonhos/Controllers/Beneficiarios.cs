@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -60,7 +60,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Beneficiarios/Criar
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Colaborador,Administrador")]
         public IActionResult Criar()
         {
             CarregarDropdowns();
@@ -70,18 +70,19 @@ namespace VestindoSonhos.Controllers
         // POST: Beneficiarios/Criar
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Colaborador,Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Id,Nome,Telefone,Endereco,Situacao,Observacao")] Beneficiario beneficiario)
         {
+            List<string> situacoes = new List<string> { "Ok", "Aguardando Doacao", "Bloqueado" };
+            if (!string.IsNullOrEmpty(beneficiario.Situacao) && !situacoes.Contains(beneficiario.Situacao))
+            {
+                ModelState.AddModelError(nameof(beneficiario.Situacao), "Situação inválida.");
+            }
+
             if (ModelState.IsValid)
             {
-                List<string> situacoes = new List<string> { "Ok", "Aguardando Doacao", "Bloqueado" };
-                if (!situacoes.Contains(beneficiario.Situacao))
-                {
-                    ModelState.AddModelError(nameof(beneficiario.Situacao), "Situacao inválida.");
-                }
                 _context.Add(beneficiario);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
