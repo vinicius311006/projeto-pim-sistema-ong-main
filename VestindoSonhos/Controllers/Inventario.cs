@@ -95,19 +95,20 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Inventario/Criar
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         public async Task<IActionResult> Criar()
         {
             CarregarDropdowns();
             var produtos = new TransacaoInventarioCriacaoEdicaoViewModel
             {
                 Produtos = await (from p in _context.Produto
-                            join ta in _context.TiposAtivo on p.Categoria equals ta.Id
+                            join ta in _context.TiposAtivo on p.Categoria equals ta.Id into taGroup
+                            from ta in taGroup.DefaultIfEmpty()
                             select new TransacaoInventarioCriacaoEdicaoViewModel.ItemTransacaoCriacaoEdicao
                             {
                                 ProdutoId = p.Id,
                                 CategoriaProduto = p.Categoria,
-                                NomeCategoriaProduto = ta.Categoria,
+                                NomeCategoriaProduto = ta != null ? ta.Categoria : "Geral",
                                 NomeProduto = p.Nome,
                                 Cor = p.Cor,
                                 Descricao = p.Descricao,
@@ -149,28 +150,34 @@ namespace VestindoSonhos.Controllers
         // POST: Inventario/Criar
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Produtos,CategoriaTransacao,Beneficiario,Observacao,Razao")] TransacaoInventarioCriacaoEdicaoViewModel model)
         {
             CarregarDropdowns();
-            var itensSelecionados = model.Produtos.Where(p => p.Selecionado).ToList();
+            var itensSelecionados = model.Produtos?.Where(p => p.Selecionado && p.Quantidade > 0).ToList();
+            if (itensSelecionados == null || !itensSelecionados.Any())
+            {
+                ModelState.AddModelError("", "Por favor, selecione ao menos um produto na tabela e informe a quantidade.");
+                return View(model);
+            }
+
+            if (!string.IsNullOrEmpty(model.Observacao) && model.Observacao.Length > 255)
+            {
+                model.Observacao = model.Observacao.Substring(0, 255);
+            }
+
             if (ModelState.IsValid)
             {
-                Console.WriteLine(model.Produtos.Count);
+                var idUsuarioClaim = User.FindFirst("UserId")?.Value 
+                    ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                int idUsuario = 1;
+                if (!string.IsNullOrEmpty(idUsuarioClaim) && int.TryParse(idUsuarioClaim, out int parsedId))
+                {
+                    idUsuario = parsedId;
+                }
 
-                foreach (var item in model.Produtos)
-                {
-                    Console.WriteLine(
-                        $"Produto: {item.ProdutoId} | Selecionado: {item.Selecionado}");
-                }
-                var idUsuario = int.Parse(User.FindFirst("UserId")!.Value);
-                if (itensSelecionados == null || !itensSelecionados.Any())
-                {
-                    Console.WriteLine("Lista vazia");
-                    return RedirectToAction(nameof(Criar));
-                }
                 var transacao = new Transacao
                 {
                     Usuario = idUsuario,
@@ -207,7 +214,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Inventario/Editar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         public async Task<IActionResult> Editar(int id)
         {
             CarregarDropdowns();
@@ -233,12 +240,13 @@ namespace VestindoSonhos.Controllers
                 Observacao = transacao.Observacao,
                 NomeCategoriaTransacao = transacao.CategoriaNavigation.Nome,
                 Produtos = await (from p in _context.Produto
-                                  join ta in _context.TiposAtivo on p.Categoria equals ta.Id
+                                  join ta in _context.TiposAtivo on p.Categoria equals ta.Id into taGroup
+                                  from ta in taGroup.DefaultIfEmpty()
                                   select new TransacaoInventarioCriacaoEdicaoViewModel.ItemTransacaoCriacaoEdicao
                                   {
                                       ProdutoId = p.Id,
                                       CategoriaProduto = p.Categoria,
-                                      NomeCategoriaProduto = ta.Categoria,
+                                      NomeCategoriaProduto = ta != null ? ta.Categoria : "Geral",
                                       NomeProduto = p.Nome,
                                       Cor = p.Cor,
                                       Descricao = p.Descricao,
@@ -266,7 +274,7 @@ namespace VestindoSonhos.Controllers
         // POST: Inventario/Editar/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Editar(int id, [Bind("IdTransacao,Produtos,CategoriaTransacao,Beneficiario,Observacao,Razao")] TransacaoInventarioCriacaoEdicaoViewModel model)
@@ -328,7 +336,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Inventario/Apagar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         public async Task<IActionResult> Apagar(int? id)
         {
             if (id == null)
@@ -372,7 +380,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // POST: Inventario/Apagar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         [HttpPost, ActionName("Apagar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApagarConfirmed(int id)

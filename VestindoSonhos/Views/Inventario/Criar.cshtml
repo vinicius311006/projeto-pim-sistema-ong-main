@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.ViewModels.TransacaoInventarioCriacaoEdicaoViewModel
+@model VestindoSonhos.ViewModels.TransacaoInventarioCriacaoEdicaoViewModel
 @{
 	ViewData["Title"] = "Criar";
 	Layout = "~/Views/Shared/_Layout.cshtml";
@@ -31,9 +31,25 @@
 			</div>
 			<div class="form-group">
 				<label asp-for="Observacao" class="control-label">Observação</label>
-				<textarea asp-for="Observacao" class="form-control"></textarea>
+				<textarea asp-for="Observacao" class="form-control" maxlength="255"></textarea>
 				<span asp-validation-for="Observacao" class="text-danger"></span>
 			</div>
+
+			<div style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 12px 16px; margin: 15px 0;">
+				<p style="margin: 0; color: #3730A3; font-size: 13px; line-height: 1.5;">
+					📦 <strong>Como adicionar itens:</strong> Na lista de produtos abaixo, <strong>marque a caixinha</strong> do produto desejado e <strong>digite a quantidade</strong> que está entrando ou saindo.
+				</p>
+			</div>
+
+			@if (Model.Produtos == null || !Model.Produtos.Any())
+			{
+				<div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 15px; margin: 15px 0; color: #92400E;">
+					<h4 style="margin: 0 0 6px; font-size: 15px; font-weight: 600;">⚠️ Nenhum produto cadastrado no catálogo</h4>
+					<p style="margin: 0 0 10px; font-size: 13px;">O Inventário registra a movimentação de estoque de produtos já cadastrados. Para adicionar peças, primeiro cadastre o produto no menu <strong>Produtos</strong>.</p>
+					<a asp-controller="Produtos" asp-action="Criar" class="btn btn-primary" style="text-decoration: none; display: inline-block;">+ Cadastrar Novo Produto</a>
+				</div>
+			}
+
 			<div class="container-tabela">
 				<div class="card">
 
