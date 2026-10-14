@@ -33,6 +33,15 @@ call flutter build apk --debug
 
 if %ERRORLEVEL% NEQ 0 (
     echo.
+    echo [INFO] Detectada falha ou cache temporario corrompido do Gradle. Executando limpeza automatica...
+    call flutter clean
+    call flutter pub get
+    echo Tentando compilar novamente o APK...
+    call flutter build apk --debug
+)
+
+if %ERRORLEVEL% NEQ 0 (
+    echo.
     echo [ERRO] Falha ao compilar o APK! Verifique os erros acima.
     pause
     exit /b %ERRORLEVEL%
