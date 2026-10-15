@@ -347,13 +347,19 @@ namespace VestindoSonhos.Controllers
             var evento = await _context.Evento.FindAsync(id);
             if (evento != null)
             {
-                _context.Evento.Remove(evento);
-                await _context.VoluntarioAtribuido
+                var atribuicoes = await _context.VoluntarioAtribuido
                     .Where(va => va.Evento == evento.Id)
-                    .ExecuteDeleteAsync();
+                    .ToListAsync();
+                if (atribuicoes.Any())
+                {
+                    _context.VoluntarioAtribuido.RemoveRange(atribuicoes);
+                    await _context.SaveChangesAsync();
+                }
+
+                _context.Evento.Remove(evento);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

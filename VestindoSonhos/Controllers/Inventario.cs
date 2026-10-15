@@ -346,6 +346,11 @@ namespace VestindoSonhos.Controllers
 
             var transacao_inventario = await _context.TransacaoInventario.Include(ti => ti.BeneficiarioNavigation).Include(ti => ti.ProdutoNavigation).FirstOrDefaultAsync(ti => ti.TransacaoId == id);
             var transacao = await _context.Transacao.Include(t => t.CategoriaNavigation).Include(t => t.UsuarioNavigation).FirstOrDefaultAsync(t => t.Id == id);
+            if (transacao == null)
+            {
+                return NotFound();
+            }
+
             var itens = await (from ti in _context.TransacaoInventario
                                join p in _context.Produto on ti.ProdutoId equals p.Id
                                where ti.TransacaoId == id
@@ -359,6 +364,7 @@ namespace VestindoSonhos.Controllers
                                }).ToListAsync();
             var contexto = new TransacaoInventarioViewModel
             {
+                IdTransacao = transacao.Id,
                 Usuario = transacao.Usuario,
                 UsuarioNavigation = transacao.UsuarioNavigation,
                 Categoria = transacao.Categoria,
@@ -366,15 +372,10 @@ namespace VestindoSonhos.Controllers
                 Hora = transacao.Hora,
                 Observacao = transacao.Observacao,
                 Razao = transacao.Razao.ToString(),
-                Beneficiario = transacao_inventario.Beneficiario,
-                BeneficiarioNavigation = transacao_inventario.BeneficiarioNavigation,
+                Beneficiario = transacao_inventario?.Beneficiario,
+                BeneficiarioNavigation = transacao_inventario?.BeneficiarioNavigation,
                 listaItensAtribuidos = itens
             };
-
-            if (contexto == null)
-            {
-                return NotFound();
-            }
 
             return View(contexto);
         }
@@ -386,18 +387,18 @@ namespace VestindoSonhos.Controllers
         public async Task<IActionResult> ApagarConfirmed(int id)
         {
             var transacoesInventario = await _context.TransacaoInventario.Where(ti => ti.TransacaoId == id).ToListAsync();
-            var transacao = await _context.Transacao.FirstOrDefaultAsync(t => t.Id == id);
+            if (transacoesInventario.Any())
+            {
+                _context.TransacaoInventario.RemoveRange(transacoesInventario);
+                await _context.SaveChangesAsync();
+            }
 
+            var transacao = await _context.Transacao.FirstOrDefaultAsync(t => t.Id == id);
             if (transacao != null)
             {
                 _context.Transacao.Remove(transacao);
-                if (transacoesInventario.Any())
-                {
-                    foreach(var transacaoInventario in transacoesInventario)
-                    _context.TransacaoInventario.Remove(transacaoInventario);
-                }
+                await _context.SaveChangesAsync();
             }
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

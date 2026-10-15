@@ -360,15 +360,20 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarExclusão(int id)
         {
-            var transacao = await _context.Transacao.FindAsync(id);
             var transacao_financeira = await _context.TransacaoFinanceira.FindAsync(id);
-            if (transacao != null)
+            if (transacao_financeira != null)
             {
                 _context.TransacaoFinanceira.Remove(transacao_financeira);
-                _context.Transacao.Remove(transacao);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
+            var transacao = await _context.Transacao.FindAsync(id);
+            if (transacao != null)
+            {
+                _context.Transacao.Remove(transacao);
+                await _context.SaveChangesAsync();
+            }
+
             return RedirectToAction(nameof(Financeiro));
         }
 

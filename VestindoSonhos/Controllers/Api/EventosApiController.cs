@@ -201,6 +201,7 @@ namespace VestindoSonhos.Controllers.Api
             if (vols.Any())
             {
                 _context.VoluntarioAtribuido.RemoveRange(vols);
+                await _context.SaveChangesAsync();
             }
 
             _context.Evento.Remove(evento);

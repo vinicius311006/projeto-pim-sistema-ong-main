@@ -190,6 +190,7 @@ namespace VestindoSonhos.Controllers.Api
             if (trans.Any())
             {
                 _context.TransacaoInventario.RemoveRange(trans);
+                await _context.SaveChangesAsync();
             }
 
             _context.Produto.Remove(p);

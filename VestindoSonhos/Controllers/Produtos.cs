@@ -175,10 +175,19 @@ namespace VestindoSonhos.Controllers
             var produto = await _context.Produto.FindAsync(id);
             if (produto != null)
             {
+                var transacoesInv = await _context.TransacaoInventario
+                    .Where(ti => ti.ProdutoId == id)
+                    .ToListAsync();
+                if (transacoesInv.Any())
+                {
+                    _context.TransacaoInventario.RemoveRange(transacoesInv);
+                    await _context.SaveChangesAsync();
+                }
+
                 _context.Produto.Remove(produto);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

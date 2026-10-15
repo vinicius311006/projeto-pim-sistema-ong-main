@@ -172,7 +172,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // POST: Dependentes/Apagar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         [HttpPost, ActionName("Apagar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

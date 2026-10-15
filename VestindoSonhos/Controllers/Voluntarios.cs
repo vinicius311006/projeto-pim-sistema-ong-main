@@ -155,10 +155,19 @@ namespace VestindoSonhos.Controllers
             var voluntario = await _context.Voluntario.FindAsync(id);
             if (voluntario != null)
             {
+                var atribuicoes = await _context.VoluntarioAtribuido
+                    .Where(va => va.Voluntario == id)
+                    .ToListAsync();
+                if (atribuicoes.Any())
+                {
+                    _context.VoluntarioAtribuido.RemoveRange(atribuicoes);
+                    await _context.SaveChangesAsync();
+                }
+
                 _context.Voluntario.Remove(voluntario);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(actionName: "Index", controllerName: "Eventos");
         }
 

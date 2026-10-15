@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -20,14 +20,14 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: TiposAtivo
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.TiposAtivo.ToListAsync());
         }
 
         // GET: TiposAtivo/Details/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -46,7 +46,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: TiposAtivo/Create
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         public IActionResult Criar()
         {
             return View();
@@ -55,7 +55,7 @@ namespace VestindoSonhos.Controllers
         // POST: TiposAtivo/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Id,Categoria")] Models.TiposAtivo tiposAtivo)
@@ -70,7 +70,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: TiposAtivo/Editar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         public async Task<IActionResult> Editar(int? id)
         {
             if (id == null)
@@ -89,7 +89,7 @@ namespace VestindoSonhos.Controllers
         // POST: TiposAtivo/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Editar(int id, [Bind("Id,Categoria")] Models.TiposAtivo tiposAtivo)
@@ -123,7 +123,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: TiposAtivo/Apagar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         public async Task<IActionResult> Apagar(int? id)
         {
             if (id == null)
@@ -142,23 +142,31 @@ namespace VestindoSonhos.Controllers
         }
 
         // POST: TiposAtivo/Apagar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         [HttpPost, ActionName("Apagar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-
             try
             {
                 var tiposAtivo = await _context.TiposAtivo.FindAsync(id);
-            if (tiposAtivo != null)
-            {
-                _context.TiposAtivo.Remove(tiposAtivo);
-            }
+                if (tiposAtivo != null)
+                {
+                    var produtos = await _context.Produto.Where(p => p.Categoria == id).ToListAsync();
+                    foreach (var p in produtos)
+                    {
+                        p.Categoria = null;
+                    }
+                    if (produtos.Any())
+                    {
+                        await _context.SaveChangesAsync();
+                    }
 
-                await _context.SaveChangesAsync();
+                    _context.TiposAtivo.Remove(tiposAtivo);
+                    await _context.SaveChangesAsync();
+                }
             }
-            catch (DbUpdateException e)
+            catch (DbUpdateException)
             {
                 ModelState.AddModelError("", "Falha ao excluir a categoria.");
                 Console.WriteLine("Falha ao excluir a categoria.");

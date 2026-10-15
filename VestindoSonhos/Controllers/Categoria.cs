@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +28,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Categoria/Details/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -47,7 +47,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Categoria/Criar
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         public IActionResult Criar(string returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
@@ -57,7 +57,7 @@ namespace VestindoSonhos.Controllers
         // POST: Categoria/Criar
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Id", "Nome")] Models.Categoria categoria, string returnUrl = null)
@@ -82,7 +82,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Categoria/Edit/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         public async Task<IActionResult> Editar(int? id)
         {
             if (id == null)
@@ -101,7 +101,7 @@ namespace VestindoSonhos.Controllers
         // POST: Categoria/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Editar(int id, [Bind("Id,Nome")] Models.Categoria categoria)
@@ -135,7 +135,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Categoria/Apagar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         public async Task<IActionResult> Apagar(int? id)
         {
             if (id == null)
@@ -154,18 +154,24 @@ namespace VestindoSonhos.Controllers
         }
 
         // POST: Categoria/Apagar/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Colaborador")]
         [HttpPost, ActionName("Apagar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApagarConfirmed(int id)
         {
-            var categoria = await _context.Categoria.FindAsync(id);
-            if (categoria != null)
+            try
             {
-                _context.Categoria.Remove(categoria);
+                var categoria = await _context.Categoria.FindAsync(id);
+                if (categoria != null)
+                {
+                    _context.Categoria.Remove(categoria);
+                    await _context.SaveChangesAsync();
+                }
             }
-
-            await _context.SaveChangesAsync();
+            catch (DbUpdateException)
+            {
+                Console.WriteLine("Categoria vinculada a transações existentes.");
+            }
             return RedirectToAction(nameof(Index));
         }
 

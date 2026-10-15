@@ -380,10 +380,32 @@ namespace VestindoSonhos.Controllers
             var usuario = await _context.Usuario.FindAsync(id);
             if (usuario != null)
             {
+                var substituto = await _context.Usuario.FirstOrDefaultAsync(u => u.Id != id);
+                if (substituto != null)
+                {
+                    var eventos = await _context.Evento.Where(e => e.Responsavel == id).ToListAsync();
+                    foreach (var ev in eventos)
+                    {
+                        ev.Responsavel = substituto.Id;
+                    }
+
+                    var transacoes = await _context.Transacao.Where(t => t.Usuario == id).ToListAsync();
+                    foreach (var tr in transacoes)
+                    {
+                        tr.Usuario = substituto.Id;
+                    }
+
+                    if (eventos.Any() || transacoes.Any())
+                    {
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
                 _context.Usuario.Remove(usuario);
+                await _context.SaveChangesAsync();
+                TempData["Sucesso"] = $"Usuário '{usuario.Nome}' removido com sucesso!";
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

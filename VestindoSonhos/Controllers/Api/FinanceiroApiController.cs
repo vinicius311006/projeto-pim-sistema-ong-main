@@ -179,12 +179,13 @@ namespace VestindoSonhos.Controllers.Api
             var t = await _context.Transacao.FindAsync(id);
 
             _context.TransacaoFinanceira.Remove(tf);
+            await _context.SaveChangesAsync();
+
             if (t != null)
             {
                 _context.Transacao.Remove(t);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
 
             return Ok(new { mensagem = "Transação excluída com sucesso." });
         }
