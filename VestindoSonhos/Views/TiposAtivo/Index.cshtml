@@ -1,4 +1,4 @@
-﻿@model IEnumerable<VestindoSonhos.Models.TiposAtivo>
+@model IEnumerable<VestindoSonhos.Models.TiposAtivo>
 
 @{
     ViewData["Title"] = "Index";
@@ -27,7 +27,7 @@
             </td>
             <td>
                 <a asp-action="Editar" asp-route-id="@item.Id">Editar</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
                     <a asp-action="Apagar" asp-route-id="@item.Id">Apagar</a>
             </td>
         </tr>
