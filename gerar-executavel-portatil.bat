@@ -24,6 +24,9 @@ echo.
 echo [1/3] Compilando executavel em modo Release (win-x64 Self-Contained)...
 set "OUTDIR=%~dp0VestindoSonhos_Portavel"
 
+taskkill /F /IM VestindoSonhos.exe >nul 2>&1
+timeout /t 1 /nobreak >nul
+
 dotnet publish "%CSPROJ%" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o "%OUTDIR%"
 
 if %ERRORLEVEL% NEQ 0 (

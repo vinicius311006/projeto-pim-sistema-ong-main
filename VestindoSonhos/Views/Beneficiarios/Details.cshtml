@@ -59,36 +59,16 @@
 <hr />
 <div>
     <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.beneficiario.Nome)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.beneficiario.Nome)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.beneficiario.Telefone)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.beneficiario.Telefone)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.beneficiario.Endereco)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.beneficiario.Endereco)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.beneficiario.Situacao)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.beneficiario.Situacao)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.beneficiario.Observacao)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.beneficiario.Observacao)
-        </dd>
+        <dt class="col-sm-2">Nome</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.beneficiario.Nome)</dd>
+        <dt class="col-sm-2">Telefone</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.beneficiario.Telefone)</dd>
+        <dt class="col-sm-2">Endereço</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.beneficiario.Endereco)</dd>
+        <dt class="col-sm-2">Situação</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.beneficiario.Situacao)</dd>
+        <dt class="col-sm-2">Observação</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.beneficiario.Observacao)</dd>
     </dl>
 </div>
 <div>
@@ -132,9 +112,9 @@
                                 @Html.DisplayFor(modelItem => item.Parentesco)
                             </td>
                             <td>
-                                <a asp-controller="Dependentes" asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span></a>
-                                <a asp-controller="Dependentes" asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span></a>
-                                <a asp-controller="Dependentes" asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span></a>
+                                <a asp-controller="Dependentes" asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span>Editar</a>
+                                <a asp-controller="Dependentes" asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span>Detalhes</a>
+                                <a asp-controller="Dependentes" asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
                             </td>
                         </tr>
                     }
@@ -145,3 +125,5 @@
         {
             <p style="padding: 16px; margin: 0; color: #6F6F85; font-style: italic;">Nenhum dependente cadastrado para este beneficiário.</p>
         }
+    </div>
+</div>

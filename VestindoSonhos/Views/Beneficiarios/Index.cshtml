@@ -1,4 +1,4 @@
-﻿@model IEnumerable<VestindoSonhos.Models.Beneficiario>
+@model IEnumerable<VestindoSonhos.Models.Beneficiario>
 
 @{
     ViewData["Title"] = "Index";
@@ -18,21 +18,11 @@
         <table class="table table-striped">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nome)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Telefone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Endereco)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Situacao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Observacao)
-            </th>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Endereço</th>
+            <th>Situação</th>
+            <th>Observação</th>
             <th></th>
         </tr>
     </thead>

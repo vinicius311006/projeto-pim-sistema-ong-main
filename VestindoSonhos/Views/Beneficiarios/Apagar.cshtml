@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.Models.Beneficiario
+@model VestindoSonhos.Models.Beneficiario
 <link rel="stylesheet" href="~/css/formularios.css" />
 
 @{
@@ -9,51 +9,31 @@
 <div class="container-formulario">
 
     <div class="btn-back">
-        <a asp-controller="Beneficiarios" asp-action="financeiro"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
+        <a asp-controller="Beneficiarios" asp-action="Index"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
     </div>
 
+    <div class="form-card">
+        <h1>Apagar Beneficiário</h1>
+        <h4>Tem certeza que deseja apagar este beneficiário?</h4>
+        <div>
+            <hr />
+            <dl class="form-context row">
+                <dt class="col-sm-2">Nome</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Nome)</dd>
+                <dt class="col-sm-2">Telefone</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Telefone)</dd>
+                <dt class="col-sm-2">Endereço</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Endereco)</dd>
+                <dt class="col-sm-2">Situação</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Situacao)</dd>
+                <dt class="col-sm-2">Observação</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Observacao)</dd>
+            </dl>
 
-    <h4>Apagar</h4>
-    <h4>Tem certeza que deseja apagar este item?</h4>
-<div>
-    <h4>Beneficiario</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nome)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nome)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Telefone)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Telefone)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Endereco)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Endereco)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Situacao)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Situacao)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Observacao)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Observacao)
-        </dd>
-    </dl>
-    
-    <form asp-action="Apagar">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Apagar" class="btn btn-danger" />
-    </form>
-</div>
+            <form asp-action="Apagar">
+                <input type="hidden" asp-for="Id" />
+                <input type="submit" value="Apagar" class="btn btn-danger" />
+            </form>
+        </div>
+    </div>
 </div>

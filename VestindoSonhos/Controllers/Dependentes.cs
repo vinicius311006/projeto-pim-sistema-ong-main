@@ -75,12 +75,17 @@ namespace VestindoSonhos.Controllers
             if (model.Idade < 0) model.Idade = 0;
             if (model.Idade > 120) model.Idade = 120;
 
+            ModelState.Remove("IdResponsavelNavigation");
             if (ModelState.IsValid)
             {
                 _context.Add(model);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(controllerName: "Beneficiarios", actionName: "Index");
+                return RedirectToAction("Details", "Beneficiarios", new { id = model.IdResponsavel });
             }
+            var resp = await _context.Beneficiario.FirstOrDefaultAsync(b => b.Id == model.IdResponsavel);
+            ViewBag.Sexo = new SelectList(new[] { "M", "F", "n" }, model.Sexo);
+            ViewBag.beneficiarioNome = resp?.Nome;
+            ViewBag.beneficiarioId = model.IdResponsavel;
             return View(model);
         }
 
@@ -93,15 +98,16 @@ namespace VestindoSonhos.Controllers
                 return NotFound();
             }
             var dependente = await _context.Dependente.FindAsync(id);
-            var beneficiario = await _context.Beneficiario.FirstOrDefaultAsync(b => b.Id == dependente.IdResponsavel);
-
-            ViewBag.beneficiarioNome = beneficiario.Nome;
-            ViewBag.beneficiarioId = beneficiario.Id;
-            
             if (dependente == null)
             {
                 return NotFound();
             }
+            var beneficiario = await _context.Beneficiario.FirstOrDefaultAsync(b => b.Id == dependente.IdResponsavel);
+
+            ViewBag.beneficiarioNome = beneficiario?.Nome;
+            ViewBag.beneficiarioId = beneficiario?.Id ?? dependente.IdResponsavel;
+            ViewBag.Sexo = new SelectList(new[] { "M", "F", "n" }, dependente.Sexo);
+
             return View(dependente);
         }
 
@@ -127,6 +133,7 @@ namespace VestindoSonhos.Controllers
             if (dependente.Idade < 0) dependente.Idade = 0;
             if (dependente.Idade > 120) dependente.Idade = 120;
 
+            ModelState.Remove("IdResponsavelNavigation");
             if (ModelState.IsValid)
             {
                 try
@@ -145,9 +152,12 @@ namespace VestindoSonhos.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(controllerName: "Beneficiarios", actionName: "Index");
+                return RedirectToAction("Details", "Beneficiarios", new { id = dependente.IdResponsavel });
             }
-            ViewData["IdResponsavel"] = new SelectList(_context.Beneficiario, "Id", "Nome", dependente.IdResponsavel);
+            var resp = await _context.Beneficiario.FirstOrDefaultAsync(b => b.Id == dependente.IdResponsavel);
+            ViewBag.Sexo = new SelectList(new[] { "M", "F", "n" }, dependente.Sexo);
+            ViewBag.beneficiarioNome = resp?.Nome;
+            ViewBag.beneficiarioId = dependente.IdResponsavel;
             return View(dependente);
         }
 

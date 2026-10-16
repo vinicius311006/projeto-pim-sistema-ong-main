@@ -115,8 +115,8 @@ CREATE TABLE IF NOT EXISTS TransacaoFinanceira (
 CREATE TABLE IF NOT EXISTS Produto (
     id INT NOT NULL AUTO_INCREMENT,
     nome VARCHAR(60) NOT NULL,
-    descricao VARCHAR(255) NOT NULL,
-    cor VARCHAR(15) NOT NULL,
+    descricao VARCHAR(255) DEFAULT '',
+    cor VARCHAR(15) DEFAULT '',
     categoria INT,
     PRIMARY KEY (id),
     CONSTRAINT FK_Produto_Tipo FOREIGN KEY (categoria) REFERENCES TiposAtivo(id)
@@ -137,12 +137,32 @@ CREATE TABLE IF NOT EXISTS Dependente (
     id INT NOT NULL AUTO_INCREMENT,
     id_responsavel INT NOT NULL,
     nome VARCHAR(60) NOT NULL,
-    ano_nascimento INT NOT NULL,
+    idade INT NOT NULL DEFAULT 0,
+    ano_nascimento INT DEFAULT 0,
     sexo CHAR(1) NOT NULL,
     parentesco VARCHAR(20),
+    observacao VARCHAR(255),
     PRIMARY KEY (id),
     CONSTRAINT FK_Dependente_Beneficiario FOREIGN KEY (id_responsavel) REFERENCES Beneficiario(id)
 );
+
+DELIMITER //
+DROP PROCEDURE IF EXISTS sp_GarantirColunasDependente //
+CREATE PROCEDURE sp_GarantirColunasDependente()
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Dependente' AND COLUMN_NAME = 'idade') THEN
+        ALTER TABLE Dependente ADD COLUMN idade INT NOT NULL DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Dependente' AND COLUMN_NAME = 'observacao') THEN
+        ALTER TABLE Dependente ADD COLUMN observacao VARCHAR(255) NULL;
+    END IF;
+    IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Dependente' AND COLUMN_NAME = 'ano_nascimento') THEN
+        ALTER TABLE Dependente MODIFY COLUMN ano_nascimento INT NULL DEFAULT 0;
+    END IF;
+END //
+DELIMITER ;
+CALL sp_GarantirColunasDependente();
+DROP PROCEDURE IF EXISTS sp_GarantirColunasDependente;
 
 -- ------------------------------------------------------------------------------
 -- 2. TABELA PRINCIPAL DE INVENTÁRIO (Controle Consolidado de Estoque)
