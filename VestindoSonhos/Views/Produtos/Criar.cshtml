@@ -23,27 +23,23 @@
                 <span asp-validation-for="Nome" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Descricao" class="control-label"></label>
+                <label asp-for="Descricao" class="control-label">Descrição</label>
                 <input asp-for="Descricao" class="form-control" maxlength="255" />
                 <span asp-validation-for="Descricao" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Cor" class="control-label"></label>
+                <label asp-for="Cor" class="control-label">Cor</label>
                 <input asp-for="Cor" class="form-control" maxlength="15" />
                 <span asp-validation-for="Cor" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Categoria" class="control-label"></label>
-                <select asp-for="Categoria" class ="form-control" asp-items="ViewBag.Categoria"></select>
+                <label asp-for="Categoria" class="control-label">Categoria</label>
+                <select asp-for="Categoria" class="form-control" asp-items="ViewBag.Categoria"></select>
             </div>
             <div class="form-group">
                 <input type="submit" value="Criar" class="btn btn-primary" />
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 

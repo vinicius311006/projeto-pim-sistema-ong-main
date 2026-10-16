@@ -14,7 +14,11 @@
 
 <div class="card-topo">
     <h3>Detalhes do Inventário</h3>
-    <a class="btn btn-primary" asp-action="Criar"><span class="material-symbols-outlined">add</span>Nova Movimentação</a>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a class="btn btn-primary" asp-controller="Produtos" asp-action="Index"><span class="material-symbols-outlined">inventory_2</span>Produtos</a>
+        <a class="btn btn-primary" asp-controller="Produtos" asp-action="Criar"><span class="material-symbols-outlined">add_box</span>Novo Produto</a>
+        <a class="btn btn-primary" asp-action="Criar"><span class="material-symbols-outlined">add</span>Nova Movimentação</a>
+    </div>
 </div>
 
 <table class="table table-striped">

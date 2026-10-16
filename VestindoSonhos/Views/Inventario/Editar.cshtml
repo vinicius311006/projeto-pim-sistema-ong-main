@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.ViewModels.TransacaoInventarioCriacaoEdicaoViewModel
+@model VestindoSonhos.ViewModels.TransacaoInventarioCriacaoEdicaoViewModel
 @{
 	ViewData["Title"] = "Editar";
 	Layout = "~/Views/Shared/_Layout.cshtml";
@@ -34,6 +34,19 @@
 				<label asp-for="Observacao" class="control-label">Observação</label>
 				<textarea asp-for="Observacao" class="form-control"></textarea>
 				<span asp-validation-for="Observacao" class="text-danger"></span>
+			</div>
+			<div style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 12px 16px; margin: 15px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+				<p style="margin: 0; color: #3730A3; font-size: 13px; line-height: 1.5; flex: 1;">
+					📦 <strong>Itens da movimentação:</strong> Marque a caixinha do produto desejado e informe a quantidade.
+				</p>
+				<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+					<a asp-controller="Produtos" asp-action="Criar" class="btn btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; padding: 6px 12px;">
+						<span class="material-symbols-outlined" style="font-size: 18px;">add</span> Novo Produto
+					</a>
+					<a asp-controller="Produtos" asp-action="Index" class="btn btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; padding: 6px 12px;">
+						<span class="material-symbols-outlined" style="font-size: 18px;">inventory_2</span> Ver Produtos
+					</a>
+				</div>
 			</div>
 			<div class="container-tabela">
 				<div class="card">

@@ -1,8 +1,8 @@
-﻿@model VestindoSonhos.Models.Produto
+@model VestindoSonhos.Models.Produto
 <link rel="stylesheet" href="~/css/formularios.css" />
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalhes do Produto";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -12,40 +12,24 @@
         <a asp-controller="Produtos" asp-action="Index"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
     </div>
 
-
     <div class="form-card">
-        <h1>Detalhes</h1>
+        <h1>Detalhes do Produto</h1>
 
         <div>
-            <h4>produtos</h4>
             <hr />
             <dl class="form-context row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nome)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nome)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descricao)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Descricao)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Cor)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Cor)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Categoria)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CategoriaNavigation.Categoria)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Editar" asp-route-id="@Model?.Id">Editar</a>
+                <dt class="col-sm-2">Nome</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Nome)</dd>
+                <dt class="col-sm-2">Descrição</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Descricao)</dd>
+                <dt class="col-sm-2">Cor</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Cor)</dd>
+                <dt class="col-sm-2">Categoria</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.CategoriaNavigation!.Categoria)</dd>
+            </dl>
+        </div>
+        <div>
+            <a asp-action="Editar" asp-route-id="@Model?.Id" class="btn btn-primary">Editar</a>
+        </div>
+    </div>
 </div>

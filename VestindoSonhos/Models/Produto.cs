@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace VestindoSonhos.Models;
@@ -9,9 +9,9 @@ public partial class Produto
 
     public string Nome { get; set; } = null!;
 
-    public string Descricao { get; set; } = null!;
+    public string? Descricao { get; set; }
 
-    public string Cor { get; set; } = null!;
+    public string? Cor { get; set; }
 
     public int? Categoria { get; set; }
 

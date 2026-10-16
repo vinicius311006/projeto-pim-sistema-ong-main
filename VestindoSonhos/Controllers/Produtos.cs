@@ -67,11 +67,17 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Id,Nome,Descricao,Cor,Categoria")] Produto produto)
         {
+            produto.Descricao ??= "";
+            produto.Cor ??= "";
+            ModelState.Remove("Descricao");
+            ModelState.Remove("Cor");
+            ModelState.Remove("CategoriaNavigation");
+
             if (!string.IsNullOrEmpty(produto.Nome) && produto.Nome.Length > 60)
                 produto.Nome = produto.Nome.Substring(0, 60);
-            if (!string.IsNullOrEmpty(produto.Descricao) && produto.Descricao.Length > 255)
+            if (produto.Descricao.Length > 255)
                 produto.Descricao = produto.Descricao.Substring(0, 255);
-            if (!string.IsNullOrEmpty(produto.Cor) && produto.Cor.Length > 15)
+            if (produto.Cor.Length > 15)
                 produto.Cor = produto.Cor.Substring(0, 15);
 
             if (ModelState.IsValid)
@@ -115,11 +121,17 @@ namespace VestindoSonhos.Controllers
                 return NotFound();
             }
 
+            produto.Descricao ??= "";
+            produto.Cor ??= "";
+            ModelState.Remove("Descricao");
+            ModelState.Remove("Cor");
+            ModelState.Remove("CategoriaNavigation");
+
             if (!string.IsNullOrEmpty(produto.Nome) && produto.Nome.Length > 60)
                 produto.Nome = produto.Nome.Substring(0, 60);
-            if (!string.IsNullOrEmpty(produto.Descricao) && produto.Descricao.Length > 255)
+            if (produto.Descricao.Length > 255)
                 produto.Descricao = produto.Descricao.Substring(0, 255);
-            if (!string.IsNullOrEmpty(produto.Cor) && produto.Cor.Length > 15)
+            if (produto.Cor.Length > 15)
                 produto.Cor = produto.Cor.Substring(0, 15);
 
             if (ModelState.IsValid)

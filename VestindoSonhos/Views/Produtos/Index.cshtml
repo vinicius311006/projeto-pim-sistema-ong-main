@@ -1,54 +1,60 @@
-﻿@model IEnumerable<VestindoSonhos.Models.Produto>
+@model IEnumerable<VestindoSonhos.Models.Produto>
+<link rel="stylesheet" href="~/css/tabela.css">
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Produtos";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="container-tabela">
+    <div class="btn-back" style="margin-bottom: 12px;">
+        <a asp-controller="Inventario" asp-action="Index"><i class="material-symbols-outlined">arrow_back_ios</i>Voltar para Inventário</a>
+    </div>
 
-<p>
-    <a class="btn-transferencia" asp-area="" asp-controller="Produtos" asp-action="Criar"><i class="material-symbols-outlined">add</i><span>Novo Produto</span></a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nome)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Descricao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Cor)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Categoria)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nome)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Descricao)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Cor)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CategoriaNavigation.Categoria)
-            </td>
-                <td>
-                    <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span></a>
-                    <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span></a>
-                    <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span></a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <h1>Produtos</h1>
+
+    <div class="card">
+        <div class="card-topo">
+            <h3>Catálogo de Produtos</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a class="btn btn-primary" asp-controller="Produtos" asp-action="Criar"><span class="material-symbols-outlined">add</span>Novo Produto</a>
+                <a class="btn btn-primary" asp-controller="Inventario" asp-action="Criar"><span class="material-symbols-outlined">swap_horiz</span>Nova Movimentação</a>
+            </div>
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th>Cor</th>
+                    <th>Categoria</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+        @foreach (var item in Model) {
+                <tr>
+                    <td data-label="Nome">
+                        @Html.DisplayFor(modelItem => item.Nome)
+                    </td>
+                    <td data-label="Descrição">
+                        @Html.DisplayFor(modelItem => item.Descricao)
+                    </td>
+                    <td data-label="Cor">
+                        @Html.DisplayFor(modelItem => item.Cor)
+                    </td>
+                    <td data-label="Categoria">
+                        @Html.DisplayFor(modelItem => item.CategoriaNavigation.Categoria)
+                    </td>
+                    <td>
+                        <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span>Editar</a>
+                        <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span>Detalhes</a>
+                        <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
+                    </td>
+                </tr>
+        }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -35,17 +35,25 @@
 				<span asp-validation-for="Observacao" class="text-danger"></span>
 			</div>
 
-			<div style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 12px 16px; margin: 15px 0;">
-				<p style="margin: 0; color: #3730A3; font-size: 13px; line-height: 1.5;">
+			<div style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 12px 16px; margin: 15px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+				<p style="margin: 0; color: #3730A3; font-size: 13px; line-height: 1.5; flex: 1;">
 					📦 <strong>Como adicionar itens:</strong> Na lista de produtos abaixo, <strong>marque a caixinha</strong> do produto desejado e <strong>digite a quantidade</strong> que está entrando ou saindo.
 				</p>
+				<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+					<a asp-controller="Produtos" asp-action="Criar" class="btn btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; padding: 6px 12px;">
+						<span class="material-symbols-outlined" style="font-size: 18px;">add</span> Novo Produto
+					</a>
+					<a asp-controller="Produtos" asp-action="Index" class="btn btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; padding: 6px 12px;">
+						<span class="material-symbols-outlined" style="font-size: 18px;">inventory_2</span> Ver Produtos
+					</a>
+				</div>
 			</div>
 
 			@if (Model.Produtos == null || !Model.Produtos.Any())
 			{
 				<div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 15px; margin: 15px 0; color: #92400E;">
 					<h4 style="margin: 0 0 6px; font-size: 15px; font-weight: 600;">⚠️ Nenhum produto cadastrado no catálogo</h4>
-					<p style="margin: 0 0 10px; font-size: 13px;">O Inventário registra a movimentação de estoque de produtos já cadastrados. Para adicionar peças, primeiro cadastre o produto no menu <strong>Produtos</strong>.</p>
+					<p style="margin: 0 0 10px; font-size: 13px;">O Inventário registra a movimentação de estoque de produtos já cadastrados. Para adicionar peças, primeiro cadastre o produto clicando no botão abaixo.</p>
 					<a asp-controller="Produtos" asp-action="Criar" class="btn btn-primary" style="text-decoration: none; display: inline-block;">+ Cadastrar Novo Produto</a>
 				</div>
 			}
