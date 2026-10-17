@@ -16,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _apiService = ApiService();
   int _indiceAba = 0;
   String _nomeUsuario = 'Voluntário';
@@ -42,9 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (cargo != null && cargo.isNotEmpty) _cargoUsuario = cargo;
         if (email != null && email.isNotEmpty) _emailUsuario = email;
       });
-      if (_cargoUsuario.toLowerCase().contains('admin')) {
-        _carregarDashboard();
-      }
+      _carregarDashboard();
     }
   }
 
@@ -117,17 +116,18 @@ class _HomeScreenState extends State<HomeScreen> {
     final bool isAdmin = _cargoUsuario.toLowerCase().contains('admin');
 
     // Telas e navegação de acordo com o perfil:
-    // Administrador: Dashboard, Inventário, Beneficiários, Financeiro, Eventos
-    // Colaborador: Inventário, Beneficiários, Eventos (sem Financeiro e sem Dashboard)
+    // Administrador: Início (Dashboard), Inventário, Beneficiários, Financeiro, Eventos
+    // Colaborador: Início (Dashboard), Inventário, Beneficiários, Eventos (sem Financeiro)
     final telas = isAdmin
         ? [
-            _buildDashboardView(),
+            _buildDashboardView(isAdmin),
             const InventarioScreen(),
             const BeneficiariosScreen(),
             const FinanceiroScreen(),
             const EventosScreen(),
           ]
         : [
+            _buildDashboardView(isAdmin),
             const InventarioScreen(),
             const BeneficiariosScreen(),
             const EventosScreen(),
@@ -163,6 +163,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ]
         : const [
             NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: 'Início',
+            ),
+            NavigationDestination(
               icon: Icon(Icons.inventory_2_outlined),
               selectedIcon: Icon(Icons.inventory_2),
               label: 'Inventário',
@@ -182,6 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final int indiceValido = _indiceAba < telas.length ? _indiceAba : 0;
 
     return Scaffold(
+      key: _scaffoldKey,
       drawer: _buildDrawerLateral(isAdmin, indiceValido),
       body: telas[indiceValido],
       bottomNavigationBar: NavigationBarTheme(
@@ -210,6 +216,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Menu lateral idêntico à Sidebar da Web (_Layout.cshtml)
   Widget _buildDrawerLateral(bool isAdmin, int indiceAtual) {
+    final int abaEventos = isAdmin ? 4 : 3;
+
     return Drawer(
       child: Column(
         children: [
@@ -260,16 +268,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // Itens do menu conforme permissões:
-          if (isAdmin) ...[
-            _buildItemDrawer(
-              icon: Icons.home,
-              titulo: 'Home (Dashboard)',
-              selecionado: indiceAtual == 0,
-              onTap: () {
-                Navigator.pop(context);
-                _abrirModulo(0);
-              },
-            ),
+          _buildItemDrawer(
+            icon: Icons.home,
+            titulo: 'Home (Dashboard)',
+            selecionado: indiceAtual == 0,
+            onTap: () {
+              Navigator.pop(context);
+              _abrirModulo(0);
+            },
+          ),
+          if (isAdmin)
             _buildItemDrawer(
               icon: Icons.volunteer_activism,
               titulo: 'Financeiro & Doações',
@@ -279,32 +287,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 _abrirModulo(3);
               },
             ),
-          ],
           _buildItemDrawer(
             icon: Icons.inventory_2,
             titulo: 'Inventário (Estoque)',
-            selecionado: isAdmin ? indiceAtual == 1 : indiceAtual == 0,
+            selecionado: indiceAtual == 1,
             onTap: () {
               Navigator.pop(context);
-              _abrirModulo(isAdmin ? 1 : 0);
+              _abrirModulo(1);
             },
           ),
           _buildItemDrawer(
             icon: Icons.diversity_1,
             titulo: 'Beneficiários',
-            selecionado: isAdmin ? indiceAtual == 2 : indiceAtual == 1,
+            selecionado: indiceAtual == 2,
             onTap: () {
               Navigator.pop(context);
-              _abrirModulo(isAdmin ? 2 : 1);
+              _abrirModulo(2);
             },
           ),
           _buildItemDrawer(
             icon: Icons.calendar_month,
             titulo: 'Eventos & Campanhas',
-            selecionado: isAdmin ? indiceAtual == 4 : indiceAtual == 2,
+            selecionado: indiceAtual == abaEventos,
             onTap: () {
               Navigator.pop(context);
-              _abrirModulo(isAdmin ? 4 : 2);
+              _abrirModulo(abaEventos);
             },
           ),
 
@@ -356,9 +363,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Visão 0: Dashboard Principal
-  Widget _buildDashboardView() {
+  Widget _buildDashboardView(bool isAdmin) {
+    final int abaEventos = isAdmin ? 4 : 3;
+
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          tooltip: 'Menu',
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            _scaffoldKey.currentState?.openDrawer();
+          },
+        ),
         title: const Text('Vestindo Sonhos'),
         actions: [
           IconButton(
@@ -441,7 +457,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(10)),
                   child: Text('Erro ao carregar dados: $_erroDashboard', style: TextStyle(color: Colors.red.shade700)),
                 )
-              else ...[
+              else if (_dashboard != null) ...[
                 // Grade de métricas responsiva (sem risco de overflow vertical)
                 Row(
                   children: [
@@ -451,7 +467,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         valor: '${_dashboard!.projetosAtivos}',
                         icone: Icons.event,
                         cor: const Color(0xFF7C6FE0),
-                        onTap: () => _abrirModulo(4),
+                        onTap: () => _abrirModulo(abaEventos),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -461,7 +477,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         valor: '${_dashboard!.voluntariosCadastrados}',
                         icone: Icons.people,
                         cor: const Color(0xFF2E9E5B),
-                        onTap: () => _abrirModulo(4),
+                        onTap: () => _abrirModulo(abaEventos),
                       ),
                     ),
                   ],
@@ -524,12 +540,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                _buildAtalhoLinha(
-                  icone: Icons.volunteer_activism,
-                  titulo: 'Módulo Financeiro',
-                  subtitulo: 'Consulta de saldos de carteiras e doações',
-                  onTap: () => _abrirModulo(3),
-                ),
+                if (isAdmin)
+                  _buildAtalhoLinha(
+                    icone: Icons.volunteer_activism,
+                    titulo: 'Módulo Financeiro',
+                    subtitulo: 'Consulta de saldos de carteiras e doações',
+                    onTap: () => _abrirModulo(3),
+                  ),
                 _buildAtalhoLinha(
                   icone: Icons.inventory_2,
                   titulo: 'Módulo de Inventário',
@@ -546,7 +563,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   icone: Icons.calendar_month,
                   titulo: 'Módulo de Eventos',
                   subtitulo: 'Campanhas de arrecadação e voluntariado',
-                  onTap: () => _abrirModulo(4),
+                  onTap: () => _abrirModulo(abaEventos),
                 ),
               ],
             ],
