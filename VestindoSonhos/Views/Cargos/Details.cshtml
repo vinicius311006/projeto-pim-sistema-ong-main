@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.Models.Cargo
+@model VestindoSonhos.Models.Cargo
 <link rel="stylesheet" href="~/css/formularios.css" />
 
 @{
@@ -28,7 +28,7 @@
             </dl>
             
             <div>
-                <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+                <a class="btn btn-primary" asp-action="Editar" asp-route-id="@Model?.Id">Editar</a>
             </div>
         </div>
     </div>

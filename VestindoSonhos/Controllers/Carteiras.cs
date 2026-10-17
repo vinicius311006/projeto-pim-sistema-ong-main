@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -93,9 +93,15 @@ namespace VestindoSonhos.Controllers
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(int id, [Bind("Id,Nome,Saldo")] Carteira carteira)
+        public async Task<IActionResult> Editar(int id, [Bind("Id,Nome")] Carteira carteira)
         {
             if (id != carteira.Id)
+            {
+                return NotFound();
+            }
+
+            var carteiraDb = await _context.Carteira.FindAsync(id);
+            if (carteiraDb == null)
             {
                 return NotFound();
             }
@@ -104,7 +110,8 @@ namespace VestindoSonhos.Controllers
             {
                 try
                 {
-                    _context.Update(carteira);
+                    carteiraDb.Nome = carteira.Nome;
+                    _context.Update(carteiraDb);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -120,6 +127,7 @@ namespace VestindoSonhos.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            carteira.Saldo = carteiraDb.Saldo;
             return View(carteira);
         }
 
@@ -154,6 +162,11 @@ namespace VestindoSonhos.Controllers
                 if(carteira.Saldo != 0)
                 {
                     return RedirectToAction(controllerName: "Erro", actionName: "ContaNaoVazia");
+                }
+                var transacoesFin = await _context.TransacaoFinanceira.Where(t => t.Carteira == id).ToListAsync();
+                if (transacoesFin.Any())
+                {
+                    _context.TransacaoFinanceira.RemoveRange(transacoesFin);
                 }
                 _context.Carteira.Remove(carteira);
             }

@@ -1,14 +1,15 @@
-﻿@model VestindoSonhos.Models.Voluntario
+@model VestindoSonhos.Models.Voluntario
+<link rel="stylesheet" href="~/css/formularios.css" />
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalhes";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-formulario">
 
     <div class="btn-back">
-        <a asp-controller="Eventos" asp-action="Index"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
+        <a asp-controller="Voluntarios" asp-action="Index"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
     </div>
 
 
@@ -19,35 +20,40 @@
             <h4>Voluntário</h4>
             <hr />
             <dl class="form-context row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nome)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nome)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Cpf)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Cpf)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Endereco)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Endereco)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Telefone)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Telefone)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-    </dl>
+                <dt class = "col-sm-2">
+                    @Html.DisplayNameFor(model => model.Nome)
+                </dt>
+                <dd class = "col-sm-10">
+                    @Html.DisplayFor(model => model.Nome)
+                </dd>
+                <dt class = "col-sm-2">
+                    @Html.DisplayNameFor(model => model.Cpf)
+                </dt>
+                <dd class = "col-sm-10">
+                    @Html.DisplayFor(model => model.Cpf)
+                </dd>
+                <dt class = "col-sm-2">
+                    @Html.DisplayNameFor(model => model.Endereco)
+                </dt>
+                <dd class = "col-sm-10">
+                    @Html.DisplayFor(model => model.Endereco)
+                </dd>
+                <dt class = "col-sm-2">
+                    @Html.DisplayNameFor(model => model.Telefone)
+                </dt>
+                <dd class = "col-sm-10">
+                    @Html.DisplayFor(model => model.Telefone)
+                </dd>
+                <dt class = "col-sm-2">
+                    @Html.DisplayNameFor(model => model.Email)
+                </dt>
+                <dd class = "col-sm-10">
+                    @Html.DisplayFor(model => model.Email)
+                </dd>
+            </dl>
+            <div>
+                <a class="btn btn-primary" asp-action="Editar" asp-route-id="@Model?.Id">Editar</a>
+            </div>
+        </div>
+    </div>
 </div>

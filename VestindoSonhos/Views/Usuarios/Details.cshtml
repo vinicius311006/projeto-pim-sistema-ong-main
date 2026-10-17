@@ -1,7 +1,7 @@
-﻿@model VestindoSonhos.Models.Usuario
+@model VestindoSonhos.Models.Usuario
 <link rel="stylesheet" href="~/css/formularios.css" />
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalhes";
 }
 
 <div class="container-formulario">
@@ -63,5 +63,7 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+    <a class="btn btn-primary" asp-action="Editar" asp-route-id="@Model?.Id">Editar</a>
+</div>
+    </div>
 </div>

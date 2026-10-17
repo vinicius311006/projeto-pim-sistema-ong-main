@@ -52,6 +52,10 @@ namespace VestindoSonhos.Controllers
         public async Task<IActionResult> Criar(int idBeneficiario)
         {
             var beneficiario = await _context.Beneficiario.FirstOrDefaultAsync(b => b.Id == idBeneficiario);
+            if (beneficiario == null)
+            {
+                return NotFound();
+            }
             ViewBag.Sexo = new SelectList(new[] { "M", "F", "n" });
             ViewBag.beneficiarioNome = beneficiario.Nome;
             ViewBag.beneficiarioId = idBeneficiario;
@@ -188,12 +192,17 @@ namespace VestindoSonhos.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var dependente = await _context.Dependente.FindAsync(id);
+            int? idResp = dependente?.IdResponsavel;
             if (dependente != null)
             {
                 _context.Dependente.Remove(dependente);
             }
 
             await _context.SaveChangesAsync();
+            if (idResp.HasValue)
+            {
+                return RedirectToAction("Details", "Beneficiarios", new { id = idResp.Value });
+            }
             return RedirectToAction(controllerName: "Beneficiarios", actionName: "Index");
         }
 

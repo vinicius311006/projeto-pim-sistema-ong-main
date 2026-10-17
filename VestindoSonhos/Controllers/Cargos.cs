@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -49,12 +49,16 @@ namespace VestindoSonhos.Controllers
         [Authorize(Roles = "Administrador")]
         public IActionResult Create()
         {
-            return View();
+            return View("Create");
+        }
+
+        [Authorize(Roles = "Administrador")]
+        public IActionResult Criar()
+        {
+            return View("Create");
         }
 
         // POST: Cargos/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -66,7 +70,15 @@ namespace VestindoSonhos.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(cargo);
+            return View("Create", cargo);
+        }
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Criar([Bind("Id,Nome")] Cargo cargo)
+        {
+            return await Create(cargo);
         }
 
         // GET: Cargos/Edit/5
@@ -83,12 +95,16 @@ namespace VestindoSonhos.Controllers
             {
                 return NotFound();
             }
-            return View(cargo);
+            return View("Edit", cargo);
+        }
+
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> Editar(int? id)
+        {
+            return await Edit(id);
         }
 
         // POST: Cargos/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -119,7 +135,15 @@ namespace VestindoSonhos.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(cargo);
+            return View("Edit", cargo);
+        }
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(int id, [Bind("Id,Nome")] Cargo cargo)
+        {
+            return await Edit(id, cargo);
         }
 
         // GET: Cargos/Delete/5
@@ -138,7 +162,13 @@ namespace VestindoSonhos.Controllers
                 return NotFound();
             }
 
-            return View(cargo);
+            return View("Delete", cargo);
+        }
+
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> Apagar(int? id)
+        {
+            return await Delete(id);
         }
 
         // POST: Cargos/Delete/5
@@ -155,6 +185,14 @@ namespace VestindoSonhos.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost, ActionName("Apagar")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApagarConfirmed(int id)
+        {
+            return await DeleteConfirmed(id);
         }
 
         private bool CargoExists(int id)

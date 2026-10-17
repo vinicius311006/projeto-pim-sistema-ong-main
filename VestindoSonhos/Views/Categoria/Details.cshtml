@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.Models.Categoria
+@model VestindoSonhos.Models.Categoria
 <link rel="stylesheet" href="~/css/formularios.css" />
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -15,7 +15,7 @@
         <h1>Detalhes</h1>
 
         <div>
-            <h4>Carteira</h4>
+            <h4>Categoria</h4>
             <hr />
             <dl class="form-context row">
                 <dt class = "col-sm-2">
@@ -26,7 +26,7 @@
                 </dd>
             </dl>
             <div>
-                <a asp-action="Edit" asp-route-id="@Model?.Id">Editar</a>
+                <a class="btn btn-primary" asp-action="Editar" asp-route-id="@Model?.Id">Editar</a>
             </div>
         </div>
     </div>
