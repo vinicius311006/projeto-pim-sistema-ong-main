@@ -1,0 +1,41 @@
+# =====================================================================
+# Docker Compose - Orquestração Web/API (.NET 10) + MySQL 8.0
+# ONG Vestindo Sonhos (PIM IV - UNIP - Etapa 8: Cloud & DevOps)
+# =====================================================================
+services:
+  db:
+    image: mysql:8.0
+    container_name: vestindosonhos-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: VESTINDOSONHOSDB
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./ScriptVestindoSonhos_MySQL.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vestindosonhos-app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=server=db;port=3306;database=VESTINDOSONHOSDB;user=root;password=root;
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
