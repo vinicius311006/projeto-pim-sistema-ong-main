@@ -1,4 +1,4 @@
-**UNIVERSIDADE PAULISTA – UNIP**  
+﻿**UNIVERSIDADE PAULISTA – UNIP**  
 **Projeto Integrado Multidisciplinar**  
 **Curso Superior de Tecnologia em**  
 **Análise e Desenvolvimento de Sistemas**  
@@ -8,7 +8,7 @@
 **[NOME COMPLETO DO ALUNO 4] – RA: [0000000]**  
 **DESENVOLVIMENTO E IMPLANTAÇÃO DE UMA SOLUÇÃO TECNOLÓGICA CORPORATIVA INTEGRADA PARA APOIAR A TRANSFORMAÇÃO DIGITAL DA ONG VESTINDO SONHOS**  
 Plataforma Web em ASP.NET Core MVC, API RESTful, Aplicativo Móvel em Flutter, Banco de Dados MySQL e Infraestrutura Cloud/DevOps  
-**SÃO PAULO**  
+**ARARAQUARA**  
 **2026**  
 
 ---
@@ -26,7 +26,7 @@ Análise e Desenvolvimento de Sistemas
 > Orientador(a): Prof.(a) [Nome do Orientador(a)]
 
 
-**SÃO PAULO**  
+**ARARAQUARA**  
 **2026**  
 
 ---
@@ -852,4 +852,5 @@ SCHWABER, Ken; SUTHERLAND, Jeff. **Guia do Scrum: as regras do jogo**. Boston: S
 SEVERINO, Antônio Joaquim. **Metodologia do trabalho científico**. 24. ed. São Paulo: Cortez, 2017.
 
 SOMMERVILLE, Ian. **Engenharia de software**. 10. ed. São Paulo: Pearson Education do Brasil, 2019.
+
 
