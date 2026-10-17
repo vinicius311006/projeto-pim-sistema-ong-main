@@ -234,9 +234,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             accountName: Row(
               children: [
-                Text(
-                  _nomeUsuario,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                Flexible(
+                  child: Text(
+                    _nomeUsuario,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Container(
@@ -438,42 +442,51 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text('Erro ao carregar dados: $_erroDashboard', style: TextStyle(color: Colors.red.shade700)),
                 )
               else ...[
-                // Grade de métricas
-                GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1.5,
+                // Grade de métricas responsiva (sem risco de overflow vertical)
+                Row(
                   children: [
-                    _buildCardMetrica(
-                      titulo: 'Projetos Ativos',
-                      valor: '${_dashboard!.projetosAtivos}',
-                      icone: Icons.event,
-                      cor: const Color(0xFF7C6FE0),
-                      onTap: () => _abrirModulo(4),
+                    Expanded(
+                      child: _buildCardMetrica(
+                        titulo: 'Projetos Ativos',
+                        valor: '${_dashboard!.projetosAtivos}',
+                        icone: Icons.event,
+                        cor: const Color(0xFF7C6FE0),
+                        onTap: () => _abrirModulo(4),
+                      ),
                     ),
-                    _buildCardMetrica(
-                      titulo: 'Voluntários',
-                      valor: '${_dashboard!.voluntariosCadastrados}',
-                      icone: Icons.people,
-                      cor: const Color(0xFF2E9E5B),
-                      onTap: () => _abrirModulo(4),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildCardMetrica(
+                        titulo: 'Voluntários',
+                        valor: '${_dashboard!.voluntariosCadastrados}',
+                        icone: Icons.people,
+                        cor: const Color(0xFF2E9E5B),
+                        onTap: () => _abrirModulo(4),
+                      ),
                     ),
-                    _buildCardMetrica(
-                      titulo: 'Itens em Estoque',
-                      valor: '${_dashboard!.itensInventarioTotal}',
-                      icone: Icons.inventory_2,
-                      cor: Colors.orange.shade800,
-                      onTap: () => _abrirModulo(1),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildCardMetrica(
+                        titulo: 'Itens em Estoque',
+                        valor: '${_dashboard!.itensInventarioTotal}',
+                        icone: Icons.inventory_2,
+                        cor: Colors.orange.shade800,
+                        onTap: () => _abrirModulo(1),
+                      ),
                     ),
-                    _buildCardMetrica(
-                      titulo: 'Beneficiários',
-                      valor: '${_dashboard!.beneficiariosCadastrados}',
-                      icone: Icons.diversity_1,
-                      cor: Colors.pink.shade600,
-                      onTap: () => _abrirModulo(2),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildCardMetrica(
+                        titulo: 'Beneficiários',
+                        valor: '${_dashboard!.beneficiariosCadastrados}',
+                        icone: Icons.diversity_1,
+                        cor: Colors.pink.shade600,
+                        onTap: () => _abrirModulo(2),
+                      ),
                     ),
                   ],
                 ),
@@ -554,7 +567,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
@@ -568,6 +581,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -585,14 +599,19 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 8),
             Text(
               valor,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: cor,
               ),
             ),
+            const SizedBox(height: 2),
             Text(
               titulo,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 12, color: Color(0xFF6F6F85)),
             ),
           ],

@@ -157,15 +157,19 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
                             child: Icon(Icons.arrow_downward, color: Colors.greenAccent, size: 16),
                           ),
                           const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Entradas', style: TextStyle(color: Colors.white70, fontSize: 11)),
-                              Text(
-                                _formatarMoeda(f.totalEntradas),
-                                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                              ),
-                            ],
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Entradas', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                                Text(
+                                  _formatarMoeda(f.totalEntradas),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -179,15 +183,19 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
                             child: Icon(Icons.arrow_upward, color: Colors.redAccent, size: 16),
                           ),
                           const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Saídas', style: TextStyle(color: Colors.white70, fontSize: 11)),
-                              Text(
-                                _formatarMoeda(f.totalSaidas),
-                                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-                              ),
-                            ],
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Saídas', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                                Text(
+                                  _formatarMoeda(f.totalSaidas),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
