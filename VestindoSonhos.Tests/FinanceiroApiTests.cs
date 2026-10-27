@@ -123,5 +123,63 @@ namespace VestindoSonhos.Tests
             Assert.Equal(1000.00m, carteiraBanco!.Saldo); // 1500 - 500 estornado = 1000
             Assert.Equal(0, context.TransacaoFinanceira.Count());
         }
+
+        [Fact(DisplayName = "5. Exclusão de transação no Portal Web (FinanceiroController) também deve estornar o saldo da carteira")]
+        public async Task ConfirmarExclusaoWeb_DeveEstornarSaldoDaCarteira()
+        {
+            // Arrange
+            using var context = DbContextTestHelper.CriarContextoEmMemoria();
+            var carteira = new Carteira { Id = 1, Nome = "Caixa Principal Web", Saldo = 800.00m };
+            var transacao = new Transacao { Id = 20, Usuario = 1, Categoria = 1, Razao = "Saída", Hora = DateTime.Now };
+            var transacaoFin = new TransacaoFinanceira { Id = 20, Carteira = 1, Valor = 200.00m };
+
+            context.Carteira.Add(carteira);
+            context.Transacao.Add(transacao);
+            context.TransacaoFinanceira.Add(transacaoFin);
+            await context.SaveChangesAsync();
+
+            var webController = new VestindoSonhos.Controllers.FinanceiroController(context);
+            DbContextTestHelper.ConfigurarUsuarioNoController(webController, cargo: "Administrador");
+
+            // Act
+            var resultado = await webController.ConfirmarExclusão(20);
+
+            // Assert
+            Assert.IsType<RedirectToActionResult>(resultado);
+            var carteiraBanco = await context.Carteira.FindAsync(1);
+            Assert.Equal(1000.00m, carteiraBanco!.Saldo); // 800 + 200 (Saída estornada) = 1000
+            Assert.Equal(0, context.TransacaoFinanceira.Count());
+        }
+
+        [Fact(DisplayName = "6. Alteração de categoria de produto no Inventário via API Mobile deve atualizar vínculo corretamente")]
+        public async Task EditarProduto_AlterarCategoria_DeveAtualizarCategoriaNoBanco()
+        {
+            // Arrange
+            using var context = DbContextTestHelper.CriarContextoEmMemoria();
+            context.TiposAtivo.AddRange(
+                new TiposAtivo { Id = 1, Categoria = "Roupas" },
+                new TiposAtivo { Id = 2, Categoria = "Calçados" }
+            );
+            var prod = new Produto { Id = 5, Nome = "Tênis Esportivo", Cor = "Preto", Descricao = "Tam 40", Categoria = 1 };
+            context.Produto.Add(prod);
+            await context.SaveChangesAsync();
+
+            var invController = new InventarioApiController(context);
+            DbContextTestHelper.ConfigurarUsuarioNoController(invController, cargo: "Colaborador");
+
+            // Act
+            var resultado = await invController.EditarProduto(5, new CriarProdutoDto
+            {
+                Nome = "Tênis Esportivo",
+                Cor = "Preto",
+                Descricao = "Tam 40",
+                CategoriaId = 2
+            });
+
+            // Assert
+            Assert.IsType<OkObjectResult>(resultado);
+            var prodAtualizado = await context.Produto.FindAsync(5);
+            Assert.Equal(2, prodAtualizado!.Categoria);
+        }
     }
 }

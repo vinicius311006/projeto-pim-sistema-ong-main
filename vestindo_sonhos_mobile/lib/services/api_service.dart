@@ -534,6 +534,84 @@ class ApiService {
     }
   }
 
+  Future<List<CategoriaInventarioModel>> getCategoriasInventario(String token) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/inventario/categorias');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> lista = jsonDecode(response.body);
+      return lista.map((e) => CategoriaInventarioModel.fromJson(e as Map<String, dynamic>)).toList();
+    } else {
+      throw Exception('Falha ao obter categorias de inventário (${response.statusCode}).');
+    }
+  }
+
+  Future<CategoriaInventarioModel> criarCategoriaInventario(String token, String nome) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/inventario/categorias');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'nome': nome}),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return CategoriaInventarioModel.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    } else {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao criar categoria');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> editarCategoriaInventario(String token, int id, String nome) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/inventario/categorias/$id');
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'id': id, 'nome': nome}),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao renomear categoria');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> excluirCategoriaInventario(String token, int id) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/inventario/categorias/$id');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao excluir categoria');
+      throw Exception(msg);
+    }
+  }
+
   Future<void> criarProduto(String token, Map<String, dynamic> dados) async {
     final base = await getBaseUrl();
     final url = Uri.parse('$base/inventario/produtos');
@@ -549,6 +627,25 @@ class ApiService {
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       final msg = _extrairMensagemErro(response.body, 'Falha ao cadastrar produto');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> editarProduto(String token, int id, Map<String, dynamic> dados) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/inventario/produtos/$id');
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(dados),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao atualizar produto');
       throw Exception(msg);
     }
   }
@@ -609,6 +706,65 @@ class ApiService {
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       final msg = _extrairMensagemErro(response.body, 'Falha ao registrar lançamento financeiro');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> editarTransacaoFinanceira(String token, int id, Map<String, dynamic> dados) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/financeiro/transacao/$id');
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(dados),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao atualizar lançamento financeiro');
+      throw Exception(msg);
+    }
+  }
+
+  Future<CategoriaFinanceiraModel> criarCategoriaFinanceira(String token, String nome) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/financeiro/categorias');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'nome': nome}),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return CategoriaFinanceiraModel.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    } else {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao criar categoria financeira');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> editarCategoriaFinanceira(String token, int id, String nome) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/financeiro/categorias/$id');
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'id': id, 'nome': nome}),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao editar categoria financeira');
       throw Exception(msg);
     }
   }

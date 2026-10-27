@@ -6,6 +6,7 @@ namespace VestindoSonhos.Models.DTOs
         public decimal TotalEntradas { get; set; }
         public decimal TotalSaidas { get; set; }
         public List<CarteiraResumoDto> Carteiras { get; set; } = new();
+        public List<CategoriaFinanceiraDto> Categorias { get; set; } = new();
         public List<TransacaoFinanceiraDto> UltimasTransacoes { get; set; } = new();
     }
 
@@ -16,12 +17,20 @@ namespace VestindoSonhos.Models.DTOs
         public decimal Saldo { get; set; }
     }
 
+    public class CategoriaFinanceiraDto
+    {
+        public int Id { get; set; }
+        public string Nome { get; set; } = string.Empty;
+    }
+
     public class TransacaoFinanceiraDto
     {
         public int Id { get; set; }
         public decimal Valor { get; set; }
         public string Razao { get; set; } = string.Empty;
+        public int? CategoriaId { get; set; }
         public string Categoria { get; set; } = string.Empty;
+        public int? CarteiraId { get; set; }
         public string Carteira { get; set; } = string.Empty;
         public string? Observacao { get; set; }
         public DateTime? DataHora { get; set; }

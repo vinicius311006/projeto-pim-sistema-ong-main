@@ -32,6 +32,16 @@ namespace VestindoSonhos.Controllers.Api
                 })
                 .ToListAsync();
 
+            var categorias = await _context.Categoria
+                .AsNoTracking()
+                .OrderBy(c => c.Nome)
+                .Select(c => new CategoriaFinanceiraDto
+                {
+                    Id = c.Id,
+                    Nome = c.Nome
+                })
+                .ToListAsync();
+
             var saldoTotalGeral = carteiras.Sum(c => c.Saldo);
 
             // Transações com suas razões e categorias
@@ -58,7 +68,9 @@ namespace VestindoSonhos.Controllers.Api
                     Id = tf.Id,
                     Valor = tf.Valor,
                     Razao = tf.IdNavigation?.Razao ?? "Entrada",
+                    CategoriaId = tf.IdNavigation?.Categoria,
                     Categoria = tf.IdNavigation?.CategoriaNavigation?.Nome ?? "Geral",
+                    CarteiraId = tf.Carteira,
                     Carteira = tf.CarteiraNavigation?.Nome ?? "Principal",
                     Observacao = tf.IdNavigation?.Observacao,
                     DataHora = tf.IdNavigation?.Hora
@@ -71,10 +83,69 @@ namespace VestindoSonhos.Controllers.Api
                 TotalEntradas = totalEntradas,
                 TotalSaidas = totalSaidas,
                 Carteiras = carteiras,
+                Categorias = categorias,
                 UltimasTransacoes = ultimasTransacoes
             };
 
             return Ok(resumo);
+        }
+
+        [HttpGet("categorias")]
+        public async Task<ActionResult<IEnumerable<CategoriaFinanceiraDto>>> ObterCategorias()
+        {
+            var categorias = await _context.Categoria
+                .AsNoTracking()
+                .OrderBy(c => c.Nome)
+                .Select(c => new CategoriaFinanceiraDto
+                {
+                    Id = c.Id,
+                    Nome = c.Nome
+                })
+                .ToListAsync();
+
+            return Ok(categorias);
+        }
+
+        [HttpPost("categorias")]
+        public async Task<ActionResult<CategoriaFinanceiraDto>> CriarCategoria([FromBody] CategoriaFinanceiraDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+            {
+                return BadRequest(new { mensagem = "O nome da categoria é obrigatório." });
+            }
+
+            var nome = dto.Nome.Trim();
+            if (nome.Length > 45) nome = nome.Substring(0, 45);
+
+            var nova = new VestindoSonhos.Models.Categoria { Nome = nome };
+            _context.Categoria.Add(nova);
+            await _context.SaveChangesAsync();
+
+            return Ok(new CategoriaFinanceiraDto { Id = nova.Id, Nome = nova.Nome });
+        }
+
+        [HttpPut("categorias/{id:int}")]
+        public async Task<IActionResult> EditarCategoria(int id, [FromBody] CategoriaFinanceiraDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+            {
+                return BadRequest(new { mensagem = "O nome da categoria é obrigatório." });
+            }
+
+            var cat = await _context.Categoria.FindAsync(id);
+            if (cat == null)
+            {
+                return NotFound(new { mensagem = "Categoria financeira não encontrada." });
+            }
+
+            var nome = dto.Nome.Trim();
+            if (nome.Length > 45) nome = nome.Substring(0, 45);
+
+            cat.Nome = nome;
+            _context.Categoria.Update(cat);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensagem = "Categoria financeira atualizada com sucesso!" });
         }
 
         [HttpPost("transacao")]
@@ -146,6 +217,79 @@ namespace VestindoSonhos.Controllers.Api
             await _context.SaveChangesAsync();
 
             return Ok(new { mensagem = "Transação financeira registrada com sucesso!" });
+        }
+
+        [HttpPut("transacao/{id:int}")]
+        public async Task<IActionResult> EditarTransacao(int id, [FromBody] CriarTransacaoFinanceiraDto dto)
+        {
+            if (dto.Valor <= 0)
+            {
+                return BadRequest(new { mensagem = "O valor da transação deve ser positivo." });
+            }
+
+            var tf = await _context.TransacaoFinanceira.FindAsync(id);
+            var t = await _context.Transacao.FindAsync(id);
+            if (tf == null || t == null)
+            {
+                return NotFound(new { mensagem = "Transação financeira não encontrada." });
+            }
+
+            // Reverte o saldo anterior na carteira antiga
+            var carteiraAntiga = await _context.Carteira.FindAsync(tf.Carteira);
+            var razaoAntiga = t.Razao ?? "Entrada";
+            if (carteiraAntiga != null)
+            {
+                if (razaoAntiga == "Entrada")
+                {
+                    carteiraAntiga.Saldo -= tf.Valor;
+                }
+                else
+                {
+                    carteiraAntiga.Saldo += tf.Valor;
+                }
+                _context.Carteira.Update(carteiraAntiga);
+            }
+
+            var novaCarteiraId = dto.CarteiraId ?? tf.Carteira;
+            var carteiraNova = await _context.Carteira.FindAsync(novaCarteiraId) ?? carteiraAntiga;
+
+            var novaCategoriaId = dto.CategoriaId ?? t.Categoria;
+            var categoriaObj = await _context.Categoria.FindAsync(novaCategoriaId);
+            if (categoriaObj != null)
+            {
+                t.Categoria = categoriaObj.Id;
+            }
+
+            var razaoNova = (dto.Razao == "Saída" || dto.Razao == "Saida") ? "Saída" : "Entrada";
+            t.Razao = razaoNova;
+
+            if (dto.Observacao != null)
+            {
+                var obs = dto.Observacao.Trim();
+                if (obs.Length > 255) obs = obs.Substring(0, 255);
+                t.Observacao = obs;
+            }
+
+            tf.Valor = dto.Valor;
+            if (carteiraNova != null)
+            {
+                tf.Carteira = carteiraNova.Id;
+                if (razaoNova == "Entrada")
+                {
+                    carteiraNova.Saldo += dto.Valor;
+                }
+                else
+                {
+                    carteiraNova.Saldo -= dto.Valor;
+                }
+                _context.Carteira.Update(carteiraNova);
+            }
+
+            _context.Transacao.Update(t);
+            _context.TransacaoFinanceira.Update(tf);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensagem = "Transação financeira atualizada com sucesso!" });
         }
 
         [HttpDelete("transacao/{id:int}")]

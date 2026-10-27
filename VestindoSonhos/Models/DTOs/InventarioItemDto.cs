@@ -6,8 +6,15 @@ namespace VestindoSonhos.Models.DTOs
         public string NomeProduto { get; set; } = string.Empty;
         public string Descricao { get; set; } = string.Empty;
         public string Cor { get; set; } = string.Empty;
+        public int? CategoriaId { get; set; }
         public string Categoria { get; set; } = string.Empty;
         public int QuantidadeEmEstoque { get; set; }
+    }
+
+    public class CategoriaInventarioDto
+    {
+        public int Id { get; set; }
+        public string Nome { get; set; } = string.Empty;
     }
 
     public class CriarMovimentacaoDto

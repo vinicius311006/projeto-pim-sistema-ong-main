@@ -63,13 +63,21 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gestão Financeira & Doações'),
+        actions: [
+          if (_financeiro != null)
+            IconButton(
+              icon: const Icon(Icons.category_outlined),
+              tooltip: 'Categorias Financeiras',
+              onPressed: _abrirDialogoGerenciarCategoriasFinanceiras,
+            ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _carregarFinanceiro,
         child: _buildConteudo(),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _abrirDialogoNovaTransacao,
+        onPressed: () => _abrirDialogoTransacao(),
         icon: const Icon(Icons.add),
         label: const Text('Novo Lançamento'),
         backgroundColor: const Color(0xFF7C6FE0),
@@ -363,12 +371,19 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: cor,
-                            fontSize: 14,
+                            fontSize: 13,
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 20, color: Color(0xFFE25555)),
+                          icon: const Icon(Icons.edit_outlined, size: 19, color: Colors.blue),
+                          tooltip: 'Editar / Alterar Categoria',
+                          visualDensity: VisualDensity.compact,
+                          onPressed: () => _abrirDialogoTransacao(transacaoExistente: t),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, size: 19, color: Color(0xFFE25555)),
                           tooltip: 'Excluir Lançamento',
+                          visualDensity: VisualDensity.compact,
                           onPressed: () => _confirmarExclusaoTransacao(t),
                         ),
                       ],
@@ -382,7 +397,8 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
     );
   }
 
-  Future<void> _abrirDialogoNovaTransacao() async {
+  /// Abre diálogo para Criar Novo Lançamento ou Editar / Alterar Categoria de um lançamento existente
+  Future<void> _abrirDialogoTransacao({TransacaoModel? transacaoExistente}) async {
     final f = _financeiro;
     if (f == null || f.carteiras.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -394,11 +410,29 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
       return;
     }
 
+    final isEdicao = transacaoExistente != null;
     final formKey = GlobalKey<FormState>();
-    int carteiraId = f.carteiras.first.id;
-    String tipo = 'Entrada';
-    final valorCtrl = TextEditingController();
-    final obsCtrl = TextEditingController();
+
+    int carteiraId = transacaoExistente?.carteiraId ?? f.carteiras.first.id;
+    if (!f.carteiras.any((c) => c.id == carteiraId)) {
+      final matchCart = f.carteiras.where((c) => c.nome.toLowerCase() == (transacaoExistente?.carteira ?? '').toLowerCase()).toList();
+      carteiraId = matchCart.isNotEmpty ? matchCart.first.id : f.carteiras.first.id;
+    }
+
+    int? categoriaId = transacaoExistente?.categoriaId;
+    if (categoriaId == null && transacaoExistente != null && f.categorias.isNotEmpty) {
+      final matchCat = f.categorias.where((c) => c.nome.toLowerCase() == transacaoExistente.categoria.toLowerCase()).toList();
+      if (matchCat.isNotEmpty) categoriaId = matchCat.first.id;
+    }
+    if (categoriaId == null && f.categorias.isNotEmpty) {
+      categoriaId = f.categorias.first.id;
+    }
+
+    String tipo = (transacaoExistente?.razao.toLowerCase().contains('sa') ?? false) ? 'Saída' : 'Entrada';
+    final valorCtrl = TextEditingController(
+      text: isEdicao ? transacaoExistente.valor.toStringAsFixed(2).replaceAll('.', ',') : '',
+    );
+    final obsCtrl = TextEditingController(text: transacaoExistente?.observacao ?? '');
     bool salvando = false;
 
     await showDialog(
@@ -407,13 +441,26 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (dialogCtx, setDialogState) {
+            final categoriasAtuais = _financeiro?.categorias ?? [];
+            if (categoriaId != null && !categoriasAtuais.any((c) => c.id == categoriaId)) {
+              categoriaId = categoriasAtuais.isNotEmpty ? categoriasAtuais.first.id : null;
+            }
+
             return AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Row(
+              title: Row(
                 children: [
-                  Icon(Icons.monetization_on_outlined, color: Color(0xFF7C6FE0)),
-                  SizedBox(width: 8),
-                  Text('Novo Lançamento', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Icon(
+                    isEdicao ? Icons.edit_outlined : Icons.monetization_on_outlined,
+                    color: const Color(0xFF7C6FE0),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      isEdicao ? 'Editar / Alterar Categoria' : 'Novo Lançamento',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ],
               ),
               content: SizedBox(
@@ -442,6 +489,70 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
                               setDialogState(() => tipo = val);
                             }
                           },
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Seleção de Categoria Financeira + Botão Nova Categoria
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: categoriasAtuais.isEmpty
+                                  ? const InputDecorator(
+                                      decoration: InputDecoration(
+                                        labelText: 'Categoria Financeira',
+                                        prefixIcon: Icon(Icons.category_outlined),
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      child: Text('Doação (Padrão)'),
+                                    )
+                                  : DropdownButtonFormField<int>(
+                                      initialValue: categoriaId,
+                                      isExpanded: true,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Categoria Financeira *',
+                                        prefixIcon: Icon(Icons.category_outlined),
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      items: categoriasAtuais.map((cat) {
+                                        return DropdownMenuItem<int>(
+                                          value: cat.id,
+                                          child: Text(cat.nome, overflow: TextOverflow.ellipsis),
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        if (val != null) {
+                                          setDialogState(() => categoriaId = val);
+                                        }
+                                      },
+                                    ),
+                            ),
+                            const SizedBox(width: 8),
+                            Tooltip(
+                              message: 'Nova Categoria Financeira',
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(12),
+                                onTap: () async {
+                                  final novaCat = await _abrirDialogoCriarOuEditarCategoriaFinanceira();
+                                  if (novaCat != null) {
+                                    setDialogState(() {
+                                      categoriaId = novaCat.id;
+                                    });
+                                  }
+                                },
+                                child: Container(
+                                  height: 56,
+                                  width: 52,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF7C6FE0).withValues(alpha: 0.14),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: const Color(0xFF7C6FE0).withValues(alpha: 0.4)),
+                                  ),
+                                  child: const Icon(Icons.add, color: Color(0xFF7C6FE0)),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 12),
 
@@ -525,6 +636,7 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
 
                           final dados = {
                             'carteiraId': carteiraId,
+                            'categoriaId': categoriaId,
                             'razao': tipo,
                             'valor': valorDouble,
                             'observacao': obsCtrl.text.trim(),
@@ -534,16 +646,24 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
                             final token = await _apiService.getToken();
                             if (token == null) throw Exception('Não autenticado.');
 
-                            await _apiService.criarTransacaoFinanceira(token, dados);
+                            if (isEdicao) {
+                              await _apiService.editarTransacaoFinanceira(token, transacaoExistente.id, dados);
+                            } else {
+                              await _apiService.criarTransacaoFinanceira(token, dados);
+                            }
 
                             if (dialogCtx.mounted) {
                               Navigator.pop(dialogCtx);
                             }
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Lançamento registrado com sucesso!'),
-                                  backgroundColor: Color(0xFF2E9E5B),
+                                SnackBar(
+                                  content: Text(
+                                    isEdicao
+                                        ? 'Lançamento e categoria atualizados com sucesso!'
+                                        : 'Lançamento registrado com sucesso!',
+                                  ),
+                                  backgroundColor: const Color(0xFF2E9E5B),
                                 ),
                               );
                               _carregarFinanceiro();
@@ -566,7 +686,150 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : const Text('Salvar'),
+                      : Text(isEdicao ? 'Salvar Alterações' : 'Salvar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<CategoriaFinanceiraModel?> _abrirDialogoCriarOuEditarCategoriaFinanceira({
+    CategoriaFinanceiraModel? categoriaExistente,
+  }) async {
+    final isEdicao = categoriaExistente != null;
+    final ctrl = TextEditingController(text: categoriaExistente?.nome ?? '');
+    bool salvando = false;
+    CategoriaFinanceiraModel? resultado;
+
+    await showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text(isEdicao ? 'Renomear Categoria' : 'Nova Categoria Financeira'),
+              content: TextField(
+                controller: ctrl,
+                maxLength: 45,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'Nome da Categoria *',
+                  hintText: 'Ex: Doação, Eventos, Logística, Aluguel...',
+                  prefixIcon: Icon(Icons.category_outlined),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: salvando ? null : () => Navigator.pop(dialogCtx),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: salvando
+                      ? null
+                      : () async {
+                          final nome = ctrl.text.trim();
+                          if (nome.isEmpty) return;
+                          setDialogState(() => salvando = true);
+                          try {
+                            final token = await _apiService.getToken();
+                            if (token == null) throw Exception('Não autenticado.');
+
+                            if (isEdicao) {
+                              await _apiService.editarCategoriaFinanceira(token, categoriaExistente.id, nome);
+                              resultado = CategoriaFinanceiraModel(id: categoriaExistente.id, nome: nome);
+                            } else {
+                              resultado = await _apiService.criarCategoriaFinanceira(token, nome);
+                            }
+                            await _carregarFinanceiro();
+                            if (dialogCtx.mounted) Navigator.pop(dialogCtx);
+                          } catch (e) {
+                            setDialogState(() => salvando = false);
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(e.toString().replaceAll('Exception: ', '')),
+                                  backgroundColor: const Color(0xFFE25555),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                  child: Text(isEdicao ? 'Salvar' : 'Criar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    return resultado;
+  }
+
+  Future<void> _abrirDialogoGerenciarCategoriasFinanceiras() async {
+    await showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            final lista = _financeiro?.categorias ?? [];
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Row(
+                children: [
+                  const Icon(Icons.category_outlined, color: Color(0xFF7C6FE0)),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text('Categorias Financeiras', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline, color: Color(0xFF7C6FE0)),
+                    tooltip: 'Nova Categoria',
+                    onPressed: () async {
+                      await _abrirDialogoCriarOuEditarCategoriaFinanceira();
+                      setDialogState(() {});
+                    },
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: lista.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text('Nenhuma categoria financeira cadastrada.'),
+                      )
+                    : ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: lista.length,
+                        separatorBuilder: (_, _) => const Divider(height: 1),
+                        itemBuilder: (_, idx) {
+                          final cat = lista[idx];
+                          return ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(Icons.label_outline, color: Color(0xFF7C6FE0)),
+                            title: Text(cat.nome, style: const TextStyle(fontWeight: FontWeight.w600)),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.edit_outlined, size: 20, color: Colors.blue),
+                              tooltip: 'Renomear Categoria',
+                              onPressed: () async {
+                                await _abrirDialogoCriarOuEditarCategoriaFinanceira(categoriaExistente: cat);
+                                setDialogState(() {});
+                              },
+                            ),
+                          );
+                        },
+                      ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogCtx),
+                  child: const Text('Fechar'),
                 ),
               ],
             );

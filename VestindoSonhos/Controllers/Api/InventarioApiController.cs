@@ -56,12 +56,92 @@ namespace VestindoSonhos.Controllers.Api
                     NomeProduto = p.Nome,
                     Descricao = p.Descricao,
                     Cor = p.Cor,
+                    CategoriaId = p.Categoria,
                     Categoria = p.CategoriaNavigation != null ? p.CategoriaNavigation.Categoria : "Geral",
                     QuantidadeEmEstoque = estoqueAtual
                 };
             }).ToList();
 
             return Ok(lista);
+        }
+
+        [HttpGet("categorias")]
+        public async Task<ActionResult<IEnumerable<CategoriaInventarioDto>>> ObterCategorias()
+        {
+            var categorias = await _context.TiposAtivo
+                .AsNoTracking()
+                .OrderBy(c => c.Categoria)
+                .Select(c => new CategoriaInventarioDto
+                {
+                    Id = c.Id,
+                    Nome = c.Categoria
+                })
+                .ToListAsync();
+
+            return Ok(categorias);
+        }
+
+        [HttpPost("categorias")]
+        public async Task<ActionResult<CategoriaInventarioDto>> CriarCategoria([FromBody] CategoriaInventarioDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+            {
+                return BadRequest(new { mensagem = "O nome da categoria é obrigatório." });
+            }
+
+            var nome = dto.Nome.Trim();
+            if (nome.Length > 45) nome = nome.Substring(0, 45);
+
+            var nova = new VestindoSonhos.Models.TiposAtivo { Categoria = nome };
+            _context.TiposAtivo.Add(nova);
+            await _context.SaveChangesAsync();
+
+            return Ok(new CategoriaInventarioDto { Id = nova.Id, Nome = nova.Categoria });
+        }
+
+        [HttpPut("categorias/{id:int}")]
+        public async Task<IActionResult> EditarCategoria(int id, [FromBody] CategoriaInventarioDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+            {
+                return BadRequest(new { mensagem = "O nome da categoria é obrigatório." });
+            }
+
+            var cat = await _context.TiposAtivo.FindAsync(id);
+            if (cat == null)
+            {
+                return NotFound(new { mensagem = "Categoria não encontrada." });
+            }
+
+            var nome = dto.Nome.Trim();
+            if (nome.Length > 45) nome = nome.Substring(0, 45);
+
+            cat.Categoria = nome;
+            _context.TiposAtivo.Update(cat);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensagem = "Categoria atualizada com sucesso!" });
+        }
+
+        [HttpDelete("categorias/{id:int}")]
+        public async Task<IActionResult> ExcluirCategoria(int id)
+        {
+            var cat = await _context.TiposAtivo.FindAsync(id);
+            if (cat == null)
+            {
+                return NotFound(new { mensagem = "Categoria não encontrada." });
+            }
+
+            var emUso = await _context.Produto.AnyAsync(p => p.Categoria == id);
+            if (emUso)
+            {
+                return BadRequest(new { mensagem = "Não é possível excluir uma categoria que possui produtos vinculados." });
+            }
+
+            _context.TiposAtivo.Remove(cat);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensagem = "Categoria excluída com sucesso." });
         }
 
         [HttpPost("movimentacao")]
@@ -172,9 +252,47 @@ namespace VestindoSonhos.Controllers.Api
                 NomeProduto = produto.Nome,
                 Descricao = produto.Descricao,
                 Cor = produto.Cor,
+                CategoriaId = produto.Categoria,
                 Categoria = catNome,
                 QuantidadeEmEstoque = 0
             });
+        }
+
+        [HttpPut("produtos/{id:int}")]
+        public async Task<IActionResult> EditarProduto(int id, [FromBody] CriarProdutoDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+            {
+                return BadRequest(new { mensagem = "O nome do produto é obrigatório." });
+            }
+
+            var produto = await _context.Produto.FindAsync(id);
+            if (produto == null)
+            {
+                return NotFound(new { mensagem = "Produto não encontrado." });
+            }
+
+            var nome = dto.Nome.Trim();
+            if (nome.Length > 60) nome = nome.Substring(0, 60);
+
+            var descricao = (dto.Descricao ?? "").Trim();
+            if (descricao.Length > 255) descricao = descricao.Substring(0, 255);
+
+            var cor = (dto.Cor ?? "").Trim();
+            if (cor.Length > 15) cor = cor.Substring(0, 15);
+
+            produto.Nome = nome;
+            produto.Descricao = descricao;
+            produto.Cor = cor;
+            if (dto.CategoriaId != null)
+            {
+                produto.Categoria = dto.CategoriaId;
+            }
+
+            _context.Produto.Update(produto);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensagem = "Produto e categoria atualizados com sucesso!" });
         }
 
         [HttpDelete("produtos/{id:int}")]

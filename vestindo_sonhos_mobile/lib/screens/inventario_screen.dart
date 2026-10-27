@@ -13,6 +13,7 @@ class _InventarioScreenState extends State<InventarioScreen> {
   final _apiService = ApiService();
   List<InventarioModel> _itens = [];
   List<InventarioModel> _itensFiltrados = [];
+  List<CategoriaInventarioModel> _categoriasDb = [];
   bool _carregando = true;
   String? _erro;
   String _categoriaSelecionada = 'Todas';
@@ -42,9 +43,19 @@ class _InventarioScreenState extends State<InventarioScreen> {
         throw Exception('Sessão expirada. Faça login novamente.');
       }
       final dados = await _apiService.getInventario(token);
+      List<CategoriaInventarioModel> cats = [];
+      try {
+        cats = await _apiService.getCategoriasInventario(token);
+      } catch (_) {}
+
       if (mounted) {
         setState(() {
           _itens = dados;
+          _categoriasDb = cats;
+          if (_categoriaSelecionada != 'Todas' &&
+              !_categoriasDisponiveis.contains(_categoriaSelecionada)) {
+            _categoriaSelecionada = 'Todas';
+          }
           _filtrar();
           _carregando = false;
         });
@@ -67,13 +78,17 @@ class _InventarioScreenState extends State<InventarioScreen> {
       final bateBusca = query.isEmpty ||
           item.nomeProduto.toLowerCase().contains(query) ||
           item.descricao.toLowerCase().contains(query) ||
-          item.cor.toLowerCase().contains(query);
+          item.cor.toLowerCase().contains(query) ||
+          item.categoria.toLowerCase().contains(query);
       return bateCategoria && bateBusca;
     }).toList();
   }
 
   List<String> get _categoriasDisponiveis {
     final setCat = <String>{'Todas'};
+    for (final c in _categoriasDb) {
+      if (c.nome.isNotEmpty) setCat.add(c.nome);
+    }
     for (final i in _itens) {
       if (i.categoria.isNotEmpty) setCat.add(i.categoria);
     }
@@ -98,6 +113,13 @@ class _InventarioScreenState extends State<InventarioScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inventário & Estoque'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.category_outlined),
+            tooltip: 'Gerenciar Categorias',
+            onPressed: _abrirDialogoGerenciarCategorias,
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -134,7 +156,7 @@ class _InventarioScreenState extends State<InventarioScreen> {
             child: TextField(
               controller: _buscaController,
               decoration: InputDecoration(
-                hintText: 'Buscar produto por nome ou cor...',
+                hintText: 'Buscar produto por nome, categoria ou cor...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _buscaController.text.isNotEmpty
                     ? IconButton(
@@ -349,33 +371,42 @@ class _InventarioScreenState extends State<InventarioScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Row(
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 6,
+                        runSpacing: 4,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).brightness == Brightness.dark
-                                  ? const Color(0xFF262A3D)
-                                  : Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              item.categoria,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Theme.of(context).brightness == Brightness.dark
-                                    ? const Color(0xFFE5E7EB)
-                                    : Colors.grey.shade800,
+                          InkWell(
+                            borderRadius: BorderRadius.circular(6),
+                            onTap: () => _abrirDialogoProduto(itemParaEditar: item),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF7C6FE0).withValues(alpha: 0.14),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    item.categoria,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF7C6FE0),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.edit_outlined, size: 12, color: Color(0xFF7C6FE0)),
+                                ],
                               ),
                             ),
                           ),
-                          if (item.cor.isNotEmpty) ...[
-                            const SizedBox(width: 6),
+                          if (item.cor.isNotEmpty)
                             Text(
                               '• ${item.cor}',
                               style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                             ),
-                          ],
                         ],
                       ),
                       if (item.descricao.isNotEmpty) ...[
@@ -390,7 +421,7 @@ class _InventarioScreenState extends State<InventarioScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
 
                 // Quantidade e Ações
                 Row(
@@ -430,6 +461,8 @@ class _InventarioScreenState extends State<InventarioScreen> {
                       onSelected: (val) {
                         if (val == 'movimentar') {
                           _abrirDialogoMovimentacao(produtoPreSelecionado: item);
+                        } else if (val == 'editar') {
+                          _abrirDialogoProduto(itemParaEditar: item);
                         } else if (val == 'excluir') {
                           _confirmarExclusaoProduto(item);
                         }
@@ -442,6 +475,16 @@ class _InventarioScreenState extends State<InventarioScreen> {
                               Icon(Icons.swap_horiz, size: 18, color: Color(0xFF7C6FE0)),
                               SizedBox(width: 8),
                               Text('Movimentar Estoque'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'editar',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit_outlined, size: 18, color: Colors.blue),
+                              SizedBox(width: 8),
+                              Text('Editar / Alterar Categoria'),
                             ],
                           ),
                         ),
@@ -508,10 +551,23 @@ class _InventarioScreenState extends State<InventarioScreen> {
                     child: Icon(Icons.add_box_outlined, color: Colors.green.shade700),
                   ),
                   title: const Text('Cadastrar Novo Produto', style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text('Adicionar novo item ao catálogo do estoque'),
+                  subtitle: const Text('Adicionar novo item e selecionar sua categoria'),
                   onTap: () {
                     Navigator.pop(ctx);
-                    _abrirDialogoCadastrarProduto();
+                    _abrirDialogoProduto();
+                  },
+                ),
+                const Divider(),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.orange.shade50,
+                    child: Icon(Icons.category_outlined, color: Colors.orange.shade800),
+                  ),
+                  title: const Text('Gerenciar Categorias de Estoque', style: TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: const Text('Criar, renomear ou excluir categorias de produtos'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _abrirDialogoGerenciarCategorias();
                   },
                 ),
               ],
@@ -552,7 +608,9 @@ class _InventarioScreenState extends State<InventarioScreen> {
                 children: [
                   Icon(Icons.swap_horiz, color: Color(0xFF7C6FE0)),
                   SizedBox(width: 8),
-                  Text('Movimentar Estoque', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Expanded(
+                    child: Text('Movimentar Estoque', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
                 ],
               ),
               content: SizedBox(
@@ -710,11 +768,23 @@ class _InventarioScreenState extends State<InventarioScreen> {
     );
   }
 
-  Future<void> _abrirDialogoCadastrarProduto() async {
+  /// Abre diálogo para Cadastrar Novo Produto ou Editar / Alterar Categoria de um Produto existente
+  Future<void> _abrirDialogoProduto({InventarioModel? itemParaEditar}) async {
+    final isEdicao = itemParaEditar != null;
     final formKey = GlobalKey<FormState>();
-    final nomeCtrl = TextEditingController();
-    final corCtrl = TextEditingController();
-    final descCtrl = TextEditingController();
+    final nomeCtrl = TextEditingController(text: itemParaEditar?.nomeProduto ?? '');
+    final corCtrl = TextEditingController(text: itemParaEditar?.cor ?? '');
+    final descCtrl = TextEditingController(text: itemParaEditar?.descricao ?? '');
+
+    int? categoriaIdSelecionada = itemParaEditar?.categoriaId;
+    if (categoriaIdSelecionada == null && itemParaEditar != null) {
+      final match = _categoriasDb.where((c) => c.nome.toLowerCase() == itemParaEditar.categoria.toLowerCase()).toList();
+      if (match.isNotEmpty) categoriaIdSelecionada = match.first.id;
+    }
+    if (categoriaIdSelecionada == null && _categoriasDb.isNotEmpty) {
+      categoriaIdSelecionada = _categoriasDb.first.id;
+    }
+
     bool salvando = false;
 
     await showDialog(
@@ -723,13 +793,23 @@ class _InventarioScreenState extends State<InventarioScreen> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (dialogCtx, setDialogState) {
+            final idsValidos = _categoriasDb.map((c) => c.id).toSet();
+            if (categoriaIdSelecionada != null && !idsValidos.contains(categoriaIdSelecionada)) {
+              categoriaIdSelecionada = _categoriasDb.isNotEmpty ? _categoriasDb.first.id : null;
+            }
+
             return AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Row(
+              title: Row(
                 children: [
-                  Icon(Icons.add_box_outlined, color: Color(0xFF7C6FE0)),
-                  SizedBox(width: 8),
-                  Text('Novo Produto', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Icon(isEdicao ? Icons.edit_outlined : Icons.add_box_outlined, color: const Color(0xFF7C6FE0)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      isEdicao ? 'Editar / Alterar Categoria' : 'Novo Produto',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ],
               ),
               content: SizedBox(
@@ -757,6 +837,71 @@ class _InventarioScreenState extends State<InventarioScreen> {
                           },
                         ),
                         const SizedBox(height: 12),
+
+                        // Seleção de Categoria + Botão Nova Categoria
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: _categoriasDb.isEmpty
+                                  ? const InputDecorator(
+                                      decoration: InputDecoration(
+                                        labelText: 'Categoria',
+                                        prefixIcon: Icon(Icons.category_outlined),
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      child: Text('Geral (Padrão)'),
+                                    )
+                                  : DropdownButtonFormField<int>(
+                                      initialValue: categoriaIdSelecionada,
+                                      isExpanded: true,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Categoria do Produto *',
+                                        prefixIcon: Icon(Icons.category_outlined),
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      items: _categoriasDb.map((cat) {
+                                        return DropdownMenuItem<int>(
+                                          value: cat.id,
+                                          child: Text(cat.nome, overflow: TextOverflow.ellipsis),
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        if (val != null) {
+                                          setDialogState(() => categoriaIdSelecionada = val);
+                                        }
+                                      },
+                                    ),
+                            ),
+                            const SizedBox(width: 8),
+                            Tooltip(
+                              message: 'Criar Nova Categoria',
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(12),
+                                onTap: () async {
+                                  final novaCat = await _abrirDialogoCriarOuEditarCategoria();
+                                  if (novaCat != null) {
+                                    setDialogState(() {
+                                      categoriaIdSelecionada = novaCat.id;
+                                    });
+                                  }
+                                },
+                                child: Container(
+                                  height: 56,
+                                  width: 52,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF7C6FE0).withValues(alpha: 0.14),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: const Color(0xFF7C6FE0).withValues(alpha: 0.4)),
+                                  ),
+                                  child: const Icon(Icons.add, color: Color(0xFF7C6FE0)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
                         TextFormField(
                           controller: corCtrl,
                           maxLength: 15,
@@ -800,22 +945,31 @@ class _InventarioScreenState extends State<InventarioScreen> {
                             'nome': nomeCtrl.text.trim(),
                             'cor': corCtrl.text.trim(),
                             'descricao': descCtrl.text.trim(),
+                            'categoriaId': categoriaIdSelecionada,
                           };
 
                           try {
                             final token = await _apiService.getToken();
                             if (token == null) throw Exception('Não autenticado.');
 
-                            await _apiService.criarProduto(token, dados);
+                            if (isEdicao) {
+                              await _apiService.editarProduto(token, itemParaEditar.produtoId, dados);
+                            } else {
+                              await _apiService.criarProduto(token, dados);
+                            }
 
                             if (dialogCtx.mounted) {
                               Navigator.pop(dialogCtx);
                             }
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Produto cadastrado com sucesso!'),
-                                  backgroundColor: Color(0xFF2E9E5B),
+                                SnackBar(
+                                  content: Text(
+                                    isEdicao
+                                        ? 'Produto e categoria atualizados com sucesso!'
+                                        : 'Produto cadastrado com sucesso!',
+                                  ),
+                                  backgroundColor: const Color(0xFF2E9E5B),
                                 ),
                               );
                               _carregarInventario();
@@ -838,7 +992,176 @@ class _InventarioScreenState extends State<InventarioScreen> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : const Text('Cadastrar'),
+                      : Text(isEdicao ? 'Salvar Alterações' : 'Cadastrar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// Diálogo para criar ou renomear uma Categoria de Estoque
+  Future<CategoriaInventarioModel?> _abrirDialogoCriarOuEditarCategoria({CategoriaInventarioModel? categoriaExistente}) async {
+    final isEdicao = categoriaExistente != null;
+    final ctrl = TextEditingController(text: categoriaExistente?.nome ?? '');
+    bool salvando = false;
+    CategoriaInventarioModel? resultado;
+
+    await showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text(isEdicao ? 'Renomear Categoria' : 'Nova Categoria de Estoque'),
+              content: TextField(
+                controller: ctrl,
+                maxLength: 45,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'Nome da Categoria *',
+                  hintText: 'Ex: Calçados, Agasalhos, Infantil...',
+                  prefixIcon: Icon(Icons.category_outlined),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: salvando ? null : () => Navigator.pop(dialogCtx),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: salvando
+                      ? null
+                      : () async {
+                          final nome = ctrl.text.trim();
+                          if (nome.isEmpty) return;
+                          setDialogState(() => salvando = true);
+                          try {
+                            final token = await _apiService.getToken();
+                            if (token == null) throw Exception('Não autenticado.');
+
+                            if (isEdicao) {
+                              await _apiService.editarCategoriaInventario(token, categoriaExistente.id, nome);
+                              resultado = CategoriaInventarioModel(id: categoriaExistente.id, nome: nome);
+                            } else {
+                              resultado = await _apiService.criarCategoriaInventario(token, nome);
+                            }
+                            await _carregarInventario();
+                            if (dialogCtx.mounted) Navigator.pop(dialogCtx);
+                          } catch (e) {
+                            setDialogState(() => salvando = false);
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(e.toString().replaceAll('Exception: ', '')),
+                                  backgroundColor: const Color(0xFFE25555),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                  child: Text(isEdicao ? 'Salvar' : 'Criar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    return resultado;
+  }
+
+  /// Abre gerenciador de categorias de estoque
+  Future<void> _abrirDialogoGerenciarCategorias() async {
+    await showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Row(
+                children: [
+                  const Icon(Icons.category_outlined, color: Color(0xFF7C6FE0)),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text('Categorias de Estoque', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline, color: Color(0xFF7C6FE0)),
+                    tooltip: 'Nova Categoria',
+                    onPressed: () async {
+                      await _abrirDialogoCriarOuEditarCategoria();
+                      setDialogState(() {});
+                    },
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: _categoriasDb.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text('Nenhuma categoria cadastrada.'),
+                      )
+                    : ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: _categoriasDb.length,
+                        separatorBuilder: (_, _) => const Divider(height: 1),
+                        itemBuilder: (_, idx) {
+                          final cat = _categoriasDb[idx];
+                          return ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(Icons.label_outline, color: Color(0xFF7C6FE0)),
+                            title: Text(cat.nome, style: const TextStyle(fontWeight: FontWeight.w600)),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit_outlined, size: 20, color: Colors.blue),
+                                  tooltip: 'Renomear Categoria',
+                                  onPressed: () async {
+                                    await _abrirDialogoCriarOuEditarCategoria(categoriaExistente: cat);
+                                    setDialogState(() {});
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete_outline, size: 20, color: Color(0xFFE25555)),
+                                  tooltip: 'Excluir Categoria',
+                                  onPressed: () async {
+                                    try {
+                                      final token = await _apiService.getToken();
+                                      if (token == null) return;
+                                      await _apiService.excluirCategoriaInventario(token, cat.id);
+                                      await _carregarInventario();
+                                      setDialogState(() {});
+                                    } catch (e) {
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(e.toString().replaceAll('Exception: ', '')),
+                                            backgroundColor: const Color(0xFFE25555),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogCtx),
+                  child: const Text('Fechar'),
                 ),
               ],
             );
@@ -860,7 +1183,7 @@ class _InventarioScreenState extends State<InventarioScreen> {
             Text('Confirmar Exclusão'),
           ],
         ),
-        content: Text('Deseja realmente excluir o produto "${item.nomeProduto}"? Itens com histórico de movimentação não poderão ser excluídos.'),
+        content: Text('Deseja realmente excluir o produto "${item.nomeProduto}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),

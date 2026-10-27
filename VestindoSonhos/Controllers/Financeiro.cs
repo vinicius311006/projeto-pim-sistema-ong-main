@@ -616,13 +616,30 @@ namespace VestindoSonhos.Controllers
         public async Task<IActionResult> ConfirmarExclusão(int id)
         {
             var transacao_financeira = await _context.TransacaoFinanceira.FindAsync(id);
+            var transacao = await _context.Transacao.FindAsync(id);
+
+            // Estorna o valor no saldo da carteira correspondente antes de excluir
             if (transacao_financeira != null)
             {
+                var carteira = await _context.Carteira.FindAsync(transacao_financeira.Carteira);
+                if (carteira != null)
+                {
+                    var razao = transacao?.Razao ?? "Entrada";
+                    if (razao == "Entrada")
+                    {
+                        carteira.Saldo -= transacao_financeira.Valor;
+                    }
+                    else
+                    {
+                        carteira.Saldo += transacao_financeira.Valor;
+                    }
+                    _context.Carteira.Update(carteira);
+                }
+
                 _context.TransacaoFinanceira.Remove(transacao_financeira);
                 await _context.SaveChangesAsync();
             }
 
-            var transacao = await _context.Transacao.FindAsync(id);
             if (transacao != null)
             {
                 _context.Transacao.Remove(transacao);
@@ -679,30 +696,51 @@ namespace VestindoSonhos.Controllers
                     return View(tfViewModel);
                 }
 
+                // Reverter efeito anterior na carteira antiga antes de aplicar o novo
+                decimal valorAntigo = transacaoFinanceira.Valor;
+                int carteiraAntigaId = transacaoFinanceira.Carteira;
+                string razaoAntiga = transacao.Razao ?? "Entrada";
+
+                var carteiraAntiga = _context.Carteira.FirstOrDefault(c => c.Id == carteiraAntigaId);
+                if (carteiraAntiga != null)
+                {
+                    if (razaoAntiga == "Entrada")
+                    {
+                        carteiraAntiga.Saldo -= valorAntigo;
+                    }
+                    else
+                    {
+                        carteiraAntiga.Saldo += valorAntigo;
+                    }
+                    _context.Carteira.Update(carteiraAntiga);
+                }
+
+                string razaoNova = string.IsNullOrWhiteSpace(tfViewModel.Razao) ? razaoAntiga : tfViewModel.Razao;
+
                 // Preparar updates no banco
                 transacao.Hora = tfViewModel.Hora;
                 transacao.Observacao = tfViewModel.Observacao;
                 transacao.Categoria = categoriaEntity.Id;
                 transacao.Usuario = tfViewModel.UsuarioId;
+                transacao.Razao = razaoNova;
 
-                decimal valorAntigo = transacaoFinanceira.Valor;
                 transacaoFinanceira.Valor = tfViewModel.Valor;
                 transacaoFinanceira.Carteira = tfViewModel.Carteira;
                 transacaoFinanceira.IdNavigation = transacao;
 
-                // Atualizar Carteira com segurança
-                var carteira = _context.Carteira.FirstOrDefault(c => c.Id == tfViewModel.Carteira);
-                if (carteira != null)
+                // Aplicar novo valor na carteira selecionada
+                var carteiraNova = _context.Carteira.FirstOrDefault(c => c.Id == tfViewModel.Carteira);
+                if (carteiraNova != null)
                 {
-                    if (valorAntigo < tfViewModel.Valor)
+                    if (razaoNova == "Entrada")
                     {
-                        carteira.Saldo += (tfViewModel.Valor - valorAntigo);
+                        carteiraNova.Saldo += tfViewModel.Valor;
                     }
                     else
                     {
-                        carteira.Saldo -= (valorAntigo - tfViewModel.Valor);
+                        carteiraNova.Saldo -= tfViewModel.Valor;
                     }
-                    _context.Carteira.Update(carteira);
+                    _context.Carteira.Update(carteiraNova);
                 }
 
                 _context.Update(transacao);
