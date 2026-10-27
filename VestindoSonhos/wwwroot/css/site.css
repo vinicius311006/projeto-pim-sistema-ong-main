@@ -1,5 +1,7 @@
 html {
   font-size: 14px;
+  position: relative;
+  min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -13,77 +15,219 @@ html {
 .btn-link.nav-link:focus,
 .form-control:focus,
 .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #7C6FE0;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
-}
-
-
-.form-floating>.form-control-plaintext::placeholder,
-.form-floating>.form-control::placeholder {
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
   text-align: end;
 }
 
-.form-floating>.form-control-plaintext:focus::placeholder,
-.form-floating>.form-control:focus::placeholder {
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
   text-align: start;
-}
-
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
 }
 
 :root {
   /* Primárias (roxo/lavanda) */
   --color-1: #7C6FE0;
-  /* roxo principal (sidebar/ações) */
   --color-2: #9B8DE3;
-  /* variação mais clara */
   --color-3: #B9B0EA;
-  /* detalhes/hover */
 
   /* Fundo e superfícies */
   --color-4: #F3F4FA;
-  /* background geral */
   --color-5: #FFFFFF;
-  /* cards */
   --color-6: #E7E6F3;
-  /* bordas/divisórias */
 
   /* Texto */
   --text-1: #2E2E3A;
-  /* texto principal */
   --text-2: #6F6F85;
-  /* texto secundário */
 
   /* Acentos */
   --accent-green: #2E9E5B;
-  /* entradas positivas */
   --accent-red: #E25555;
-  /* saídas (se usar) */
 }
 
+/* =========================================================================
+   MODO ESCURO GLOBAL (TODO O SISTEMA)
+   ========================================================================= */
+html.dark-mode,
+body.dark-mode {
+  --color-1: #9B8DE3;
+  --color-2: #7C6FE0;
+  --color-3: #2D324A;
+  --color-4: #151722;
+  --color-5: #1F2232;
+  --color-6: #2D3248;
+  --text-1: #F3F4FA;
+  --text-2: #9CA3AF;
 
-
+  --bs-body-bg: #151722;
+  --bs-body-color: #F3F4FA;
+  --bs-border-color: #2D3248;
+}
 
 body {
   background: var(--color-4);
+  color: var(--text-1);
   display: flex;
   height: 100vh;
   width: 100%;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .container {
   max-width: 100%;
   overflow-y: auto;
+  background: var(--color-4);
+  color: var(--text-1);
 }
+
+/* Estilização Global de Elementos em Modo Escuro */
+html.dark-mode body,
+html.dark-mode .container,
+html.dark-mode .container-tabela,
+html.dark-mode .container-formulario,
+html.dark-mode .container-transacao,
+html.dark-mode .container-financeiro,
+html.dark-mode .container-eventos {
+  background-color: var(--color-4) !important;
+  color: var(--text-1) !important;
+}
+
+html.dark-mode .card,
+html.dark-mode .card-saldo,
+html.dark-mode .card-extrato,
+html.dark-mode .card-doacoes,
+html.dark-mode .form-context {
+  background-color: var(--color-5) !important;
+  border-color: var(--color-6) !important;
+  color: var(--text-1) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+}
+
+html.dark-mode .card-topo h3,
+html.dark-mode .card-header h3,
+html.dark-mode h1,
+html.dark-mode h2,
+html.dark-mode h3,
+html.dark-mode h4,
+html.dark-mode h5,
+html.dark-mode h6,
+html.dark-mode dt,
+html.dark-mode dd,
+html.dark-mode label {
+  color: var(--text-1) !important;
+}
+
+html.dark-mode h1 {
+  color: var(--color-1) !important;
+}
+
+/* Correção Global de Tabelas no Modo Escuro (remove fundo branco do Bootstrap) */
+html.dark-mode table,
+html.dark-mode .table {
+  --bs-table-bg: transparent !important;
+  --bs-table-accent-bg: transparent !important;
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.03) !important;
+  --bs-table-striped-color: #F3F4FA !important;
+  --bs-table-hover-bg: rgba(124, 111, 224, 0.12) !important;
+  --bs-table-hover-color: #F3F4FA !important;
+  --bs-table-color: #F3F4FA !important;
+  --bs-table-border-color: #2D3248 !important;
+  color: var(--text-1) !important;
+  background-color: transparent !important;
+}
+
+html.dark-mode .table > :not(caption) > * > *,
+html.dark-mode table tbody tr,
+html.dark-mode table tbody td,
+html.dark-mode .card table tbody td {
+  background-color: transparent !important;
+  color: var(--text-1) !important;
+  border-bottom-color: var(--color-6) !important;
+}
+
+html.dark-mode .table-striped > tbody > tr:nth-child(odd) > td,
+html.dark-mode .table-striped > tbody > tr:nth-child(odd) > * {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  color: var(--text-1) !important;
+}
+
+html.dark-mode .table-striped > tbody > tr:nth-child(even) > td,
+html.dark-mode .table-striped > tbody > tr:nth-child(even) > * {
+  background-color: rgba(255, 255, 255, 0.01) !important;
+  color: var(--text-1) !important;
+}
+
+html.dark-mode .card table thead th,
+html.dark-mode table thead th {
+  background-color: #262A3E !important;
+  color: #E5E7EB !important;
+  border-bottom-color: var(--color-6) !important;
+}
+
+/* Eventos e Cards Específicos no Modo Escuro */
+html.dark-mode .card-evento {
+  background-color: #262A3E !important;
+  border: 1px solid var(--color-6);
+}
+
+html.dark-mode .card-evento h3,
+html.dark-mode .card-info p,
+html.dark-mode .btn-group a {
+  color: var(--text-1) !important;
+}
+
+/* Formulários e Inputs no Modo Escuro */
+html.dark-mode .form-control,
+html.dark-mode .form-select,
+html.dark-mode input:not([type="submit"]):not([type="button"]):not([type="checkbox"]),
+html.dark-mode select,
+html.dark-mode textarea {
+  background-color: #151722 !important;
+  border-color: var(--color-6) !important;
+  color: var(--text-1) !important;
+}
+
+html.dark-mode .form-control::placeholder,
+html.dark-mode input::placeholder,
+html.dark-mode textarea::placeholder {
+  color: var(--text-2) !important;
+}
+
+html.dark-mode .form-control:focus,
+html.dark-mode .form-select:focus {
+  border-color: var(--color-1) !important;
+  box-shadow: 0 0 0 0.2rem rgba(124, 111, 224, 0.25) !important;
+}
+
+html.dark-mode hr {
+  border-color: var(--color-6) !important;
+  opacity: 0.6;
+}
+
+/* Suporte a cards de métricas e blocos inline em Modo Escuro */
+html.dark-mode .metrica-card {
+  background-color: var(--color-5) !important;
+  border-color: var(--color-6) !important;
+}
+
+html.dark-mode .metrica-info h4,
+html.dark-mode td strong,
+html.dark-mode [style*="color: #1F2937"],
+html.dark-mode [style*="color: #2C2C35"],
+html.dark-mode [style*="color: #374151"] {
+  color: var(--text-1) !important;
+}
+
+html.dark-mode [style*="background: #F8F9FD"],
+html.dark-mode [style*="background: #F9FAFB"],
+html.dark-mode [style*="background: #ffffff"],
+html.dark-mode [style*="background: #EEF2FF"] {
+  background-color: #262A3E !important;
+  border-color: var(--color-6) !important;
+  color: var(--text-1) !important;
+}
+

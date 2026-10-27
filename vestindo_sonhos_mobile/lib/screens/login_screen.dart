@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../services/api_service.dart';
 import '../widgets/server_config_dialog.dart';
 import 'trocar_senha_screen.dart';
@@ -119,12 +120,21 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: Icon(
+              isDark ? Icons.light_mode_rounded : Icons.dark_mode_outlined,
+              color: const Color(0xFF7C6FE0),
+            ),
+            tooltip: isDark ? 'Modo Claro' : 'Modo Escuro',
+            onPressed: toggleAppTheme,
+          ),
           IconButton(
             icon: const Icon(Icons.settings_outlined, color: Color(0xFF7C6FE0)),
             tooltip: 'Configurar Servidor / IP',

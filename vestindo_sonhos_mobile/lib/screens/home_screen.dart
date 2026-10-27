@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../models/dashboard_model.dart';
 import '../services/api_service.dart';
-import 'beneficiarios_screen.dart';
-import 'inventario_screen.dart';
-import 'financeiro_screen.dart';
-import 'eventos_screen.dart';
 import '../widgets/server_config_dialog.dart';
 
-/// Tela Principal (Home) com Dashboard idêntico à Web e Navegação Completa.
+/// Dashboard Executivo Principal do Aplicativo Vestindo Sonhos.
+/// Sincronizado com o Dashboard Web (KPIs, Gráficos de Estoque/Financeiro,
+/// Transações Recentes, Próximos Eventos, Modo Escuro e Configurações SaaS Admin).
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -16,207 +15,126 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _apiService = ApiService();
-  int _indiceAba = 0;
-  String _nomeUsuario = 'Voluntário';
-  String _cargoUsuario = 'Colaborador';
-  String _emailUsuario = '';
+
+  String _nome = 'Voluntário';
+  String _email = '';
+  String _cargo = 'Voluntário';
 
   DashboardModel? _dashboard;
-  bool _carregandoDashboard = true;
-  String? _erroDashboard;
+  bool _carregando = true;
+  String? _erro;
+
+  bool get _isAdmin => _cargo.toLowerCase().contains('admin');
 
   @override
   void initState() {
     super.initState();
-    _carregarPerfil();
+    _inicializar();
   }
 
-  Future<void> _carregarPerfil() async {
+  Future<void> _inicializar() async {
+    await _carregarDadosUsuario();
+    await _carregarDashboard();
+  }
+
+  Future<void> _carregarDadosUsuario() async {
     final nome = await _apiService.getUserNome();
-    final cargo = await _apiService.getUserCargo();
     final email = await _apiService.getUserEmail();
-    if (mounted) {
-      setState(() {
-        if (nome != null && nome.isNotEmpty) _nomeUsuario = nome;
-        if (cargo != null && cargo.isNotEmpty) _cargoUsuario = cargo;
-        if (email != null && email.isNotEmpty) _emailUsuario = email;
-      });
-      _carregarDashboard();
-    }
+    final cargo = await _apiService.getUserCargo();
+
+    if (!mounted) return;
+    setState(() {
+      if (nome != null && nome.isNotEmpty) _nome = nome;
+      if (email != null && email.isNotEmpty) _email = email;
+      if (cargo != null && cargo.isNotEmpty) _cargo = cargo;
+    });
   }
 
   Future<void> _carregarDashboard() async {
     setState(() {
-      _carregandoDashboard = true;
-      _erroDashboard = null;
+      _carregando = true;
+      _erro = null;
     });
 
     try {
       final token = await _apiService.getToken();
-      if (token == null) {
-        throw Exception('Sessão expirada. Faça login novamente.');
+      if (token == null || token.isEmpty) {
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/login');
+        return;
       }
+
       final dados = await _apiService.getDashboard(token);
       if (mounted) {
         setState(() {
           _dashboard = dados;
-          _carregandoDashboard = false;
+          _carregando = false;
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _erroDashboard = e.toString().replaceAll('Exception: ', '');
-          _carregandoDashboard = false;
+          _erro = e.toString().replaceAll('Exception: ', '');
+          _carregando = false;
         });
       }
     }
   }
 
   Future<void> _fazerLogout() async {
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar Saída'),
-        content: const Text('Deseja realmente encerrar sua sessão no aplicativo?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE25555),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Sair'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmar == true) {
-      await _apiService.clearAuthData();
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/login');
-    }
+    await _apiService.clearAuthData();
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
-  void _abrirModulo(int index) {
-    setState(() {
-      _indiceAba = index;
-    });
+  String _formatarMoeda(double valor) {
+    return 'R\$ ${valor.toStringAsFixed(2).replaceAll('.', ',')}';
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isAdmin = _cargoUsuario.toLowerCase().contains('admin');
-
-    // Telas e navegação de acordo com o perfil:
-    // Administrador: Início (Dashboard), Inventário, Beneficiários, Financeiro, Eventos
-    // Colaborador: Início (Dashboard), Inventário, Beneficiários, Eventos (sem Financeiro)
-    final telas = isAdmin
-        ? [
-            _buildDashboardView(isAdmin),
-            const InventarioScreen(),
-            const BeneficiariosScreen(),
-            const FinanceiroScreen(),
-            const EventosScreen(),
-          ]
-        : [
-            _buildDashboardView(isAdmin),
-            const InventarioScreen(),
-            const BeneficiariosScreen(),
-            const EventosScreen(),
-          ];
-
-    final destinos = isAdmin
-        ? const [
-            NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: 'Início',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.inventory_2_outlined),
-              selectedIcon: Icon(Icons.inventory_2),
-              label: 'Inventário',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.diversity_1_outlined),
-              selectedIcon: Icon(Icons.diversity_1),
-              label: 'Beneficiários',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.volunteer_activism_outlined),
-              selectedIcon: Icon(Icons.volunteer_activism),
-              label: 'Financeiro',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.calendar_month_outlined),
-              selectedIcon: Icon(Icons.calendar_month),
-              label: 'Eventos',
-            ),
-          ]
-        : const [
-            NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: 'Início',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.inventory_2_outlined),
-              selectedIcon: Icon(Icons.inventory_2),
-              label: 'Inventário',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.diversity_1_outlined),
-              selectedIcon: Icon(Icons.diversity_1),
-              label: 'Beneficiários',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.calendar_month_outlined),
-              selectedIcon: Icon(Icons.calendar_month),
-              label: 'Eventos',
-            ),
-          ];
-
-    final int indiceValido = _indiceAba < telas.length ? _indiceAba : 0;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      key: _scaffoldKey,
-      drawer: _buildDrawerLateral(isAdmin, indiceValido),
-      body: telas[indiceValido],
-      bottomNavigationBar: NavigationBarTheme(
-        data: NavigationBarThemeData(
-          labelTextStyle: WidgetStateProperty.resolveWith((states) {
-            final isSelected = states.contains(WidgetState.selected);
-            return TextStyle(
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              letterSpacing: -0.2,
-            );
-          }),
+      appBar: AppBar(
+        title: const Text(
+          'Dashboard Executivo',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
-        child: NavigationBar(
-          selectedIndex: indiceValido,
-          onDestinationSelected: (index) {
-            setState(() {
-              _indiceAba = index;
-            });
-          },
-          destinations: destinos,
-        ),
+        actions: [
+          IconButton(
+            icon: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_outlined),
+            tooltip: isDark ? 'Modo Claro' : 'Modo Escuro',
+            onPressed: toggleAppTheme,
+          ),
+          if (_isAdmin)
+            IconButton(
+              icon: const Icon(Icons.tune_rounded),
+              tooltip: 'Configurações SaaS (Administrador)',
+              onPressed: () async {
+                await Navigator.pushNamed(context, '/configuracoes');
+                _carregarDashboard();
+              },
+            ),
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Atualizar Indicadores',
+            onPressed: _carregarDashboard,
+          ),
+        ],
+      ),
+      drawer: _buildDrawer(context, isDark),
+      body: RefreshIndicator(
+        onRefresh: _carregarDashboard,
+        child: _buildBody(theme, isDark),
       ),
     );
   }
 
-  /// Menu lateral idêntico à Sidebar da Web (_Layout.cshtml)
-  Widget _buildDrawerLateral(bool isAdmin, int indiceAtual) {
-    final int abaEventos = isAdmin ? 4 : 3;
+  Widget _buildDrawer(BuildContext context, bool isDark) {
+    final textColor = isDark ? const Color(0xFFE5E7EB) : const Color(0xFF2E2E3A);
 
     return Drawer(
       child: Column(
@@ -224,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
           UserAccountsDrawerHeader(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF7C6FE0), Color(0xFF9B8DE3)],
+                colors: [Color(0xFF7C6FE0), Color(0xFF5A4FCF)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -232,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
               child: Text(
-                _nomeUsuario.isNotEmpty ? _nomeUsuario[0].toUpperCase() : 'V',
+                _nome.isNotEmpty ? _nome[0].toUpperCase() : 'V',
                 style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -244,8 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Flexible(
                   child: Text(
-                    _nomeUsuario,
-                    maxLines: 1,
+                    _nome,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
@@ -254,382 +171,515 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white.withValues(alpha: 0.22),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
-                    _cargoUsuario,
-                    style: const TextStyle(fontSize: 11, color: Colors.white),
+                    _isAdmin ? 'Admin' : _cargo,
+                    style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
             ),
-            accountEmail: Text(_emailUsuario.isNotEmpty ? _emailUsuario : 'Vestindo Sonhos ONG'),
-          ),
-
-          // Itens do menu conforme permissões:
-          _buildItemDrawer(
-            icon: Icons.home,
-            titulo: 'Home (Dashboard)',
-            selecionado: indiceAtual == 0,
-            onTap: () {
-              Navigator.pop(context);
-              _abrirModulo(0);
-            },
-          ),
-          if (isAdmin)
-            _buildItemDrawer(
-              icon: Icons.volunteer_activism,
-              titulo: 'Financeiro & Doações',
-              selecionado: indiceAtual == 3,
-              onTap: () {
-                Navigator.pop(context);
-                _abrirModulo(3);
-              },
+            accountEmail: Text(
+              _email.isNotEmpty ? _email : _cargo,
+              style: const TextStyle(color: Colors.white70, fontSize: 13),
             ),
-          _buildItemDrawer(
-            icon: Icons.inventory_2,
-            titulo: 'Inventário (Estoque)',
-            selecionado: indiceAtual == 1,
-            onTap: () {
-              Navigator.pop(context);
-              _abrirModulo(1);
-            },
           ),
-          _buildItemDrawer(
-            icon: Icons.diversity_1,
-            titulo: 'Beneficiários',
-            selecionado: indiceAtual == 2,
-            onTap: () {
-              Navigator.pop(context);
-              _abrirModulo(2);
-            },
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _buildDrawerItem(
+                  icon: Icons.dashboard_rounded,
+                  label: 'Dashboard Principal',
+                  selected: true,
+                  textColor: textColor,
+                  onTap: () => Navigator.pop(context),
+                ),
+                _buildDrawerItem(
+                  icon: Icons.people_alt_rounded,
+                  label: 'Beneficiários',
+                  textColor: textColor,
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/beneficiarios').then((_) => _carregarDashboard());
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.inventory_2_rounded,
+                  label: 'Inventário & Estoque',
+                  textColor: textColor,
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/inventario').then((_) => _carregarDashboard());
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.account_balance_wallet_rounded,
+                  label: 'Financeiro & Doações',
+                  textColor: textColor,
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/financeiro').then((_) => _carregarDashboard());
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.event_available_rounded,
+                  label: 'Eventos & Ações',
+                  textColor: textColor,
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/eventos').then((_) => _carregarDashboard());
+                  },
+                ),
+                const Divider(),
+                SwitchListTile(
+                  secondary: Icon(
+                    isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                    color: const Color(0xFF7C6FE0),
+                  ),
+                  title: Text(
+                    'Modo Escuro',
+                    style: TextStyle(fontWeight: FontWeight.w600, color: textColor),
+                  ),
+                  value: isDark,
+                  activeThumbColor: const Color(0xFF7C6FE0),
+                  onChanged: (_) => toggleAppTheme(),
+                ),
+                if (_isAdmin)
+                  _buildDrawerItem(
+                    icon: Icons.tune_rounded,
+                    label: 'Configurações do Sistema (SaaS)',
+                    textColor: textColor,
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/configuracoes').then((_) => _carregarDashboard());
+                    },
+                  ),
+                _buildDrawerItem(
+                  icon: Icons.dns_rounded,
+                  label: 'Configurar Servidor / IP',
+                  textColor: textColor,
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final alterou = await ServerConfigDialog.show(context);
+                    if (alterou == true) {
+                      _carregarDashboard();
+                    }
+                  },
+                ),
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.logout_rounded, color: Color(0xFFE25555)),
+                  title: const Text(
+                    'Sair da Conta',
+                    style: TextStyle(color: Color(0xFFE25555), fontWeight: FontWeight.bold),
+                  ),
+                  onTap: _fazerLogout,
+                ),
+              ],
+            ),
           ),
-          _buildItemDrawer(
-            icon: Icons.calendar_month,
-            titulo: 'Eventos & Campanhas',
-            selecionado: indiceAtual == abaEventos,
-            onTap: () {
-              Navigator.pop(context);
-              _abrirModulo(abaEventos);
-            },
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Text(
+              'Vestindo Sonhos • Gestão ONG v2.0',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+            ),
           ),
-
-          const Spacer(),
-          const Divider(),
-
-          ListTile(
-            leading: const Icon(Icons.settings_outlined, color: Color(0xFF6F6F85)),
-            title: const Text('Configurar Servidor', style: TextStyle(color: Color(0xFF2C2C35), fontWeight: FontWeight.w600)),
-            onTap: () {
-              Navigator.pop(context);
-              ServerConfigDialog.show(context);
-            },
-          ),
-
-          ListTile(
-            leading: const Icon(Icons.logout, color: Color(0xFFE25555)),
-            title: const Text('Sair da Conta', style: TextStyle(color: Color(0xFFE25555), fontWeight: FontWeight.bold)),
-            onTap: () {
-              Navigator.pop(context);
-              _fazerLogout();
-            },
-          ),
-          const SizedBox(height: 8),
         ],
       ),
     );
   }
 
-  Widget _buildItemDrawer({
+  Widget _buildDrawerItem({
     required IconData icon,
-    required String titulo,
-    required bool selecionado,
+    required String label,
     required VoidCallback onTap,
+    required Color textColor,
+    bool selected = false,
   }) {
     return ListTile(
-      leading: Icon(icon, color: selecionado ? const Color(0xFF7C6FE0) : const Color(0xFF6F6F85)),
+      leading: Icon(
+        icon,
+        color: selected ? const Color(0xFF7C6FE0) : textColor.withValues(alpha: 0.75),
+      ),
       title: Text(
-        titulo,
+        label,
         style: TextStyle(
-          color: selecionado ? const Color(0xFF7C6FE0) : const Color(0xFF2E2E3A),
-          fontWeight: selecionado ? FontWeight.bold : FontWeight.normal,
+          fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+          color: selected ? const Color(0xFF7C6FE0) : textColor,
         ),
       ),
-      selected: selecionado,
-      selectedTileColor: const Color(0xFF7C6FE0).withValues(alpha: 0.08),
+      selected: selected,
       onTap: onTap,
     );
   }
 
-  /// Visão 0: Dashboard Principal
-  Widget _buildDashboardView(bool isAdmin) {
-    final int abaEventos = isAdmin ? 4 : 3;
+  Widget _buildBody(ThemeData theme, bool isDark) {
+    if (_carregando) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: 'Menu',
-          icon: const Icon(Icons.menu),
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
-        ),
-        title: const Text('Vestindo Sonhos'),
-        actions: [
-          IconButton(
-            tooltip: 'Atualizar',
-            icon: const Icon(Icons.refresh),
-            onPressed: _carregarDashboard,
-          ),
-          IconButton(
-            tooltip: 'Sair',
-            icon: const Icon(Icons.logout),
-            onPressed: _fazerLogout,
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _carregarDashboard,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16.0),
+    if (_erro != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Banner de Boas-Vindas
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20.0),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF7C6FE0), Color(0xFF9B8DE3)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF7C6FE0).withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Portal Integrado ONG',
-                      style: TextStyle(color: Colors.white70, fontSize: 13, letterSpacing: 0.5),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Olá, $_nomeUsuario!',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Acompanhe aqui os indicadores, estoque de doações e eventos em tempo real.',
-                      style: TextStyle(color: Colors.white, fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 22),
-
-              // Métricas Principais (Cards iguais à Home da Web)
-              const Text(
-                'Visão Geral da ONG',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2E2E3A)),
-              ),
+              const Icon(Icons.cloud_off_rounded, size: 56, color: Color(0xFFE25555)),
               const SizedBox(height: 12),
-
-              if (_carregandoDashboard)
-                const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()))
-              else if (_erroDashboard != null)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(10)),
-                  child: Text('Erro ao carregar dados: $_erroDashboard', style: TextStyle(color: Colors.red.shade700)),
-                )
-              else if (_dashboard != null) ...[
-                // Grade de métricas responsiva (sem risco de overflow vertical)
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildCardMetrica(
-                        titulo: 'Projetos Ativos',
-                        valor: '${_dashboard!.projetosAtivos}',
-                        icone: Icons.event,
-                        cor: const Color(0xFF7C6FE0),
-                        onTap: () => _abrirModulo(abaEventos),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildCardMetrica(
-                        titulo: 'Voluntários',
-                        valor: '${_dashboard!.voluntariosCadastrados}',
-                        icone: Icons.people,
-                        cor: const Color(0xFF2E9E5B),
-                        onTap: () => _abrirModulo(abaEventos),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildCardMetrica(
-                        titulo: 'Itens em Estoque',
-                        valor: '${_dashboard!.itensInventarioTotal}',
-                        icone: Icons.inventory_2,
-                        cor: Colors.orange.shade800,
-                        onTap: () => _abrirModulo(1),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildCardMetrica(
-                        titulo: 'Beneficiários',
-                        valor: '${_dashboard!.beneficiariosCadastrados}',
-                        icone: Icons.diversity_1,
-                        cor: Colors.pink.shade600,
-                        onTap: () => _abrirModulo(2),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Seção de Necessidades da Comunidade (Tags da Web)
-                if (_dashboard!.necessidades.isNotEmpty) ...[
-                  const Text(
-                    'Principais Necessidades da Comunidade',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2E2E3A)),
+              Text(
+                'Não foi possível sincronizar o Dashboard',
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 6),
+              Text(_erro!, textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 10,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _carregarDashboard,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Tentar Novamente'),
                   ),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _dashboard!.necessidades.map((n) {
-                      return Chip(
-                        avatar: CircleAvatar(
-                          backgroundColor: const Color(0xFF7C6FE0),
-                          child: Text('${n.quantidade}', style: const TextStyle(color: Colors.white, fontSize: 11)),
-                        ),
-                        label: Text('#${n.tag}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                        backgroundColor: const Color(0xFF7C6FE0).withValues(alpha: 0.12),
-                        side: BorderSide(color: const Color(0xFF7C6FE0).withValues(alpha: 0.3)),
-                      );
-                    }).toList(),
+                  OutlinedButton.icon(
+                    onPressed: () => ServerConfigDialog.show(context),
+                    icon: const Icon(Icons.settings_ethernet),
+                    label: const Text('Configurar IP'),
                   ),
-                  const SizedBox(height: 24),
                 ],
-
-                // Atalhos Rápidos para os Módulos
-                const Text(
-                  'Módulos do Sistema',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2E2E3A)),
-                ),
-                const SizedBox(height: 12),
-
-                if (isAdmin)
-                  _buildAtalhoLinha(
-                    icone: Icons.volunteer_activism,
-                    titulo: 'Módulo Financeiro',
-                    subtitulo: 'Consulta de saldos de carteiras e doações',
-                    onTap: () => _abrirModulo(3),
-                  ),
-                _buildAtalhoLinha(
-                  icone: Icons.inventory_2,
-                  titulo: 'Módulo de Inventário',
-                  subtitulo: 'Controle de roupas, agasalhos e estoque',
-                  onTap: () => _abrirModulo(1),
-                ),
-                _buildAtalhoLinha(
-                  icone: Icons.diversity_1,
-                  titulo: 'Módulo de Beneficiários',
-                  subtitulo: 'Famílias acolhidas e situações',
-                  onTap: () => _abrirModulo(2),
-                ),
-                _buildAtalhoLinha(
-                  icone: Icons.calendar_month,
-                  titulo: 'Módulo de Eventos',
-                  subtitulo: 'Campanhas de arrecadação e voluntariado',
-                  onTap: () => _abrirModulo(abaEventos),
-                ),
-              ],
+              ),
             ],
           ),
         ),
+      );
+    }
+
+    final d = _dashboard!;
+    final textPrimary = isDark ? const Color(0xFFF3F4F6) : const Color(0xFF2E2E3A);
+    final textSecondary = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6F6F85);
+
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Header Executivo
+          _buildHeaderCard(d),
+          const SizedBox(height: 20),
+
+          // 2. KPIs Principais (4 Indicadores do Topo)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Indicadores Chave (KPIs)',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: textPrimary),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2E9E5B).withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.sync_rounded, size: 14, color: Color(0xFF2E9E5B)),
+                    SizedBox(width: 4),
+                    Text(
+                      'Tempo Real',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF2E9E5B)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          GridView.count(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            childAspectRatio: 1.32,
+            children: [
+              _buildKpiCard(
+                titulo: 'Beneficiários',
+                valor: '${d.beneficiariosCadastrados}',
+                subtitulo: '+${d.totalDependentes} dependentes',
+                icone: Icons.people_alt_rounded,
+                cor: const Color(0xFF7C6FE0),
+                isDark: isDark,
+                onTap: () => Navigator.pushNamed(context, '/beneficiarios').then((_) => _carregarDashboard()),
+              ),
+              _buildKpiCard(
+                titulo: 'Voluntários Ativos',
+                valor: '${d.voluntariosCadastrados}',
+                subtitulo: '${d.projetosAtivos} eventos ativos',
+                icone: Icons.volunteer_activism_rounded,
+                cor: const Color(0xFF00B4D8),
+                isDark: isDark,
+                onTap: () => Navigator.pushNamed(context, '/eventos').then((_) => _carregarDashboard()),
+              ),
+              _buildKpiCard(
+                titulo: 'Saldo em Caixa',
+                valor: _formatarMoeda(d.saldoTotal),
+                subtitulo: 'Doações: ${_formatarMoeda(d.totalDoacoes)}',
+                icone: Icons.account_balance_wallet_rounded,
+                cor: const Color(0xFF2E9E5B),
+                isDark: isDark,
+                onTap: () => Navigator.pushNamed(context, '/financeiro').then((_) => _carregarDashboard()),
+              ),
+              _buildKpiCard(
+                titulo: 'Inventário',
+                valor: '${d.itensInventarioTotal} itens',
+                subtitulo: '${d.totalUnidadesEstoque} un. em estoque',
+                icone: Icons.inventory_2_rounded,
+                cor: const Color(0xFFF59E0B),
+                isDark: isDark,
+                onTap: () => Navigator.pushNamed(context, '/inventario').then((_) => _carregarDashboard()),
+              ),
+            ],
+          ),
+          const SizedBox(height: 22),
+
+          // 3. Gráfico / Resumo de Evolução Financeira & Meta Mensal
+          _buildGraficoFinanceiroCard(d, isDark, textPrimary, textSecondary),
+          const SizedBox(height: 18),
+
+          // 4. Gráfico de Distribuição do Inventário por Categoria
+          _buildGraficoInventarioCard(d, isDark, textPrimary, textSecondary),
+          const SizedBox(height: 18),
+
+          // 5. Demandas Prioritárias da Comunidade (Somente dados reais do banco)
+          _buildDemandasComunidadeCard(d, isDark, textPrimary, textSecondary),
+          const SizedBox(height: 22),
+
+          // 6. Tabela Rápida: Últimas Transações Financeiras
+          _buildUltimasTransacoesSection(d, isDark, textPrimary, textSecondary),
+          const SizedBox(height: 22),
+
+          // 7. Tabela Rápida: Próximos Eventos Agendados
+          _buildProximosEventosSection(d, isDark, textPrimary, textSecondary),
+          const SizedBox(height: 22),
+
+          // 8. Acesso Rápido aos Módulos
+          Text(
+            'Acesso Rápido aos Módulos',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: textPrimary),
+          ),
+          const SizedBox(height: 10),
+          _buildModuloTile(
+            titulo: 'Beneficiários Atendidos',
+            subtitulo: 'Cadastro social, dependentes e acompanhamento de famílias',
+            icone: Icons.family_restroom_rounded,
+            cor: const Color(0xFF7C6FE0),
+            rota: '/beneficiarios',
+            isDark: isDark,
+          ),
+          _buildModuloTile(
+            titulo: 'Inventário & Estoque',
+            subtitulo: 'Controle de doações físicas, entradas e saídas de roupas',
+            icone: Icons.checkroom_rounded,
+            cor: const Color(0xFF00B4D8),
+            rota: '/inventario',
+            isDark: isDark,
+          ),
+          _buildModuloTile(
+            titulo: 'Gestão Financeira & Doações',
+            subtitulo: 'Carteiras, receitas, despesas e balanço transparente',
+            icone: Icons.monetization_on_rounded,
+            cor: const Color(0xFF2E9E5B),
+            rota: '/financeiro',
+            isDark: isDark,
+          ),
+          _buildModuloTile(
+            titulo: 'Eventos & Campanhas',
+            subtitulo: 'Cronograma de ações sociais e escala de voluntários',
+            icone: Icons.event_available_rounded,
+            cor: Colors.orange.shade700,
+            rota: '/eventos',
+            isDark: isDark,
+          ),
+          if (_isAdmin)
+            _buildModuloTile(
+              titulo: 'Configurações do Sistema (SaaS)',
+              subtitulo: 'Exclusivo Administrador: metas, segurança e parâmetros da ONG',
+              icone: Icons.tune_rounded,
+              cor: const Color(0xFFE25555),
+              rota: '/configuracoes',
+              isDark: isDark,
+            ),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }
 
-  Widget _buildCardMetrica({
+  Widget _buildHeaderCard(DashboardModel d) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF7C6FE0), Color(0xFF5B4FCF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF7C6FE0).withValues(alpha: 0.28),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: Colors.white.withValues(alpha: 0.2),
+                child: const Icon(Icons.volunteer_activism_rounded, color: Colors.white, size: 24),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      d.nomeOrganizacao,
+                      style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      'Olá, $_nome!',
+                      style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  _cargo,
+                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          const Divider(color: Colors.white24, height: 1),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Saldo Consolidado', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                  Text(
+                    _formatarMoeda(d.saldoTotal),
+                    style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Text('Peças Doadas (Saídas)', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                  Text(
+                    '${d.totalItensDoadosSaida} unidades',
+                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildKpiCard({
     required String titulo,
     required String valor,
+    required String subtitulo,
     required IconData icone,
     required Color cor,
+    required bool isDark,
     required VoidCallback onTap,
   }) {
+    final cardBg = isDark ? const Color(0xFF1F2232) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF2D324A) : Colors.grey.shade200;
+    final titleColor = isDark ? const Color(0xFFF3F4F6) : const Color(0xFF2E2E3A);
+    final subColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6F6F85);
+
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          color: cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: cor.withValues(alpha: 0.12),
-                  child: Icon(icone, size: 18, color: cor),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: cor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icone, color: cor, size: 20),
                 ),
-                Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey.shade400),
+                Icon(Icons.arrow_forward_ios_rounded, size: 13, color: subColor),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              valor,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: cor,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              titulo,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF6F6F85)),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  valor,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: titleColor),
+                ),
+                Text(
+                  titulo,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: subColor),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitulo,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 10, color: cor, fontWeight: FontWeight.w600),
+                ),
+              ],
             ),
           ],
         ),
@@ -637,26 +687,507 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildAtalhoLinha({
-    required IconData icone,
+  Widget _buildGraficoFinanceiroCard(
+    DashboardModel d,
+    bool isDark,
+    Color textPrimary,
+    Color textSecondary,
+  ) {
+    final totalMov = (d.entradasMesAtual + d.saidasMesAtual);
+    final pctEntradas = totalMov > 0 ? (d.entradasMesAtual / totalMov).clamp(0.0, 1.0) : 0.5;
+    final pctMeta = d.metaArrecadacaoMensal > 0
+        ? (d.totalDoacoes / d.metaArrecadacaoMensal).clamp(0.0, 1.0)
+        : 0.0;
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.bar_chart_rounded, color: Color(0xFF2E9E5B), size: 22),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Fluxo Financeiro (Entradas vs Saídas)',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2E9E5B).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Total Entradas',
+                          style: TextStyle(fontSize: 11, color: Color(0xFF2E9E5B), fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _formatarMoeda(d.entradasMesAtual),
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE25555).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Total Saídas',
+                          style: TextStyle(fontSize: 11, color: Color(0xFFE25555), fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _formatarMoeda(d.saidasMesAtual),
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: SizedBox(
+                height: 10,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: (pctEntradas * 100).round().clamp(1, 99),
+                      child: Container(color: const Color(0xFF2E9E5B)),
+                    ),
+                    Expanded(
+                      flex: ((1 - pctEntradas) * 100).round().clamp(1, 99),
+                      child: Container(color: const Color(0xFFE25555)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Meta Mensal de Doações (${_formatarMoeda(d.metaArrecadacaoMensal)})',
+                  style: TextStyle(fontSize: 12, color: textSecondary),
+                ),
+                Text(
+                  '${(pctMeta * 100).toStringAsFixed(0)}%',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF7C6FE0)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: pctMeta,
+                minHeight: 7,
+                backgroundColor: isDark ? const Color(0xFF2D324A) : Colors.grey.shade200,
+                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF7C6FE0)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGraficoInventarioCard(
+    DashboardModel d,
+    bool isDark,
+    Color textPrimary,
+    Color textSecondary,
+  ) {
+    final categorias = d.inventarioPorCategoria;
+    final totalUn = categorias.fold<int>(0, (s, item) => s + item.quantidade);
+    final cores = [
+      const Color(0xFF7C6FE0),
+      const Color(0xFF00B4D8),
+      const Color(0xFF2E9E5B),
+      const Color(0xFFF59E0B),
+      const Color(0xFFE25555),
+    ];
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.pie_chart_outline_rounded, color: Color(0xFF00B4D8), size: 22),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Distribuição de Estoque por Categoria',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            if (categorias.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                child: Text(
+                  'Nenhum item em estoque no momento.',
+                  style: TextStyle(fontSize: 13, color: textSecondary),
+                ),
+              )
+            else
+              ...categorias.asMap().entries.map((entry) {
+                final idx = entry.key;
+                final item = entry.value;
+                final cor = cores[idx % cores.length];
+                final pct = totalUn > 0 ? (item.quantidade / totalUn).clamp(0.0, 1.0) : 0.0;
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            item.categoria,
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary),
+                          ),
+                          Text(
+                            '${item.quantidade} un. (${(pct * 100).toStringAsFixed(0)}%)',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: cor),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: LinearProgressIndicator(
+                          value: pct,
+                          minHeight: 7,
+                          backgroundColor: isDark ? const Color(0xFF2D324A) : Colors.grey.shade200,
+                          valueColor: AlwaysStoppedAnimation<Color>(cor),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDemandasComunidadeCard(
+    DashboardModel d,
+    bool isDark,
+    Color textPrimary,
+    Color textSecondary,
+  ) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.favorite_border_rounded, color: Color(0xFF7C6FE0), size: 22),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Demandas Prioritárias da Comunidade',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            if (d.necessidades.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF262A3D) : const Color(0xFFF8F9FC),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Icon(Icons.inbox_outlined, size: 32, color: textSecondary),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Nenhuma demanda registrada no banco de dados.',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Cadastre beneficiários com observações (ex: #Agasalho, #Calçados) para visualizar os pedidos reais.',
+                      style: TextStyle(fontSize: 11, color: textSecondary),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              )
+            else
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: d.necessidades.map((nec) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF7C6FE0).withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFF7C6FE0).withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '#${nec.tag}',
+                          style: const TextStyle(
+                            color: Color(0xFF7C6FE0),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF7C6FE0),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '${nec.quantidade}',
+                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUltimasTransacoesSection(
+    DashboardModel d,
+    bool isDark,
+    Color textPrimary,
+    Color textSecondary,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Últimas Transações Financeiras',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: textPrimary),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pushNamed(context, '/financeiro').then((_) => _carregarDashboard()),
+              child: const Text('Ver Tudo'),
+            ),
+          ],
+        ),
+        if (d.ultimasTransacoes.isEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                child: Text(
+                  'Nenhuma transação financeira registrada.',
+                  style: TextStyle(color: textSecondary),
+                ),
+              ),
+            ),
+          )
+        else
+          ...d.ultimasTransacoes.map((t) {
+            final isEntrada = t.razao.toLowerCase().contains('entrada');
+            final cor = isEntrada ? const Color(0xFF2E9E5B) : const Color(0xFFE25555);
+
+            return Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                dense: true,
+                leading: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: cor.withValues(alpha: 0.14),
+                  child: Icon(
+                    isEntrada ? Icons.south_west_rounded : Icons.north_east_rounded,
+                    color: cor,
+                    size: 18,
+                  ),
+                ),
+                title: Text(
+                  t.categoria,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textPrimary),
+                ),
+                subtitle: Text(
+                  '${t.carteira} • ${t.observacao?.isNotEmpty == true ? t.observacao : t.razao}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12, color: textSecondary),
+                ),
+                trailing: Text(
+                  '${isEntrada ? '+' : '-'} ${_formatarMoeda(t.valor)}',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: cor),
+                ),
+              ),
+            );
+          }),
+      ],
+    );
+  }
+
+  Widget _buildProximosEventosSection(
+    DashboardModel d,
+    bool isDark,
+    Color textPrimary,
+    Color textSecondary,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Próximos Eventos Agendados',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: textPrimary),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pushNamed(context, '/eventos').then((_) => _carregarDashboard()),
+              child: const Text('Ver Todos'),
+            ),
+          ],
+        ),
+        if (d.proximosEventos.isEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                child: Text(
+                  'Nenhum evento agendado no momento.',
+                  style: TextStyle(color: textSecondary),
+                ),
+              ),
+            ),
+          )
+        else
+          ...d.proximosEventos.map((ev) {
+            return Card(
+              margin: const EdgeInsets.only(bottom: 10),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                leading: CircleAvatar(
+                  backgroundColor: const Color(0xFF7C6FE0).withValues(alpha: 0.15),
+                  child: const Icon(Icons.event, color: Color(0xFF7C6FE0)),
+                ),
+                title: Text(
+                  ev.nome,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textPrimary),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    Text('📅 ${ev.dataInicioFormatada}', style: TextStyle(fontSize: 12, color: textSecondary)),
+                    if (ev.local != null && ev.local!.isNotEmpty)
+                      Text('📍 ${ev.local}', style: TextStyle(fontSize: 12, color: textSecondary)),
+                  ],
+                ),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00B4D8).withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${ev.totalVoluntarios} vol.',
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF00B4D8)),
+                  ),
+                ),
+                onTap: () => Navigator.pushNamed(context, '/eventos').then((_) => _carregarDashboard()),
+              ),
+            );
+          }),
+      ],
+    );
+  }
+
+  Widget _buildModuloTile({
     required String titulo,
     required String subtitulo,
-    required VoidCallback onTap,
+    required IconData icone,
+    required Color cor,
+    required String rota,
+    required bool isDark,
   }) {
+    final textPrimary = isDark ? const Color(0xFFF3F4F6) : const Color(0xFF2E2E3A);
+    final textSecondary = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6F6F85);
+
     return Card(
-      elevation: 1,
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        leading: CircleAvatar(
-          backgroundColor: const Color(0xFF7C6FE0).withValues(alpha: 0.12),
-          child: Icon(icone, color: const Color(0xFF7C6FE0)),
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: cor.withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icone, color: cor, size: 24),
         ),
-        title: Text(titulo, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-        subtitle: Text(subtitulo, style: const TextStyle(fontSize: 12)),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-        onTap: onTap,
+        title: Text(
+          titulo,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textPrimary),
+        ),
+        subtitle: Text(
+          subtitulo,
+          style: TextStyle(fontSize: 12, color: textSecondary),
+        ),
+        trailing: Icon(Icons.chevron_right_rounded, color: textSecondary),
+        onTap: () => Navigator.pushNamed(context, rota).then((_) => _carregarDashboard()),
       ),
     );
   }

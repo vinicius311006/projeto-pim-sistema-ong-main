@@ -208,12 +208,14 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
           const SizedBox(height: 24),
 
           // Seção de Carteiras
-          const Text(
+          Text(
             'Carteiras & Contas',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2E2E3A),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFFF3F4F6)
+                  : const Color(0xFF2E2E3A),
             ),
           ),
           const SizedBox(height: 12),
@@ -222,14 +224,17 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: f.carteiras.map((c) {
+                final isDark = Theme.of(context).brightness == Brightness.dark;
                 return Container(
                   width: 170,
                   margin: const EdgeInsets.only(right: 12),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? const Color(0xFF1F2232) : Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade200),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF2D324A) : Colors.grey.shade200,
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.03),
@@ -251,15 +256,18 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
                         c.nome,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 13, color: Color(0xFF6F6F85)),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6F6F85),
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         _formatarMoeda(c.saldo),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF2E2E3A),
+                          color: isDark ? const Color(0xFFF3F4F6) : const Color(0xFF2E2E3A),
                         ),
                       ),
                     ],
@@ -274,17 +282,24 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Últimas Movimentações',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2E2E3A),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFFF3F4F6)
+                      : const Color(0xFF2E2E3A),
                 ),
               ),
               Text(
                 '${f.ultimasTransacoes.length} registros',
-                style: const TextStyle(color: Color(0xFF6F6F85), fontSize: 13),
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF9CA3AF)
+                      : const Color(0xFF6F6F85),
+                  fontSize: 13,
+                ),
               ),
             ],
           ),

@@ -29,6 +29,12 @@ if "%MYSQL_USER%"=="" set MYSQL_USER=root
 set /p MYSQL_PASS=Digite a senha do MySQL (pressione Enter para 'root'): 
 if "%MYSQL_PASS%"=="" set MYSQL_PASS=root
 
+if exist "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" (
+    set "PATH=C:\Program Files\MySQL\MySQL Server 8.0\bin;%PATH%"
+) else if exist "C:\Program Files\MySQL\MySQL Workbench 8.0\mysql.exe" (
+    set "PATH=C:\Program Files\MySQL\MySQL Workbench 8.0;%PATH%"
+)
+
 mysql -u %MYSQL_USER% -p%MYSQL_PASS% < "%SQLFILE%"
 if %ERRORLEVEL% NEQ 0 (
     echo.

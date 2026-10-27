@@ -270,14 +270,16 @@ class _EventosScreenState extends State<EventosScreen> {
             // Data / Período
             Row(
               children: [
-                Icon(Icons.calendar_today_outlined, size: 18, color: Colors.grey.shade600),
+                Icon(Icons.calendar_today_outlined, size: 18, color: Colors.grey.shade500),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     evento.periodoFormatado,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade800,
+                      color: theme.brightness == Brightness.dark
+                          ? const Color(0xFFE5E7EB)
+                          : Colors.grey.shade800,
                     ),
                   ),
                 ),
@@ -289,14 +291,16 @@ class _EventosScreenState extends State<EventosScreen> {
             if (evento.local != null && evento.local!.isNotEmpty) ...[
               Row(
                 children: [
-                  Icon(Icons.location_on_outlined, size: 18, color: Colors.grey.shade600),
+                  Icon(Icons.location_on_outlined, size: 18, color: Colors.grey.shade500),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       evento.local!,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.shade800,
+                        color: theme.brightness == Brightness.dark
+                            ? const Color(0xFFE5E7EB)
+                            : Colors.grey.shade800,
                       ),
                     ),
                   ),
@@ -308,14 +312,16 @@ class _EventosScreenState extends State<EventosScreen> {
             // Responsável
             Row(
               children: [
-                Icon(Icons.person_outline, size: 18, color: Colors.grey.shade600),
+                Icon(Icons.person_outline, size: 18, color: Colors.grey.shade500),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Responsável: ${evento.responsavelNome}',
                     style: TextStyle(
                       fontSize: 13,
-                      color: Colors.grey.shade700,
+                      color: theme.brightness == Brightness.dark
+                          ? const Color(0xFF9CA3AF)
+                          : Colors.grey.shade700,
                     ),
                   ),
                 ),

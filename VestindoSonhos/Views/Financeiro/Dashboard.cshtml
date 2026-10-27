@@ -1,19 +1,1007 @@
-﻿@{
-    ViewData["Title"] = "Dashboard";
+@model VestindoSonhos.ViewModels.DashboardViewModel
+@using System.Globalization
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Dashboard Geral";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var ptBR = new CultureInfo("pt-BR");
+
+    var jsonOptions = new JsonSerializerOptions
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
+    var mesesJson = JsonSerializer.Serialize(Model.MesesLabels, jsonOptions);
+    var entradasJson = JsonSerializer.Serialize(Model.EntradasPorMes, jsonOptions);
+    var saidasJson = JsonSerializer.Serialize(Model.SaidasPorMes, jsonOptions);
+    var doacoesJson = JsonSerializer.Serialize(Model.DoacoesPorMes, jsonOptions);
+    var invCategoriasJson = JsonSerializer.Serialize(Model.InventarioPorCategoria, jsonOptions);
+    var benSituacaoJson = JsonSerializer.Serialize(Model.BeneficiariosPorSituacao, jsonOptions);
+    var movCatFinJson = JsonSerializer.Serialize(Model.MovimentacoesPorCategoriaFinanceira, jsonOptions);
+    var necessidadesJson = JsonSerializer.Serialize(Model.NecessidadesComunidade, jsonOptions);
 }
 
-<div class="container">
-    <h1 style="color: var(--color-1)">Dashboard</h1>
-    <img style="width: 60%;" src="~/images/data/grafico.jpeg">
+<div id="dashboardWrapper" class="vs-dashboard-wrapper py-4 px-3 px-lg-4">
+    <!-- CABEÇALHO DO DASHBOARD -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <span class="vs-badge-pill mb-1 d-inline-flex align-items-center gap-1">
+                <i class="material-symbols-outlined" style="font-size: 16px;">analytics</i>
+                Painel Executivo em Tempo Real
+            </span>
+            <h1 class="vs-dash-title m-0">Visão Geral — ONG Vestindo Sonhos</h1>
+            <p class="vs-dash-subtitle m-0">Monitoramento consolidado de beneficiários, voluntariado, estoque e fluxo financeiro</p>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <button type="button" id="btnToggleTheme" onclick="window.toggleSystemTheme()" class="btn vs-btn-outline d-inline-flex align-items-center gap-2" title="Alternar Modo Escuro / Claro em todo o sistema">
+                <i class="material-symbols-outlined" id="iconTheme">dark_mode</i>
+                <span id="labelTheme">Modo Escuro</span>
+            </button>
+            @if (User.IsInRole("Administrador"))
+            {
+                <a asp-controller="Financeiro" asp-action="Criar" class="btn vs-btn-primary d-inline-flex align-items-center gap-2">
+                    <i class="material-symbols-outlined">add_circle</i>
+                    <span>Nova Transação</span>
+                </a>
+            }
+            <a asp-controller="Eventos" asp-action="Criar" class="btn vs-btn-accent d-inline-flex align-items-center gap-2">
+                <i class="material-symbols-outlined">event_available</i>
+                <span>Novo Evento</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 1. CARDS DE INDICADORES (KPIs NO TOPO) -->
+    <div class="row g-3 mb-4">
+        <!-- KPI 1: Beneficiários -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <a asp-controller="Beneficiarios" asp-action="Index" class="text-decoration-none">
+                <div class="vs-kpi-card h-100">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="vs-kpi-label">Beneficiários Cadastrados</span>
+                            <h2 class="vs-kpi-value mt-1 mb-1">@Model.TotalBeneficiarios</h2>
+                        </div>
+                        <div class="vs-kpi-icon vs-icon-purple">
+                            <i class="material-symbols-outlined">diversity_1</i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between mt-3 pt-2 vs-kpi-footer">
+                        <span class="vs-kpi-trend vs-trend-purple">
+                            <i class="material-symbols-outlined" style="font-size: 16px;">family_restroom</i>
+                            +@Model.TotalDependentes dependentes
+                        </span>
+                        <span class="vs-kpi-link">Ver famílias &rarr;</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- KPI 2: Voluntários Ativos -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <a asp-controller="Voluntarios" asp-action="Index" class="text-decoration-none">
+                <div class="vs-kpi-card h-100">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="vs-kpi-label">Voluntários Ativos</span>
+                            <h2 class="vs-kpi-value mt-1 mb-1">@Model.TotalVoluntarios</h2>
+                        </div>
+                        <div class="vs-kpi-icon vs-icon-cyan">
+                            <i class="material-symbols-outlined">groups</i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between mt-3 pt-2 vs-kpi-footer">
+                        <span class="vs-kpi-trend vs-trend-cyan">
+                            <i class="material-symbols-outlined" style="font-size: 16px;">calendar_month</i>
+                            @Model.EventosAgendados campanhas ativas
+                        </span>
+                        <span class="vs-kpi-link">Gerenciar &rarr;</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- KPI 3: Saldo Financeiro & Doações -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <a asp-controller="Financeiro" asp-action="Financeiro" class="text-decoration-none">
+                <div class="vs-kpi-card h-100">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="vs-kpi-label">Saldo Financeiro Atual</span>
+                            <h2 class="vs-kpi-value mt-1 mb-1">@Model.SaldoAtual.ToString("C", ptBR)</h2>
+                        </div>
+                        <div class="vs-kpi-icon vs-icon-green">
+                            <i class="material-symbols-outlined">account_balance_wallet</i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between mt-3 pt-2 vs-kpi-footer">
+                        <span class="vs-kpi-trend vs-trend-green" title="Total de Doações Recebidas">
+                            <i class="material-symbols-outlined" style="font-size: 16px;">volunteer_activism</i>
+                            Doações: @Model.TotalDoacoes.ToString("C", ptBR)
+                        </span>
+                        <span class="vs-kpi-link">Financeiro &rarr;</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- KPI 4: Inventário / Estoque -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <a asp-controller="Inventario" asp-action="Index" class="text-decoration-none">
+                <div class="vs-kpi-card h-100">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="vs-kpi-label">Itens no Inventário</span>
+                            <h2 class="vs-kpi-value mt-1 mb-1">@Model.TotalProdutosCadastrados <small class="fs-6 fw-normal">tipos</small></h2>
+                        </div>
+                        <div class="vs-kpi-icon vs-icon-orange">
+                            <i class="material-symbols-outlined">inventory_2</i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between mt-3 pt-2 vs-kpi-footer">
+                        <span class="vs-kpi-trend vs-trend-orange">
+                            <i class="material-symbols-outlined" style="font-size: 16px;">checkroom</i>
+                            @Model.TotalUnidadesEstoque em estoque | @Model.TotalItensDoadosSaida doados
+                        </span>
+                        <span class="vs-kpi-link">Estoque &rarr;</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. LINHA PRINCIPAL DE GRÁFICOS (EVOLUÇÃO FINANCEIRA + DISTRIBUIÇÃO EM ROSCA) -->
+    <div class="row g-3 mb-4">
+        <!-- Gráfico 1: Evolução de Entradas, Doações e Saídas -->
+        <div class="col-12 col-lg-8">
+            <div class="vs-chart-card h-100 d-flex flex-column">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                    <div>
+                        <h3 class="vs-card-title m-0">Evolução Financeira (Entradas, Doações e Saídas)</h3>
+                        <small class="vs-card-subtitle">Comparativo mensal do fluxo de caixa e arrecadações (R$)</small>
+                    </div>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Tipo de gráfico">
+                        <button type="button" class="btn vs-btn-Switch active" data-chart-type="bar" id="btnChartBar">Barras</button>
+                        <button type="button" class="btn vs-btn-Switch" data-chart-type="line" id="btnChartLine">Linha / Área</button>
+                    </div>
+                </div>
+
+                <!-- Mini resumo financeiro do período -->
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <div class="vs-mini-stat">
+                            <span class="vs-dot" style="background:#7C6FE0;"></span>
+                            <small>Total Entradas:</small>
+                            <strong>@Model.TotalEntradas.ToString("C", ptBR)</strong>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="vs-mini-stat">
+                            <span class="vs-dot" style="background:#00B4D8;"></span>
+                            <small>Doações no Mês:</small>
+                            <strong>@Model.DoacoesMesAtual.ToString("C", ptBR)</strong>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="vs-mini-stat">
+                            <span class="vs-dot" style="background:#EF476F;"></span>
+                            <small>Total Saídas:</small>
+                            <strong>@Model.TotalSaidas.ToString("C", ptBR)</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vs-canvas-container flex-grow-1" style="min-height: 290px;">
+                    <canvas id="chartEvolucaoFinanceira"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico 2: Rosca / Pizza (Inventário por Categoria ou Beneficiários) -->
+        <div class="col-12 col-lg-4">
+            <div class="vs-chart-card h-100 d-flex flex-column">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                    <div>
+                        <h3 class="vs-card-title m-0" id="tituloRosca">Distribuição do Inventário</h3>
+                        <small class="vs-card-subtitle" id="subtituloRosca">Proporção por categoria de ativo</small>
+                    </div>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn vs-btn-Switch active" id="btnRoscaInventario">Inventário</button>
+                        <button type="button" class="btn vs-btn-Switch" id="btnRoscaBeneficiarios">Beneficiários</button>
+                    </div>
+                </div>
+
+                <div class="vs-canvas-container position-relative flex-grow-1 d-flex align-items-center justify-content-center" style="min-height: 260px;">
+                    <canvas id="chartDistribuicaoRosca"></canvas>
+                    <div class="vs-doughnut-center" id="doughnutCenterInfo">
+                        <span class="vs-doughnut-number" id="doughnutTotalNumber">@(Model.TotalUnidadesEstoque > 0 ? Model.TotalUnidadesEstoque : Model.TotalProdutosCadastrados)</span>
+                        <span class="vs-doughnut-label" id="doughnutTotalLabel">@(Model.TotalUnidadesEstoque > 0 ? "Unidades" : "Produtos")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. SEGUNDA LINHA DE GRÁFICOS (BARRAS HORIZONTAIS ESTILO BI) -->
+    <div class="row g-3 mb-4">
+        <!-- Gráfico 3: Movimentações por Categoria Financeira -->
+        <div class="col-12 col-lg-6">
+            <div class="vs-chart-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h3 class="vs-card-title m-0">Volume Financeiro por Categoria</h3>
+                        <small class="vs-card-subtitle">Total movimentado (R$) por centro de custo / arrecadação</small>
+                    </div>
+                    <a asp-controller="Categoria" asp-action="Index" class="vs-link-subtle">Categorias &rarr;</a>
+                </div>
+                <div class="vs-canvas-container" style="height: 220px;">
+                    <canvas id="chartCategoriasFinanceiras"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico 4: Necessidades Mais Frequentes dos Beneficiários -->
+        <div class="col-12 col-lg-6">
+            <div class="vs-chart-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h3 class="vs-card-title m-0">Demandas Prioritárias da Comunidade</h3>
+                        <small class="vs-card-subtitle">Itens mais solicitados no cadastro de beneficiários (#tags)</small>
+                    </div>
+                    <a asp-controller="Beneficiarios" asp-action="Index" class="vs-link-subtle">Ver demandas &rarr;</a>
+                </div>
+                <div class="vs-canvas-container d-flex align-items-center justify-content-center" style="height: 220px;">
+                    @if (Model.NecessidadesComunidade != null && Model.NecessidadesComunidade.Any())
+                    {
+                        <canvas id="chartNecessidadesComunidade"></canvas>
+                    }
+                    else
+                    {
+                        <div class="text-center vs-text-muted py-4">
+                            <i class="material-symbols-outlined d-block mb-2" style="font-size: 32px; opacity: 0.6;">sentiment_neutral</i>
+                            <span>Nenhuma demanda registrada ainda (0 beneficiários com observações).</span>
+                            <div class="mt-1">
+                                <a asp-controller="Beneficiarios" asp-action="Criar" class="vs-link-subtle">Cadastrar beneficiário &rarr;</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. TABELAS DE ACESSO RÁPIDO (TRANSAÇÕES RECENTES + PRÓXIMOS EVENTOS) -->
+    <div class="row g-3">
+        <!-- Tabela 1: Últimas Transações Financeiras -->
+        <div class="col-12 col-xl-7">
+            <div class="vs-table-card h-100">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                    <div>
+                        <h3 class="vs-card-title m-0 d-flex align-items-center gap-2">
+                            <i class="material-symbols-outlined" style="color: var(--color-1);">receipt_long</i>
+                            Últimas Transações Financeiras
+                        </h3>
+                        <small class="vs-card-subtitle">Lançamentos mais recentes registrados nas carteiras da ONG</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a asp-controller="Financeiro" asp-action="Resumo" class="btn btn-sm vs-btn-outline">Ver Extrato</a>
+                        <a asp-controller="Financeiro" asp-action="Doacoes" class="btn btn-sm vs-btn-outline">Ver Doações</a>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table vs-modern-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Data / Hora</th>
+                                <th>Tipo</th>
+                                <th>Categoria</th>
+                                <th>Carteira / Obs.</th>
+                                <th>Responsável</th>
+                                <th class="text-end">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.UltimasTransacoes != null && Model.UltimasTransacoes.Any())
+                            {
+                                @foreach (var t in Model.UltimasTransacoes)
+                                {
+                                    var isEntrada = t.Razao.Equals("Entrada", StringComparison.OrdinalIgnoreCase);
+                                    <tr>
+                                        <td class="text-nowrap">
+                                            @(t.DataHora.HasValue ? t.DataHora.Value.ToString("dd/MM/yyyy HH:mm") : "—")
+                                        </td>
+                                        <td>
+                                            <span class="vs-status-badge @(isEntrada ? "vs-badge-entrada" : "vs-badge-saida")">
+                                                @(isEntrada ? "▲ Entrada" : "▼ Saída")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-semibold">@t.Categoria</span>
+                                        </td>
+                                        <td>
+                                            <div class="text-truncate" style="max-width: 180px;" title="@(string.IsNullOrWhiteSpace(t.Observacao) ? t.Carteira : $"{t.Carteira} - {t.Observacao}")">
+                                                <small class="d-block fw-medium">@t.Carteira</small>
+                                                @if (!string.IsNullOrWhiteSpace(t.Observacao))
+                                                {
+                                                    <small class="vs-text-muted">@t.Observacao</small>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>@t.Usuario</td>
+                                        <td class="text-end fw-bold text-nowrap @(isEntrada ? "text-success" : "text-danger")">
+                                            @(isEntrada ? "+" : "-") @t.Valor.ToString("C", ptBR)
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 vs-text-muted">
+                                        Nenhuma transação financeira registrada até o momento.
+                                        @if (User.IsInRole("Administrador"))
+                                        {
+                                            <a asp-controller="Financeiro" asp-action="Criar" class="ms-1 fw-semibold">Registrar primeira transação &rarr;</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela 2: Próximos Eventos e Campanhas -->
+        <div class="col-12 col-xl-5">
+            <div class="vs-table-card h-100">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                    <div>
+                        <h3 class="vs-card-title m-0 d-flex align-items-center gap-2">
+                            <i class="material-symbols-outlined" style="color: #00B4D8;">event_upcoming</i>
+                            Próximos Eventos e Campanhas
+                        </h3>
+                        <small class="vs-card-subtitle">Cronograma de ações sociais e voluntários alocados</small>
+                    </div>
+                    <a asp-controller="Eventos" asp-action="Index" class="btn btn-sm vs-btn-outline">Todos os Eventos</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table vs-modern-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Evento / Local</th>
+                                <th>Período</th>
+                                <th class="text-center">Voluntários</th>
+                                <th class="text-end">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ProximosEventos != null && Model.ProximosEventos.Any())
+                            {
+                                @foreach (var ev in Model.ProximosEventos)
+                                {
+                                    var badgeClass = ev.Status == "Em Andamento"
+                                        ? "vs-badge-entrada"
+                                        : (ev.Status == "Agendado" ? "vs-badge-agendado" : "vs-badge-encerrado");
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="Eventos" asp-action="Details" asp-route-id="@ev.Id" class="fw-semibold text-decoration-none vs-event-link d-block">
+                                                @ev.Nome
+                                            </a>
+                                            <small class="vs-text-muted d-flex align-items-center gap-1">
+                                                <i class="material-symbols-outlined" style="font-size: 13px;">location_on</i>
+                                                @ev.Local
+                                            </small>
+                                        </td>
+                                        <td class="text-nowrap">
+                                            <small class="d-block fw-medium">@(ev.DataInicio.HasValue ? ev.DataInicio.Value.ToString("dd/MM/yyyy") : "—")</small>
+                                            <small class="vs-text-muted">até @(ev.DataFim.HasValue ? ev.DataFim.Value.ToString("dd/MM/yyyy") : "—")</small>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge rounded-pill bg-secondary bg-opacity-25 text-reset px-2 py-1">
+                                                <i class="material-symbols-outlined align-middle" style="font-size: 14px;">group</i>
+                                                @ev.TotalVoluntarios
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="vs-status-badge @badgeClass">@ev.Status</span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 vs-text-muted">
+                                        Nenhum evento agendado.
+                                        <a asp-controller="Eventos" asp-action="Criar" class="ms-1 fw-semibold">Agendar evento &rarr;</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-}
+    /* =========================================================================
+       ESTILOS DO DASHBOARD MODERNO (SUPORTA MODO CLARO INSTITUCIONAL & MODO BI ESCURO)
+       ========================================================================= */
+    .vs-dashboard-wrapper {
+        --dash-bg: #F3F4FA;
+        --dash-card-bg: #FFFFFF;
+        --dash-card-border: #E7E6F3;
+        --dash-text-main: #1E1E2D;
+        --dash-text-sub: #6F6F85;
+        --dash-table-hover: #F8F8FC;
+        --dash-mini-bg: #F7F7FC;
+        --dash-shadow: 0 6px 20px rgba(46, 46, 58, 0.06);
+        color: var(--dash-text-main);
+        transition: background-color 0.25s ease, color 0.25s ease;
+        border-radius: 16px;
+    }
+
+    /* Tema Escuro (integrado ao Modo Dark global do sistema) */
+    html.dark-mode .vs-dashboard-wrapper,
+    .vs-dashboard-wrapper.vs-dark-mode {
+        --dash-bg: #151722;
+        --dash-card-bg: #1F2232;
+        --dash-card-border: #2D3248;
+        --dash-text-main: #F3F4FA;
+        --dash-text-sub: #9CA3AF;
+        --dash-table-hover: #262A3E;
+        --dash-mini-bg: #262A3E;
+        --dash-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+        background-color: var(--dash-bg);
+    }
+
+    .vs-dash-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--dash-text-main);
+        text-align: left;
+        margin: 0;
+    }
+
+    .vs-dash-subtitle {
+        font-size: 0.92rem;
+        color: var(--dash-text-sub);
+    }
+
+    .vs-badge-pill {
+        background: rgba(124, 111, 224, 0.14);
+        color: #7C6FE0;
+        font-weight: 600;
+        font-size: 0.78rem;
+        padding: 4px 12px;
+        border-radius: 999px;
+    }
+
+    /* Botões */
+    .vs-btn-primary {
+        background: linear-gradient(135deg, #7C6FE0, #6254C8);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 500;
+        padding: 8px 16px;
+    }
+    .vs-btn-primary:hover {
+        background: linear-gradient(135deg, #6A5CD4, #5346B5);
+        color: #fff;
+    }
+
+    .vs-btn-accent {
+        background: linear-gradient(135deg, #00B4D8, #0096C7);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 500;
+        padding: 8px 16px;
+    }
+    .vs-btn-accent:hover {
+        background: linear-gradient(135deg, #0096C7, #0077B6);
+        color: #fff;
+    }
+
+    .vs-btn-outline {
+        background: var(--dash-card-bg);
+        color: var(--dash-text-main);
+        border: 1px solid var(--dash-card-border);
+        border-radius: 10px;
+        font-weight: 500;
+    }
+    .vs-btn-outline:hover {
+        border-color: #7C6FE0;
+        color: #7C6FE0;
+    }
+
+    /* KPI Cards */
+    .vs-kpi-card {
+        background: var(--dash-card-bg);
+        border: 1px solid var(--dash-card-border);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: var(--dash-shadow);
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .vs-kpi-card:hover {
+        transform: translateY(-4px);
+        border-color: #7C6FE0;
+    }
+
+    .vs-kpi-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--dash-text-sub);
+        display: block;
+    }
+
+    .vs-kpi-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--dash-text-main);
+    }
+
+    .vs-kpi-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .vs-kpi-icon i {
+        font-size: 26px;
+    }
+
+    .vs-icon-purple { background: rgba(124, 111, 224, 0.16); color: #7C6FE0; }
+    .vs-icon-cyan   { background: rgba(0, 180, 216, 0.16);   color: #00B4D8; }
+    .vs-icon-green  { background: rgba(46, 158, 91, 0.16);   color: #2E9E5B; }
+    .vs-icon-orange { background: rgba(247, 127, 0, 0.16);   color: #F77F00; }
+
+    .vs-kpi-footer {
+        border-top: 1px dashed var(--dash-card-border);
+        font-size: 0.8rem;
+    }
+
+    .vs-kpi-trend {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 600;
+    }
+    .vs-trend-purple { color: #7C6FE0; }
+    .vs-trend-cyan   { color: #00B4D8; }
+    .vs-trend-green  { color: #2E9E5B; }
+    .vs-trend-orange { color: #F77F00; }
+
+    .vs-kpi-link {
+        color: var(--dash-text-sub);
+        font-weight: 500;
+    }
+
+    /* Chart & Table Cards */
+    .vs-chart-card,
+    .vs-table-card {
+        background: var(--dash-card-bg);
+        border: 1px solid var(--dash-card-border);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: var(--dash-shadow);
+    }
+
+    .vs-card-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--dash-text-main);
+    }
+
+    .vs-card-subtitle {
+        font-size: 0.8rem;
+        color: var(--dash-text-sub);
+    }
+
+    .vs-btn-Switch {
+        border: 1px solid var(--dash-card-border);
+        color: var(--dash-text-sub);
+        background: transparent;
+        font-size: 0.78rem;
+        padding: 4px 12px;
+    }
+    .vs-btn-Switch.active {
+        background: #7C6FE0;
+        border-color: #7C6FE0;
+        color: #fff;
+    }
+
+    .vs-mini-stat {
+        background: var(--dash-mini-bg);
+        border-radius: 10px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.82rem;
+        flex-wrap: wrap;
+    }
+
+    .vs-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    /* Indicador Central na Rosca */
+    .vs-doughnut-center {
+        position: absolute;
+        pointer-events: none;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transform: translateY(-12px);
+    }
+    .vs-doughnut-number {
+        font-size: 1.65rem;
+        font-weight: 800;
+        color: var(--dash-text-main);
+        line-height: 1.1;
+    }
+    .vs-doughnut-label {
+        font-size: 0.75rem;
+        color: var(--dash-text-sub);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Tabelas Modernas */
+    .vs-modern-table {
+        --bs-table-bg: transparent !important;
+        --bs-table-accent-bg: transparent !important;
+        --bs-table-color: var(--dash-text-main) !important;
+        color: var(--dash-text-main) !important;
+        background-color: transparent !important;
+    }
+    .vs-modern-table thead th {
+        background-color: var(--dash-mini-bg) !important;
+        color: var(--dash-text-sub) !important;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        border-bottom: 1px solid var(--dash-card-border) !important;
+        padding: 10px 12px;
+    }
+    .vs-modern-table tbody tr,
+    .vs-modern-table tbody td {
+        background-color: transparent !important;
+        border-bottom: 1px solid var(--dash-card-border) !important;
+        padding: 12px;
+        font-size: 0.86rem;
+        color: var(--dash-text-main) !important;
+    }
+    .vs-modern-table tbody tr:hover td {
+        background-color: var(--dash-table-hover) !important;
+    }
+
+    .vs-status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .vs-badge-entrada   { background: rgba(46, 158, 91, 0.16);  color: #2E9E5B; }
+    .vs-badge-saida     { background: rgba(239, 71, 111, 0.16); color: #EF476F; }
+    .vs-badge-agendado  { background: rgba(0, 180, 216, 0.16);  color: #00B4D8; }
+    .vs-badge-encerrado { background: rgba(156, 163, 175, 0.2); color: var(--dash-text-sub); }
+
+    .vs-text-muted { color: var(--dash-text-sub); }
+    .vs-event-link { color: var(--dash-text-main); }
+    .vs-event-link:hover { color: #7C6FE0; }
+    .vs-link-subtle {
+        font-size: 0.82rem;
+        color: #7C6FE0;
+        font-weight: 600;
+        text-decoration: none;
+    }
 </style>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Dados vindos da ViewModel (C# -> JSON)
+            const mesesLabels = @Html.Raw(mesesJson);
+            const entradasPorMes = @Html.Raw(entradasJson);
+            const saidasPorMes = @Html.Raw(saidasJson);
+            const doacoesPorMes = @Html.Raw(doacoesJson);
+
+            const inventarioCategorias = @Html.Raw(invCategoriasJson);
+            const beneficiariosSituacao = @Html.Raw(benSituacaoJson);
+            const movCategoriasFin = @Html.Raw(movCatFinJson);
+            const necessidadesComunidade = @Html.Raw(necessidadesJson);
+
+            const formatadorMoeda = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+
+            // Paleta moderna (Roxo, Ciano, Verde, Coral, Âmbar, Azul)
+            const palette = ['#7C6FE0', '#00B4D8', '#2E9E5B', '#F77F00', '#EF476F', '#4361EE', '#9B8DE3'];
+
+            // =================================================================
+            // 1. GRÁFICO DE EVOLUÇÃO FINANCEIRA (BARRAS / LINHA)
+            // =================================================================
+            const ctxEvolucao = document.getElementById('chartEvolucaoFinanceira').getContext('2d');
+            let chartEvolucao = null;
+
+            function renderizarGraficoEvolucao(tipo) {
+                if (chartEvolucao) {
+                    chartEvolucao.destroy();
+                }
+
+                const isLine = tipo === 'line';
+                chartEvolucao = new Chart(ctxEvolucao, {
+                    type: isLine ? 'line' : 'bar',
+                    data: {
+                        labels: mesesLabels,
+                        datasets: [
+                            {
+                                label: 'Entradas Totais (R$)',
+                                data: entradasPorMes,
+                                backgroundColor: isLine ? 'rgba(124, 111, 224, 0.20)' : '#7C6FE0',
+                                borderColor: '#7C6FE0',
+                                borderWidth: 2,
+                                borderRadius: isLine ? 0 : 6,
+                                fill: isLine,
+                                tension: 0.35
+                            },
+                            {
+                                label: 'Doações (R$)',
+                                data: doacoesPorMes,
+                                backgroundColor: isLine ? 'rgba(0, 180, 216, 0.20)' : '#00B4D8',
+                                borderColor: '#00B4D8',
+                                borderWidth: 2,
+                                borderRadius: isLine ? 0 : 6,
+                                fill: isLine,
+                                tension: 0.35
+                            },
+                            {
+                                label: 'Saídas / Despesas (R$)',
+                                data: saidasPorMes,
+                                backgroundColor: isLine ? 'rgba(239, 71, 111, 0.15)' : '#EF476F',
+                                borderColor: '#EF476F',
+                                borderWidth: 2,
+                                borderRadius: isLine ? 0 : 6,
+                                fill: isLine,
+                                tension: 0.35
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: { usePointStyle: true, boxWidth: 10 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (ctx) {
+                                        return `${ctx.dataset.label}: ${formatadorMoeda.format(ctx.parsed.y || 0)}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) {
+                                        return formatadorMoeda.format(value);
+                                    }
+                                },
+                                grid: { color: 'rgba(156, 163, 175, 0.15)' }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderizarGraficoEvolucao('bar');
+
+            document.getElementById('btnChartBar').addEventListener('click', function () {
+                this.classList.add('active');
+                document.getElementById('btnChartLine').classList.remove('active');
+                renderizarGraficoEvolucao('bar');
+            });
+
+            document.getElementById('btnChartLine').addEventListener('click', function () {
+                this.classList.add('active');
+                document.getElementById('btnChartBar').classList.remove('active');
+                renderizarGraficoEvolucao('line');
+            });
+
+            // =================================================================
+            // 2. GRÁFICO DE ROSCA (INVENTÁRIO POR CATEGORIA / BENEFICIÁRIOS)
+            // =================================================================
+            const ctxRosca = document.getElementById('chartDistribuicaoRosca').getContext('2d');
+            let chartRosca = null;
+
+            function renderizarGraficoRosca(modo) {
+                if (chartRosca) {
+                    chartRosca.destroy();
+                }
+
+                const listaFonte = modo === 'inventario' ? inventarioCategorias : beneficiariosSituacao;
+                const labels = listaFonte.length > 0 ? listaFonte.map(i => i.categoria) : ['Sem registros'];
+                const valores = listaFonte.length > 0 ? listaFonte.map(i => i.quantidade) : [1];
+                const somaTotal = listaFonte.reduce((acc, cur) => acc + cur.quantidade, 0);
+
+                // Se todas as quantidades forem 0 (ex: banco recém-criado), mostra fatias iguais ilustrativas com tooltip real (0)
+                const valoresRender = somaTotal > 0 ? valores : labels.map(() => 1);
+
+                document.getElementById('doughnutTotalNumber').textContent = somaTotal;
+                document.getElementById('doughnutTotalLabel').textContent = modo === 'inventario' ? 'Itens' : 'Famílias';
+
+                chartRosca = new Chart(ctxRosca, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: valoresRender,
+                            backgroundColor: palette,
+                            borderWidth: 2,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '68%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { usePointStyle: true, padding: 14 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (ctx) {
+                                        const realVal = somaTotal > 0 ? ctx.parsed : 0;
+                                        const pct = somaTotal > 0 ? ((realVal / somaTotal) * 100).toFixed(1) : 0;
+                                        return `${ctx.label}: ${realVal} (${pct}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderizarGraficoRosca('inventario');
+
+            document.getElementById('btnRoscaInventario').addEventListener('click', function () {
+                this.classList.add('active');
+                document.getElementById('btnRoscaBeneficiarios').classList.remove('active');
+                document.getElementById('tituloRosca').textContent = 'Distribuição do Inventário';
+                document.getElementById('subtituloRosca').textContent = 'Proporção por categoria de ativo';
+                renderizarGraficoRosca('inventario');
+            });
+
+            document.getElementById('btnRoscaBeneficiarios').addEventListener('click', function () {
+                this.classList.add('active');
+                document.getElementById('btnRoscaInventario').classList.remove('active');
+                document.getElementById('tituloRosca').textContent = 'Beneficiários por Situação';
+                document.getElementById('subtituloRosca').textContent = 'Classificação cadastral das famílias';
+                renderizarGraficoRosca('beneficiarios');
+            });
+
+            // =================================================================
+            // 3. GRÁFICO DE BARRAS HORIZONTAIS: CATEGORIAS FINANCEIRAS
+            // =================================================================
+            const ctxCatFin = document.getElementById('chartCategoriasFinanceiras').getContext('2d');
+            new Chart(ctxCatFin, {
+                type: 'bar',
+                data: {
+                    labels: movCategoriasFin.map(c => c.categoria),
+                    datasets: [{
+                        label: 'Volume Movimentado (R$)',
+                        data: movCategoriasFin.map(c => c.valor),
+                        backgroundColor: ['#7C6FE0', '#00B4D8', '#2E9E5B', '#F77F00', '#EF476F'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (ctx) {
+                                    return formatadorMoeda.format(ctx.parsed.x || 0);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (v) { return formatadorMoeda.format(v); }
+                            },
+                            grid: { color: 'rgba(156, 163, 175, 0.15)' }
+                        },
+                        y: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // =================================================================
+            // 4. GRÁFICO DE BARRAS HORIZONTAIS: NECESSIDADES DA COMUNIDADE
+            // =================================================================
+            const elNecessidades = document.getElementById('chartNecessidadesComunidade');
+            if (elNecessidades && necessidadesComunidade.length > 0) {
+                const ctxNecessidades = elNecessidades.getContext('2d');
+                new Chart(ctxNecessidades, {
+                    type: 'bar',
+                    data: {
+                        labels: necessidadesComunidade.map(n => n.categoria),
+                        datasets: [{
+                            label: 'Ocorrências / Pedidos',
+                            data: necessidadesComunidade.map(n => n.quantidade),
+                            backgroundColor: '#00B4D8',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 },
+                                grid: { color: 'rgba(156, 163, 175, 0.15)' }
+                            },
+                            y: {
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // =================================================================
+            // 5. SINCRONIZAÇÃO COM O TEMA GLOBAL DO SISTEMA
+            // =================================================================
+            if (typeof window.applySystemTheme === 'function') {
+                const isDark = document.documentElement.classList.contains('dark-mode');
+                window.applySystemTheme(isDark);
+            }
+        });
+    </script>
+}

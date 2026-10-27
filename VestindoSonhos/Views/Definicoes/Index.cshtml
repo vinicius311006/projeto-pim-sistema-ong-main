@@ -1,17 +1,708 @@
-﻿<link rel="stylesheet" href="~/css/formularios.css" />
+@using System.Globalization
 @{
-    ViewData["Title"] = "Configurar";
+    ViewData["Title"] = "Configurações do Sistema";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var ptBR = new CultureInfo("pt-BR");
+    var cfg = ViewBag.Config as VestindoSonhos.Controllers.Definicoes.SaasConfigModel
+              ?? new VestindoSonhos.Controllers.Definicoes.SaasConfigModel();
+    bool dbOnline = ViewBag.DbOnline ?? true;
 }
-<div class="container-formulario">
-    
-    <h2>Configurar</h2>
 
-    <div class="btn-back">
-        <a asp-controller="Home" asp-action="Index"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
+<div class="saas-settings-wrapper py-4 px-3 px-lg-4">
+    <!-- CABEÇALHO ESTILO SAAS -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <div class="d-inline-flex align-items-center gap-2 saas-badge mb-1">
+                <i class="material-symbols-outlined" style="font-size: 16px;">admin_panel_settings</i>
+                <span>Acesso Exclusivo — Administrador</span>
+            </div>
+            <h1 class="saas-title m-0">Configurações da Plataforma</h1>
+            <p class="saas-subtitle m-0">Gerencie os parâmetros institucionais da ONG, aparência, segurança, cadastros base e integrações</p>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <a asp-action="ExportarBackupJson" class="btn saas-btn-outline d-inline-flex align-items-center gap-2">
+                <i class="material-symbols-outlined">download</i>
+                <span>Exportar Backup (.JSON)</span>
+            </a>
+            <a asp-controller="Financeiro" asp-action="Dashboard" class="btn saas-btn-primary d-inline-flex align-items-center gap-2">
+                <i class="material-symbols-outlined">dashboard</i>
+                <span>Voltar ao Dashboard</span>
+            </a>
+        </div>
     </div>
-    <hr />
-    <div class="form-context row">
-        <a asp-controller="Definicoes" asp-action="RedefinirSenha">Redefinir Senha</a>
+
+    <div class="row g-4">
+        <!-- MENU LATERAL DE NAVEGAÇÃO SAAS -->
+        <div class="col-12 col-lg-3">
+            <div class="saas-card p-3 sticky-lg-top" style="top: 20px;">
+                <!-- Perfil Resumido do Admin -->
+                <div class="d-flex align-items-center gap-3 pb-3 mb-3 saas-border-bottom">
+                    <div class="saas-avatar">
+                        @((ViewBag.UsuarioNome as string)?.FirstOrDefault().ToString().ToUpper() ?? "A")
+                    </div>
+                    <div class="overflow-hidden">
+                        <div class="fw-bold text-truncate" style="font-size: 0.95rem;">@ViewBag.UsuarioNome</div>
+                        <small class="saas-muted d-block text-truncate">@ViewBag.UsuarioEmail</small>
+                        <span class="badge rounded-pill mt-1" style="background: rgba(124,111,224,0.18); color: #7C6FE0; font-size: 0.7rem;">
+                            @ViewBag.UsuarioCargo
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Abas Verticais -->
+                <div class="nav flex-column nav-pills saas-nav-pills gap-1" id="saasSettingsTabs" role="tablist">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-organizacao" type="button" role="tab">
+                        <i class="material-symbols-outlined">corporate_fare</i>
+                        <span>Organização & Geral</span>
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-aparencia" type="button" role="tab">
+                        <i class="material-symbols-outlined">palette</i>
+                        <span>Aparência & Interface</span>
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-cadastros" type="button" role="tab">
+                        <i class="material-symbols-outlined">dataset</i>
+                        <span>Parâmetros & Cadastros</span>
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-seguranca" type="button" role="tab">
+                        <i class="material-symbols-outlined">shield_lock</i>
+                        <span>Segurança & Acesso</span>
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-sistema" type="button" role="tab">
+                        <i class="material-symbols-outlined">cloud_done</i>
+                        <span>Sistema, API & Banco</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO DAS ABAS -->
+        <div class="col-12 col-lg-9">
+            <form asp-action="SalvarConfiguracoes" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="tab-content">
+                    <!-- =========================================================
+                         ABA 1: ORGANIZAÇÃO & PARÂMETROS GERAIS
+                         ========================================================= -->
+                    <div class="tab-pane fade show active" id="tab-organizacao" role="tabpanel">
+                        <div class="saas-card p-4 mb-4">
+                            <div class="mb-4 pb-3 saas-border-bottom">
+                                <h3 class="saas-section-title m-0">Dados Institucionais da ONG</h3>
+                                <small class="saas-muted">Informações exibidas em relatórios, cabeçalhos e integrações do sistema</small>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-12 col-md-7">
+                                    <label class="form-label fw-semibold">Nome da Organização</label>
+                                    <input type="text" name="NomeOrganizacao" class="form-control" value="@cfg.NomeOrganizacao" required />
+                                </div>
+                                <div class="col-12 col-md-5">
+                                    <label class="form-label fw-semibold">CNPJ Institucional</label>
+                                    <input type="text" name="Cnpj" class="form-control" value="@cfg.Cnpj" />
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-semibold">E-mail Oficial de Contato</label>
+                                    <input type="email" name="EmailInstitucional" class="form-control" value="@cfg.EmailInstitucional" />
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-semibold">Telefone / WhatsApp de Suporte</label>
+                                    <input type="text" name="TelefoneSuporte" class="form-control" value="@cfg.TelefoneSuporte" />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Endereço da Sede</label>
+                                    <input type="text" name="EnderecoSede" class="form-control" value="@cfg.EnderecoSede" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="saas-card p-4">
+                            <div class="mb-4 pb-3 saas-border-bottom">
+                                <h3 class="saas-section-title m-0">Metas e Regras Operacionais</h3>
+                                <small class="saas-muted">Defina indicadores de referência para o monitoramento financeiro e de estoque</small>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-semibold">Meta Mensal de Doações (R$)</label>
+                                    <input type="number" step="0.01" name="MetaArrecadacaoMensal" class="form-control" value="@cfg.MetaArrecadacaoMensal.ToString(CultureInfo.InvariantCulture)" />
+                                    <small class="saas-muted">Referência para acompanhamento de arrecadação mensal no Dashboard.</small>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-semibold">Alerta de Estoque Mínimo (Unidades)</label>
+                                    <input type="number" name="AlertaEstoqueMinimo" class="form-control" value="@cfg.AlertaEstoqueMinimo" />
+                                    <small class="saas-muted">Quantidade mínima recomendada por item no inventário.</small>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4 pt-3 saas-border-top">
+                                <button type="submit" class="btn saas-btn-primary d-inline-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined">save</i>
+                                    <span>Salvar Configurações</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =========================================================
+                         ABA 2: APARÊNCIA & INTERFACE
+                         ========================================================= -->
+                    <div class="tab-pane fade" id="tab-aparencia" role="tabpanel">
+                        <div class="saas-card p-4">
+                            <div class="mb-4 pb-3 saas-border-bottom">
+                                <h3 class="saas-section-title m-0">Tema Visual do Sistema</h3>
+                                <small class="saas-muted">Escolha a aparência padrão de todas as telas e gráficos do portal</small>
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-12 col-md-6">
+                                    <div class="saas-theme-card" id="cardThemeLight" onclick="window.applySystemTheme(false); atualizarCardsTema();">
+                                        <div class="saas-theme-preview saas-preview-light mb-3">
+                                            <div class="preview-sidebar"></div>
+                                            <div class="preview-content">
+                                                <div class="preview-box"></div>
+                                                <div class="preview-box"></div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h5 class="m-0 fw-bold" style="font-size: 1rem;">Modo Claro Institucional</h5>
+                                                <small class="saas-muted">Fundo lavanda suave e cartões claros</small>
+                                            </div>
+                                            <i class="material-symbols-outlined" style="color: #7C6FE0;">light_mode</i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <div class="saas-theme-card" id="cardThemeDark" onclick="window.applySystemTheme(true); atualizarCardsTema();">
+                                        <div class="saas-theme-preview saas-preview-dark mb-3">
+                                            <div class="preview-sidebar"></div>
+                                            <div class="preview-content">
+                                                <div class="preview-box"></div>
+                                                <div class="preview-box"></div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h5 class="m-0 fw-bold" style="font-size: 1rem;">Modo Escuro (BI Dark)</h5>
+                                                <small class="saas-muted">Alto contraste para análise de dados e uso prolongado</small>
+                                            </div>
+                                            <i class="material-symbols-outlined" style="color: #00B4D8;">dark_mode</i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="saas-toggle-row py-3 saas-border-top">
+                                <div>
+                                    <div class="fw-semibold">Notificações Visuais (Toasts) de Operações</div>
+                                    <small class="saas-muted">Exibir alertas flutuantes ao registrar novas doações, transações ou alterações</small>
+                                </div>
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input" type="checkbox" name="NotificarNovasDoacoes" value="true" @(cfg.NotificarNovasDoacoes ? "checked" : "") style="width: 44px; height: 22px; cursor: pointer;" />
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-3 pt-3 saas-border-top">
+                                <button type="submit" class="btn saas-btn-primary d-inline-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined">save</i>
+                                    <span>Salvar Preferências</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =========================================================
+                         ABA 3: PARÂMETROS & CADASTROS BASE DO SISTEMA
+                         ========================================================= -->
+                    <div class="tab-pane fade" id="tab-cadastros" role="tabpanel">
+                        <div class="saas-card p-4">
+                            <div class="mb-4 pb-3 saas-border-bottom">
+                                <h3 class="saas-section-title m-0">Tabelas Auxiliares e Parâmetros</h3>
+                                <small class="saas-muted">Gerencie as categorias, carteiras, produtos e cargos que estruturam o sistema</small>
+                            </div>
+
+                            <div class="row g-3">
+                                <!-- Carteiras Financeiras -->
+                                <div class="col-12 col-md-6">
+                                    <div class="saas-module-box h-100 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="saas-icon-badge" style="background: rgba(46,158,91,0.15); color: #2E9E5B;">
+                                                    <i class="material-symbols-outlined">account_balance_wallet</i>
+                                                </span>
+                                                <span class="badge rounded-pill bg-secondary bg-opacity-25 text-reset">
+                                                    @ViewBag.TotalCarteiras cadastradas
+                                                </span>
+                                            </div>
+                                            <h5 class="fw-bold mb-1" style="font-size: 1rem;">Carteiras Financeiras</h5>
+                                            <p class="saas-muted mb-3" style="font-size: 0.84rem;">
+                                                Contas bancárias, caixa físico e fundo de reserva. Saldo consolidado: <strong>@(((decimal)(ViewBag.SaldoTotalCarteiras ?? 0m)).ToString("C", ptBR))</strong>.
+                                            </p>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a asp-controller="Carteiras" asp-action="Index" class="btn btn-sm saas-btn-outline flex-grow-1">Gerenciar Carteiras</a>
+                                            <a asp-controller="Carteiras" asp-action="Criar" class="btn btn-sm saas-btn-primary">+ Nova</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Categorias Financeiras -->
+                                <div class="col-12 col-md-6">
+                                    <div class="saas-module-box h-100 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="saas-icon-badge" style="background: rgba(124,111,224,0.15); color: #7C6FE0;">
+                                                    <i class="material-symbols-outlined">category</i>
+                                                </span>
+                                                <span class="badge rounded-pill bg-secondary bg-opacity-25 text-reset">
+                                                    @ViewBag.TotalCategoriasFin categorias
+                                                </span>
+                                            </div>
+                                            <h5 class="fw-bold mb-1" style="font-size: 1rem;">Categorias Financeiras</h5>
+                                            <p class="saas-muted mb-3" style="font-size: 0.84rem;">
+                                                Classificação de receitas, doações, campanhas e despesas operacionais da ONG.
+                                            </p>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a asp-controller="Categoria" asp-action="Index" class="btn btn-sm saas-btn-outline flex-grow-1">Gerenciar Categorias</a>
+                                            <a asp-controller="Categoria" asp-action="Criar" class="btn btn-sm saas-btn-primary">+ Nova</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tipos de Ativo (Categorias de Estoque) -->
+                                <div class="col-12 col-md-6">
+                                    <div class="saas-module-box h-100 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="saas-icon-badge" style="background: rgba(247,127,0,0.15); color: #F77F00;">
+                                                    <i class="material-symbols-outlined">apparel</i>
+                                                </span>
+                                                <span class="badge rounded-pill bg-secondary bg-opacity-25 text-reset">
+                                                    @ViewBag.TotalTiposAtivo tipos
+                                                </span>
+                                            </div>
+                                            <h5 class="fw-bold mb-1" style="font-size: 1rem;">Tipos de Ativo (Inventário)</h5>
+                                            <p class="saas-muted mb-3" style="font-size: 0.84rem;">
+                                                Grupos principais de itens recebidos em doação (ex: Roupas, Calçados, Alimentos).
+                                            </p>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a asp-controller="TiposAtivo" asp-action="Index" class="btn btn-sm saas-btn-outline flex-grow-1">Gerenciar Tipos</a>
+                                            <a asp-controller="TiposAtivo" asp-action="Criar" class="btn btn-sm saas-btn-primary">+ Novo</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Catálogo de Produtos -->
+                                <div class="col-12 col-md-6">
+                                    <div class="saas-module-box h-100 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="saas-icon-badge" style="background: rgba(0,180,216,0.15); color: #00B4D8;">
+                                                    <i class="material-symbols-outlined">inventory_2</i>
+                                                </span>
+                                                <span class="badge rounded-pill bg-secondary bg-opacity-25 text-reset">
+                                                    @ViewBag.TotalProdutos produtos
+                                                </span>
+                                            </div>
+                                            <h5 class="fw-bold mb-1" style="font-size: 1rem;">Catálogo de Produtos</h5>
+                                            <p class="saas-muted mb-3" style="font-size: 0.84rem;">
+                                                Itens padronizados disponíveis para movimentação de entrada e saída no estoque.
+                                            </p>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a asp-controller="Produtos" asp-action="Index" class="btn btn-sm saas-btn-outline flex-grow-1">Ver Catálogo</a>
+                                            <a asp-controller="Produtos" asp-action="Criar" class="btn btn-sm saas-btn-primary">+ Novo</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Cargos e Níveis de Acesso -->
+                                <div class="col-12 col-md-6">
+                                    <div class="saas-module-box h-100 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="saas-icon-badge" style="background: rgba(239,71,111,0.15); color: #EF476F;">
+                                                    <i class="material-symbols-outlined">badge</i>
+                                                </span>
+                                                <span class="badge rounded-pill bg-secondary bg-opacity-25 text-reset">
+                                                    @ViewBag.TotalCargos perfis
+                                                </span>
+                                            </div>
+                                            <h5 class="fw-bold mb-1" style="font-size: 1rem;">Cargos e Perfis</h5>
+                                            <p class="saas-muted mb-3" style="font-size: 0.84rem;">
+                                                Funções e papéis de autorização atribuídos aos usuários (Administrador, Colaborador).
+                                            </p>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a asp-controller="Cargos" asp-action="Index" class="btn btn-sm saas-btn-outline flex-grow-1">Gerenciar Cargos</a>
+                                            <a asp-controller="Cargos" asp-action="Criar" class="btn btn-sm saas-btn-primary">+ Novo</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Cadastro de Voluntários -->
+                                <div class="col-12 col-md-6">
+                                    <div class="saas-module-box h-100 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="saas-icon-badge" style="background: rgba(67,97,238,0.15); color: #4361EE;">
+                                                    <i class="material-symbols-outlined">volunteer_activism</i>
+                                                </span>
+                                                <span class="badge rounded-pill bg-secondary bg-opacity-25 text-reset">
+                                                    @ViewBag.TotalVoluntarios voluntários
+                                                </span>
+                                            </div>
+                                            <h5 class="fw-bold mb-1" style="font-size: 1rem;">Base de Voluntários</h5>
+                                            <p class="saas-muted mb-3" style="font-size: 0.84rem;">
+                                                Gerenciamento direto dos voluntários atuantes nas campanhas e eventos da ONG.
+                                            </p>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a asp-controller="Voluntarios" asp-action="Index" class="btn btn-sm saas-btn-outline flex-grow-1">Ver Voluntários</a>
+                                            <a asp-controller="Voluntarios" asp-action="Criar" class="btn btn-sm saas-btn-primary">+ Novo</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =========================================================
+                         ABA 4: SEGURANÇA & CONTROLE DE ACESSO
+                         ========================================================= -->
+                    <div class="tab-pane fade" id="tab-seguranca" role="tabpanel">
+                        <div class="saas-card p-4 mb-4">
+                            <div class="mb-4 pb-3 saas-border-bottom">
+                                <h3 class="saas-section-title m-0">Políticas de Segurança e Sessão</h3>
+                                <small class="saas-muted">Controle de autenticação híbrida (Cookie Web MVC + JWT Bearer API)</small>
+                            </div>
+
+                            <div class="saas-toggle-row py-3">
+                                <div>
+                                    <div class="fw-semibold">Exigir Troca de Senha no Primeiro Acesso</div>
+                                    <small class="saas-muted">Obriga novos colaboradores a definirem uma senha própria ao entrarem com senha temporária</small>
+                                </div>
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input" type="checkbox" name="ExigirTrocaSenhaNovosUsuarios" value="true" @(cfg.ExigirTrocaSenhaNovosUsuarios ? "checked" : "") style="width: 44px; height: 22px; cursor: pointer;" />
+                                </div>
+                            </div>
+
+                            <div class="saas-toggle-row py-3 saas-border-top">
+                                <div>
+                                    <div class="fw-semibold">Habilitar Acesso Externo via API Mobile (JWT)</div>
+                                    <small class="saas-muted">Permite que o aplicativo Flutter se autentique via token Bearer em <code>/api/*</code></small>
+                                </div>
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input" type="checkbox" name="HabilitarApiMobile" value="true" @(cfg.HabilitarApiMobile ? "checked" : "") style="width: 44px; height: 22px; cursor: pointer;" />
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mt-1 pt-3 saas-border-top">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-semibold">Tempo Limite de Sessão Web (Minutos)</label>
+                                    <input type="number" name="TempoSessaoMinutos" class="form-control" value="@cfg.TempoSessaoMinutos" min="5" max="480" />
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4 pt-3 saas-border-top">
+                                <button type="submit" class="btn saas-btn-primary d-inline-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined">save</i>
+                                    <span>Salvar Políticas de Segurança</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="saas-card p-4">
+                            <div class="mb-3">
+                                <h3 class="saas-section-title m-0">Credenciais e Gestão de Contas</h3>
+                                <small class="saas-muted">Ações rápidas de segurança para sua conta e equipe</small>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-3">
+                                <a asp-action="RedefinirSenha" class="btn saas-btn-outline d-inline-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined">key</i>
+                                    <span>Alterar Minha Senha Administrativa</span>
+                                </a>
+                                <a asp-controller="Usuarios" asp-action="Index" class="btn saas-btn-outline d-inline-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined">manage_accounts</i>
+                                    <span>Gerenciar Usuários (@ViewBag.TotalUsuarios contas)</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- =========================================================
+                         ABA 5: SISTEMA, API MOBILE & BANCO DE DADOS
+                         ========================================================= -->
+                    <div class="tab-pane fade" id="tab-sistema" role="tabpanel">
+                        <div class="saas-card p-4 mb-4">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 saas-border-bottom gap-2">
+                                <div>
+                                    <h3 class="saas-section-title m-0">Diagnóstico e Infraestrutura</h3>
+                                    <small class="saas-muted">Status de operação dos serviços back-end, banco de dados e endpoints REST</small>
+                                </div>
+                                <span class="badge rounded-pill px-3 py-2" style="background: rgba(46,158,91,0.18); color: #2E9E5B; font-size: 0.8rem;">
+                                    ● Todos os Serviços Operacionais
+                                </span>
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-12 col-sm-6 col-md-4">
+                                    <div class="saas-module-box">
+                                        <small class="saas-muted d-block">Banco de Dados MySQL</small>
+                                        <div class="fw-bold mt-1 d-flex align-items-center gap-2">
+                                            <span style="width:10px;height:10px;border-radius:50%;background:@(dbOnline ? "#2E9E5B" : "#EF476F");display:inline-block;"></span>
+                                            @(dbOnline ? "Conectado (VESTINDOSONHOSDB)" : "Indisponível")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-4">
+                                    <div class="saas-module-box">
+                                        <small class="saas-muted d-block">Plataforma / Runtime</small>
+                                        <div class="fw-bold mt-1">ASP.NET Core (.NET 10.0)</div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-4">
+                                    <div class="saas-module-box">
+                                        <small class="saas-muted d-block">Autenticação API</small>
+                                        <div class="fw-bold mt-1">Cookie + JWT Bearer (HS256)</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h5 class="fw-bold mb-2" style="font-size: 0.95rem;">Endpoints da API Integrada (App Mobile Flutter)</h5>
+                            <div class="table-responsive">
+                                <table class="table align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Método</th>
+                                            <th>Rota</th>
+                                            <th>Módulo</th>
+                                            <th class="text-end">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="badge bg-primary">POST</span></td>
+                                            <td><code>/api/auth/login</code></td>
+                                            <td>Autenticação e Emissão de Token JWT</td>
+                                            <td class="text-end text-success fw-semibold">Ativo</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-success">GET</span></td>
+                                            <td><code>/api/dashboard</code></td>
+                                            <td>Indicadores Consolidados Mobile</td>
+                                            <td class="text-end text-success fw-semibold">Ativo</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-success">GET / POST</span></td>
+                                            <td><code>/api/inventario</code></td>
+                                            <td>Controle de Estoque e Doações em Campo</td>
+                                            <td class="text-end text-success fw-semibold">Ativo</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-success">GET / POST</span></td>
+                                            <td><code>/api/financeiro</code></td>
+                                            <td>Transações, Carteiras e Extrato</td>
+                                            <td class="text-end text-success fw-semibold">Ativo</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-success">GET / POST</span></td>
+                                            <td><code>/api/eventos</code></td>
+                                            <td>Campanhas e Escala de Voluntários</td>
+                                            <td class="text-end text-success fw-semibold">Ativo</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+<style>
+    .saas-settings-wrapper {
+        color: var(--text-1);
+    }
+
+    .saas-title {
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: var(--text-1);
+        text-align: left;
+    }
+
+    .saas-subtitle,
+    .saas-muted {
+        color: var(--text-2);
+    }
+
+    .saas-badge {
+        background: rgba(124, 111, 224, 0.15);
+        color: var(--color-1);
+        font-weight: 600;
+        font-size: 0.78rem;
+        padding: 4px 12px;
+        border-radius: 999px;
+    }
+
+    .saas-card {
+        background: var(--color-5);
+        border: 1px solid var(--color-6);
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .saas-border-bottom {
+        border-bottom: 1px solid var(--color-6);
+    }
+
+    .saas-border-top {
+        border-top: 1px solid var(--color-6);
+    }
+
+    .saas-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #7C6FE0, #5A4FCF);
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .saas-nav-pills .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-2);
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 11px 14px;
+        border-radius: 10px;
+        text-align: left;
+        transition: all 0.2s ease;
+    }
+
+    .saas-nav-pills .nav-link:hover {
+        background: rgba(124, 111, 224, 0.08);
+        color: var(--color-1);
+    }
+
+    .saas-nav-pills .nav-link.active {
+        background: linear-gradient(135deg, #7C6FE0, #6254C8);
+        color: #fff !important;
+        box-shadow: 0 4px 12px rgba(124, 111, 224, 0.3);
+    }
+
+    .saas-section-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-1);
+    }
+
+    .saas-btn-primary {
+        background: linear-gradient(135deg, #7C6FE0, #6254C8);
+        color: #fff !important;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 8px 16px;
+    }
+
+    .saas-btn-outline {
+        background: var(--color-5);
+        color: var(--text-1) !important;
+        border: 1px solid var(--color-6);
+        border-radius: 10px;
+        font-weight: 500;
+        padding: 8px 16px;
+    }
+    .saas-btn-outline:hover {
+        border-color: var(--color-1);
+        color: var(--color-1) !important;
+    }
+
+    .saas-module-box {
+        background: var(--color-4);
+        border: 1px solid var(--color-6);
+        border-radius: 12px;
+        padding: 16px;
+        transition: border-color 0.2s ease;
+    }
+    .saas-module-box:hover {
+        border-color: var(--color-1);
+    }
+
+    .saas-icon-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .saas-toggle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+    }
+
+    /* Seletor Visual de Tema */
+    .saas-theme-card {
+        border: 2px solid var(--color-6);
+        border-radius: 14px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .saas-theme-card.active-theme {
+        border-color: #7C6FE0;
+        box-shadow: 0 0 0 3px rgba(124, 111, 224, 0.2);
+    }
+
+    .saas-theme-preview {
+        height: 90px;
+        border-radius: 10px;
+        display: flex;
+        overflow: hidden;
+        border: 1px solid rgba(128,128,128,0.2);
+    }
+    .saas-preview-light { background: #F3F4FA; }
+    .saas-preview-light .preview-sidebar { width: 22%; background: #7C6FE0; }
+    .saas-preview-light .preview-content { flex: 1; padding: 10px; display: flex; gap: 8px; }
+    .saas-preview-light .preview-box { flex: 1; background: #FFFFFF; border-radius: 6px; border: 1px solid #E5E7EB; }
+
+    .saas-preview-dark { background: #151722; }
+    .saas-preview-dark .preview-sidebar { width: 22%; background: #6254C8; }
+    .saas-preview-dark .preview-content { flex: 1; padding: 10px; display: flex; gap: 8px; }
+    .saas-preview-dark .preview-box { flex: 1; background: #1F2232; border-radius: 6px; border: 1px solid #2D3248; }
+</style>
+
+@section Scripts {
+    <script>
+        function atualizarCardsTema() {
+            var isDark = document.documentElement.classList.contains('dark-mode');
+            var cardLight = document.getElementById('cardThemeLight');
+            var cardDark = document.getElementById('cardThemeDark');
+            if (cardLight && cardDark) {
+                cardLight.classList.toggle('active-theme', !isDark);
+                cardDark.classList.toggle('active-theme', isDark);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', atualizarCardsTema);
+    </script>
+}

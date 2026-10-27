@@ -124,64 +124,319 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Financeiro/Dashboard
-        [Authorize(Roles = "Administrador")]
+        [Authorize]
         public async Task<IActionResult> Dashboard()
         {
-            var contexto = new DashboardViewModel
-            {
-                estatisticasFinanceiras = await (from tf in _context.TransacaoFinanceira
-                                                 join t in _context.Transacao on tf.Id equals t.Id
-                                                 where t.CategoriaNavigation.Nome != "Doação"
-                                                 select new DashboardViewModel.EstatisticasFinanceiras
-                                                 {
-                                                     Data = t.Hora,
-                                                     Razao = t.Razao,
-                                                     Tipo = t.CategoriaNavigation.Nome,
-                                                     Valor = tf.Valor
-                                                 }).ToListAsync(),
-                estatisticasFinanceirasDoacao = await (from tf in _context.TransacaoFinanceira
-                                                       join t in _context.Transacao on tf.Id equals t.Id
-                                                       where t.CategoriaNavigation.Nome == "Doação"
-                                                       select new DashboardViewModel.EstatisticasFinanceirasDoacao
-                                                       {
-                                                           Data = t.Hora,
-                                                           Valor = tf.Valor
-                                                       }).ToListAsync(),
-                estatisticasRoupas = await (from ti in _context.TransacaoInventario
-                                            join t in _context.Transacao on ti.TransacaoId equals t.Id
-                                            where t.Razao == "Saída"
-                                            select new DashboardViewModel.EstatisticasDoacoesSaida
-                                            {
-                                                Quantidade = ti.Quantidade,
-                                                Data = t.Hora,
-                                            }
-                                            ).OrderByDescending(t => t.Data).ToListAsync(),
-                EventosAgendados = await (from e in _context.Evento
-                                          where e.data_fim >= DateTime.Now
-                                          select e
-                                          ).CountAsync(),
-                TotalVoluntarios = await _context.Voluntario.CountAsync(),
-                estatisticasVoluntariosAtribuidos = await (from e in _context.Evento
-                                                           join va in _context.VoluntarioAtribuido on e.Id equals va.Evento
-                                                           join v in _context.Voluntario on va.Voluntario equals v.Id
-                                                           where e.data_fim >= DateTime.Now
-                                                           select new DashboardViewModel.EstatisticasVoluntariosAtribuidos
-                                                           {
-                                                               nomeEvento = e.Nome,
-                                                               voluntariosAtribuidos = _context.VoluntarioAtribuido.Where(va => e.Id == va.Evento).Count(),
-                                                           }
-                                                    ).Distinct().ToListAsync()
-            };
-            var options = new JsonSerializerOptions
-            {
-                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
-                WriteIndented = true
-            };
+            var contexto = await ConstruirDashboardViewModelAsync();
+            return View(contexto);
+        }
 
-            string json = JsonSerializer.Serialize(contexto, options);
-            System.IO.File.WriteAllText(".\\DataAnalysis\\data.json", json);
-            GerarGraficosDashboard();
-            return View();
+        // GET: Financeiro/DadosDashboardJson
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> DadosDashboardJson()
+        {
+            var contexto = await ConstruirDashboardViewModelAsync();
+            return Json(contexto);
+        }
+
+        private async Task<DashboardViewModel> ConstruirDashboardViewModelAsync()
+        {
+            var agora = DateTime.Now;
+            var culturaPtBr = new System.Globalization.CultureInfo("pt-BR");
+
+            // 1. KPIs Básicos (Beneficiários, Dependentes, Voluntários, Eventos)
+            var totalBeneficiarios = await _context.Beneficiario.CountAsync();
+            var totalDependentes = await _context.Dependente.CountAsync();
+            var totalVoluntarios = await _context.Voluntario.CountAsync();
+            var eventosAgendados = await _context.Evento
+                .Where(e => e.data_fim == null || e.data_fim >= agora)
+                .CountAsync();
+            var totalEventosRealizados = await _context.Evento
+                .Where(e => e.data_fim != null && e.data_fim < agora)
+                .CountAsync();
+
+            // 2. Carteiras e Transações Financeiras
+            var carteiras = await _context.Carteira.AsNoTracking().ToListAsync();
+            var saldoAtual = carteiras.Sum(c => c.Saldo);
+
+            var transacoesFin = await (from tf in _context.TransacaoFinanceira.AsNoTracking()
+                                       join t in _context.Transacao.AsNoTracking() on tf.Id equals t.Id
+                                       join c in _context.Categoria.AsNoTracking() on t.Categoria equals c.Id into catGroup
+                                       from c in catGroup.DefaultIfEmpty()
+                                       join u in _context.Usuario.AsNoTracking() on t.Usuario equals u.Id into userGroup
+                                       from u in userGroup.DefaultIfEmpty()
+                                       join cart in _context.Carteira.AsNoTracking() on tf.Carteira equals cart.Id into cartGroup
+                                       from cart in cartGroup.DefaultIfEmpty()
+                                       orderby t.Hora descending
+                                       select new DashboardViewModel.TransacaoRecenteItem
+                                       {
+                                           Id = tf.Id,
+                                           DataHora = t.Hora,
+                                           Razao = t.Razao ?? "Entrada",
+                                           Categoria = c != null ? c.Nome : "Geral",
+                                           Carteira = cart != null ? cart.Nome : "Principal",
+                                           Usuario = u != null ? u.Nome : "Sistema",
+                                           Observacao = t.Observacao,
+                                           Valor = tf.Valor
+                                       }).ToListAsync();
+
+            var totalEntradas = transacoesFin
+                .Where(x => x.Razao == "Entrada")
+                .Sum(x => x.Valor);
+
+            var totalSaidas = transacoesFin
+                .Where(x => x.Razao == "Saída" || x.Razao == "Saida")
+                .Sum(x => x.Valor);
+
+            var totalDoacoes = transacoesFin
+                .Where(x => x.Categoria.Equals("Doação", StringComparison.OrdinalIgnoreCase) || x.Categoria.Equals("Doacao", StringComparison.OrdinalIgnoreCase))
+                .Sum(x => x.Valor);
+
+            var transacoesMesAtual = transacoesFin
+                .Where(x => x.DataHora.HasValue && x.DataHora.Value.Month == agora.Month && x.DataHora.Value.Year == agora.Year)
+                .ToList();
+
+            var entradasMesAtual = transacoesMesAtual
+                .Where(x => x.Razao == "Entrada")
+                .Sum(x => x.Valor);
+
+            var saidasMesAtual = transacoesMesAtual
+                .Where(x => x.Razao == "Saída" || x.Razao == "Saida")
+                .Sum(x => x.Valor);
+
+            var doacoesMesAtual = transacoesMesAtual
+                .Where(x => x.Categoria.Equals("Doação", StringComparison.OrdinalIgnoreCase) || x.Categoria.Equals("Doacao", StringComparison.OrdinalIgnoreCase))
+                .Sum(x => x.Valor);
+
+            // 3. Inventário e Estoque por Categoria (TiposAtivo)
+            var tiposAtivo = await _context.TiposAtivo.AsNoTracking().ToListAsync();
+            var produtos = await _context.Produto
+                .AsNoTracking()
+                .Include(p => p.CategoriaNavigation)
+                .ToListAsync();
+
+            var movInventario = await (from ti in _context.TransacaoInventario.AsNoTracking()
+                                       join t in _context.Transacao.AsNoTracking() on ti.TransacaoId equals t.Id
+                                       select new
+                                       {
+                                           ti.ProdutoId,
+                                           ti.Quantidade,
+                                           t.Razao,
+                                           t.Hora
+                                       }).ToListAsync();
+
+            var estoquePorProduto = produtos.Select(p =>
+            {
+                var ent = movInventario.Where(m => m.ProdutoId == p.Id && m.Razao == "Entrada").Sum(m => m.Quantidade);
+                var sai = movInventario.Where(m => m.ProdutoId == p.Id && (m.Razao == "Saída" || m.Razao == "Saida")).Sum(m => m.Quantidade);
+                return new
+                {
+                    Produto = p,
+                    CategoriaNome = p.CategoriaNavigation?.Categoria ?? "Outros",
+                    Estoque = Math.Max(0, ent - sai)
+                };
+            }).ToList();
+
+            var totalProdutosCadastrados = produtos.Count;
+            var totalUnidadesEstoque = estoquePorProduto.Sum(x => x.Estoque);
+            var totalItensDoadosSaida = movInventario
+                .Where(m => m.Razao == "Saída" || m.Razao == "Saida")
+                .Sum(m => m.Quantidade);
+
+            var inventarioPorCategoria = new List<DashboardViewModel.CategoriaQuantidadeItem>();
+            if (totalUnidadesEstoque > 0)
+            {
+                inventarioPorCategoria = estoquePorProduto
+                    .GroupBy(x => x.CategoriaNome)
+                    .Select(g => new DashboardViewModel.CategoriaQuantidadeItem
+                    {
+                        Categoria = g.Key,
+                        Quantidade = g.Sum(x => x.Estoque)
+                    })
+                    .OrderByDescending(x => x.Quantidade)
+                    .ToList();
+            }
+            else if (produtos.Any())
+            {
+                inventarioPorCategoria = estoquePorProduto
+                    .GroupBy(x => x.CategoriaNome)
+                    .Select(g => new DashboardViewModel.CategoriaQuantidadeItem
+                    {
+                        Categoria = g.Key,
+                        Quantidade = g.Count()
+                    })
+                    .OrderByDescending(x => x.Quantidade)
+                    .ToList();
+            }
+            else
+            {
+                inventarioPorCategoria = tiposAtivo
+                    .Select(ta => new DashboardViewModel.CategoriaQuantidadeItem
+                    {
+                        Categoria = ta.Categoria,
+                        Quantidade = 0
+                    })
+                    .ToList();
+            }
+
+            // 4. Beneficiários por Situação e Necessidades da Comunidade
+            var beneficiariosDb = await _context.Beneficiario.AsNoTracking().ToListAsync();
+            var beneficiariosPorSituacao = beneficiariosDb
+                .GroupBy(b => string.IsNullOrWhiteSpace(b.Situacao) ? "Ativo / Regular" : b.Situacao.Trim())
+                .Select(g => new DashboardViewModel.CategoriaQuantidadeItem
+                {
+                    Categoria = g.Key,
+                    Quantidade = g.Count()
+                })
+                .OrderByDescending(x => x.Quantidade)
+                .ToList();
+
+            var dictTags = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var obsLista = beneficiariosDb
+                .Where(b => !string.IsNullOrWhiteSpace(b.Observacao))
+                .Select(b => b.Observacao!)
+                .ToList();
+
+            foreach (var obs in obsLista)
+            {
+                var partes = obs.Split(new[] { ',', ' ', '-', '/', '|', '\\', '.', '_', ';', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var parte in partes)
+                {
+                    if (parte.StartsWith("#") && parte.Length > 1)
+                    {
+                        var tag = parte.Substring(1);
+                        dictTags[tag] = dictTags.GetValueOrDefault(tag, 0) + 1;
+                    }
+                    else if (parte.Length > 3)
+                    {
+                        dictTags[parte] = dictTags.GetValueOrDefault(parte, 0) + 1;
+                    }
+                }
+            }
+
+            var necessidadesComunidade = dictTags
+                .OrderByDescending(kv => kv.Value)
+                .Take(6)
+                .Select(kv => new DashboardViewModel.CategoriaQuantidadeItem
+                {
+                    Categoria = "#" + char.ToUpper(kv.Key[0]) + kv.Key.Substring(1).ToLower(),
+                    Quantidade = kv.Value
+                })
+                .ToList();
+
+            // 5. Evolução Financeira Mensal (Últimos 6 meses + meses com movimentação)
+            var mesesReferencia = new SortedSet<(int Ano, int Mes)>();
+            for (int i = 5; i >= 0; i--)
+            {
+                var dt = agora.AddMonths(-i);
+                mesesReferencia.Add((dt.Year, dt.Month));
+            }
+            foreach (var tf in transacoesFin.Where(x => x.DataHora.HasValue))
+            {
+                mesesReferencia.Add((tf.DataHora!.Value.Year, tf.DataHora!.Value.Month));
+            }
+
+            var mesesUltimos = mesesReferencia.TakeLast(8).ToList();
+            var mesesLabels = new List<string>();
+            var entradasPorMes = new List<decimal>();
+            var saidasPorMes = new List<decimal>();
+            var doacoesPorMes = new List<decimal>();
+
+            foreach (var (ano, mes) in mesesUltimos)
+            {
+                var nomeMes = new DateTime(ano, mes, 1).ToString("MMM/yy", culturaPtBr);
+                nomeMes = char.ToUpper(nomeMes[0]) + nomeMes.Substring(1).Replace(".", "");
+                mesesLabels.Add(nomeMes);
+
+                var doMes = transacoesFin
+                    .Where(x => x.DataHora.HasValue && x.DataHora.Value.Year == ano && x.DataHora.Value.Month == mes)
+                    .ToList();
+
+                entradasPorMes.Add(doMes.Where(x => x.Razao == "Entrada").Sum(x => x.Valor));
+                saidasPorMes.Add(doMes.Where(x => x.Razao == "Saída" || x.Razao == "Saida").Sum(x => x.Valor));
+                doacoesPorMes.Add(doMes.Where(x => x.Categoria.Equals("Doação", StringComparison.OrdinalIgnoreCase) || x.Categoria.Equals("Doacao", StringComparison.OrdinalIgnoreCase)).Sum(x => x.Valor));
+            }
+
+            // 6. Movimentações por Categoria Financeira
+            var categoriasDb = await _context.Categoria.AsNoTracking().ToListAsync();
+            var movPorCategoria = categoriasDb
+                .Select(cat =>
+                {
+                    var itensCat = transacoesFin.Where(t => t.Categoria.Equals(cat.Nome, StringComparison.OrdinalIgnoreCase)).ToList();
+                    return new DashboardViewModel.CategoriaValorItem
+                    {
+                        Categoria = cat.Nome,
+                        Valor = itensCat.Sum(x => x.Valor),
+                        QuantidadeOperacoes = itensCat.Count
+                    };
+                })
+                .OrderByDescending(x => x.Valor)
+                .ThenByDescending(x => x.QuantidadeOperacoes)
+                .ToList();
+
+            // 7. Próximos Eventos Agendados
+            var eventosDb = await _context.Evento
+                .AsNoTracking()
+                .Include(e => e.ResponsavelNavigation)
+                .Include(e => e.VoluntarioAtribuido)
+                .OrderByDescending(e => e.data_inicio)
+                .ToListAsync();
+
+            var proximosEventos = eventosDb
+                .OrderByDescending(e => !e.data_fim.HasValue || e.data_fim.Value >= agora)
+                .ThenBy(e => e.data_inicio)
+                .Take(6)
+                .Select(e =>
+            {
+                string status = "Agendado";
+                if (e.data_fim.HasValue && e.data_fim.Value < agora)
+                    status = "Encerrado";
+                else if (e.data_inicio.HasValue && e.data_inicio.Value <= agora && (!e.data_fim.HasValue || e.data_fim.Value >= agora))
+                    status = "Em Andamento";
+
+                return new DashboardViewModel.EventoProximoItem
+                {
+                    Id = e.Id,
+                    Nome = e.Nome,
+                    DataInicio = e.data_inicio,
+                    DataFim = e.data_fim,
+                    Local = string.IsNullOrWhiteSpace(e.Local) ? "Sede da ONG" : e.Local,
+                    Responsavel = e.ResponsavelNavigation?.Nome ?? "Coordenação",
+                    TotalVoluntarios = e.VoluntarioAtribuido?.Count ?? 0,
+                    Status = status
+                };
+            }).ToList();
+
+            return new DashboardViewModel
+            {
+                TotalBeneficiarios = totalBeneficiarios,
+                TotalDependentes = totalDependentes,
+                TotalVoluntarios = totalVoluntarios,
+                EventosAgendados = eventosAgendados,
+                TotalEventosRealizados = totalEventosRealizados,
+                SaldoAtual = saldoAtual,
+                TotalEntradas = totalEntradas,
+                TotalSaidas = totalSaidas,
+                TotalDoacoes = totalDoacoes,
+                DoacoesMesAtual = doacoesMesAtual,
+                EntradasMesAtual = entradasMesAtual,
+                SaidasMesAtual = saidasMesAtual,
+                TotalProdutosCadastrados = totalProdutosCadastrados,
+                TotalUnidadesEstoque = totalUnidadesEstoque,
+                TotalItensDoadosSaida = totalItensDoadosSaida,
+                MesesLabels = mesesLabels,
+                EntradasPorMes = entradasPorMes,
+                SaidasPorMes = saidasPorMes,
+                DoacoesPorMes = doacoesPorMes,
+                InventarioPorCategoria = inventarioPorCategoria,
+                BeneficiariosPorSituacao = beneficiariosPorSituacao,
+                MovimentacoesPorCategoriaFinanceira = movPorCategoria,
+                NecessidadesComunidade = necessidadesComunidade,
+                UltimasTransacoes = transacoesFin.Take(8).ToList(),
+                ProximosEventos = proximosEventos,
+                Carteiras = carteiras
+            };
         }
 
         // GET: Financeiro/Criar
@@ -458,44 +713,6 @@ namespace VestindoSonhos.Controllers
             }
             //ViewData["Usuario"] = new SelectList(_context.Usuario, "Id", "Nome", tfViewModel.Usuario);
             return View(tfViewModel);
-        }
-
-        private void GerarGraficosDashboard()
-        {
-            var pythonPath = @".\DataAnalysis\.venv\Scripts\python.exe";
-            if (!System.IO.File.Exists(pythonPath))
-            {
-                return;
-            }
-
-            try
-            {
-                var processInfo = new ProcessStartInfo
-                {
-                    FileName = pythonPath,
-                    Arguments = @".\DataAnalysis\Scriptdata.py",
-                    RedirectStandardError = true,
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-
-                using (var process = Process.Start(processInfo))
-                {
-                    if (process != null)
-                    {
-                        string output = process.StandardOutput.ReadToEnd();
-                        string erro = process.StandardError.ReadToEnd();
-                        process.WaitForExit();
-                        Console.WriteLine(output);
-                        Console.WriteLine(erro);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erro ao gerar gráfico: {ex.Message}");
-            }
         }
     }
 }

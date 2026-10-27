@@ -610,4 +610,60 @@ class ApiService {
     await prefs.remove(_keyUserEmail);
     await prefs.remove(_keyUserCargo);
   }
+
+  // ==========================================
+  // Configurações SaaS (Administrador) & Tema Dark Mode
+  // ==========================================
+
+  static const String _keyDarkMode = 'vs_mobile_dark_mode';
+
+  static Future<bool> getDarkMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyDarkMode) ?? false;
+  }
+
+  static Future<void> setDarkMode(bool isDark) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyDarkMode, isDark);
+  }
+
+  Future<Map<String, dynamic>> getConfiguracoesSaas(String token) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/dashboard/configuracoes');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else if (response.statusCode == 403) {
+      throw Exception('Acesso restrito a Administradores.');
+    } else {
+      throw Exception('Falha ao carregar configurações (${response.statusCode}).');
+    }
+  }
+
+  Future<void> salvarConfiguracoesSaas(String token, Map<String, dynamic> dados) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/dashboard/configuracoes');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(dados),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao salvar configurações SaaS');
+      throw Exception(msg);
+    }
+  }
 }

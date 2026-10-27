@@ -103,7 +103,7 @@ namespace VestindoSonhos.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
-            return RedirectToAction(controllerName: nameof(Home), actionName: nameof(Index));
+            return RedirectToAction("Dashboard", "Financeiro");
         }
 
         // GET: /Login/TrocarSenhaObrigatoria

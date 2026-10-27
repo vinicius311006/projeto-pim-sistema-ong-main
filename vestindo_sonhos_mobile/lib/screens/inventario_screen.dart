@@ -92,6 +92,9 @@ class _InventarioScreenState extends State<InventarioScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textPrimary = isDark ? const Color(0xFFF3F4F6) : const Color(0xFF2E2E3A);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inventário & Estoque'),
@@ -103,16 +106,16 @@ class _InventarioScreenState extends State<InventarioScreen> {
             margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF7C6FE0).withValues(alpha: 0.1),
+              color: const Color(0xFF7C6FE0).withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0xFF7C6FE0).withValues(alpha: 0.25)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildInfoResumo('Produtos Cadastrados', '${_itens.length} itens', Icons.category_outlined),
-                Container(height: 30, width: 1, color: Colors.grey.shade300),
-                _buildInfoResumo('Total em Estoque', '$_totalEstoqueGeral un', Icons.inventory_2_outlined),
+                _buildInfoResumo('Produtos Cadastrados', '${_itens.length} itens', Icons.category_outlined, isDark),
+                Container(height: 30, width: 1, color: isDark ? const Color(0xFF2D324A) : Colors.grey.shade300),
+                _buildInfoResumo('Total em Estoque', '$_totalEstoqueGeral un', Icons.inventory_2_outlined, isDark),
               ],
             ),
           ),
@@ -137,15 +140,15 @@ class _InventarioScreenState extends State<InventarioScreen> {
                       )
                     : null,
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: isDark ? const Color(0xFF1F2232) : Colors.white,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+                  borderSide: BorderSide(color: isDark ? const Color(0xFF2D324A) : Colors.grey.shade300),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+                  borderSide: BorderSide(color: isDark ? const Color(0xFF2D324A) : Colors.grey.shade300),
                 ),
               ),
               onChanged: (_) {
@@ -172,7 +175,7 @@ class _InventarioScreenState extends State<InventarioScreen> {
                       selectedColor: const Color(0xFF7C6FE0).withValues(alpha: 0.2),
                       checkmarkColor: const Color(0xFF7C6FE0),
                       labelStyle: TextStyle(
-                        color: selecionada ? const Color(0xFF7C6FE0) : const Color(0xFF2E2E3A),
+                        color: selecionada ? const Color(0xFF7C6FE0) : textPrimary,
                         fontWeight: selecionada ? FontWeight.bold : FontWeight.normal,
                       ),
                       onSelected: (val) {
@@ -206,7 +209,7 @@ class _InventarioScreenState extends State<InventarioScreen> {
     );
   }
 
-  Widget _buildInfoResumo(String label, String valor, IconData icone) {
+  Widget _buildInfoResumo(String label, String valor, IconData icone, bool isDark) {
     return Row(
       children: [
         Icon(icone, color: const Color(0xFF7C6FE0), size: 22),
@@ -214,8 +217,21 @@ class _InventarioScreenState extends State<InventarioScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF6F6F85))),
-            Text(valor, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF2E2E3A))),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6F6F85),
+              ),
+            ),
+            Text(
+              valor,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: isDark ? const Color(0xFFF3F4F6) : const Color(0xFF2E2E3A),
+              ),
+            ),
           ],
         ),
       ],
@@ -310,10 +326,12 @@ class _InventarioScreenState extends State<InventarioScreen> {
                     children: [
                       Text(
                         item.nomeProduto,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF2E2E3A),
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFFF3F4F6)
+                              : const Color(0xFF2E2E3A),
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -322,12 +340,19 @@ class _InventarioScreenState extends State<InventarioScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF262A3D)
+                                  : Colors.grey.shade100,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               item.categoria,
-                              style: TextStyle(fontSize: 11, color: Colors.grey.shade800),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? const Color(0xFFE5E7EB)
+                                    : Colors.grey.shade800,
+                              ),
                             ),
                           ),
                           if (item.cor.isNotEmpty) ...[

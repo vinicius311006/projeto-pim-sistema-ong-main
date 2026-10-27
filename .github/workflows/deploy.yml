@@ -35,6 +35,8 @@ jobs:
       - name: 5. Publicação dos Binários Otimizados
         run: |
           PROJ_PATH=$(find . -name "VestindoSonhos.csproj" | head -n 1)
+          dotnet publish "$PROJ_PATH" --configuration Release --output ./publish --no-build
+
       - name: 6. Upload dos Artefatos de Build
         uses: actions/upload-artifact@v4
         with:

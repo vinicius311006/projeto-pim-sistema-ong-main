@@ -30,13 +30,13 @@
     }
 
     .metrica-card {
-        background: #FFFFFF;
+        background: var(--color-5);
         border-radius: 12px;
         padding: 16px 20px;
         display: flex;
         align-items: center;
         gap: 14px;
-        border: 1px solid rgba(0,0,0,0.06);
+        border: 1px solid var(--color-6);
         box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         transition: transform 0.2s, box-shadow 0.2s;
     }
@@ -63,13 +63,13 @@
         margin: 0;
         font-size: 22px;
         font-weight: 700;
-        color: #1F2937;
+        color: var(--text-1);
     }
 
     .metrica-info p {
         margin: 2px 0 0;
         font-size: 12px;
-        color: #6B7280;
+        color: var(--text-2);
         font-weight: 500;
     }
 
@@ -135,11 +135,11 @@
     .select-filtro {
         padding: 10px 14px;
         border-radius: 10px;
-        border: 1px solid #D1D5DB;
+        border: 1px solid var(--color-6);
         font-size: 14px;
-        color: #374151;
+        color: var(--text-1);
         outline: none;
-        background: #FFFFFF;
+        background: var(--color-5);
         cursor: pointer;
     }
 
@@ -299,7 +299,7 @@
                     <tr class="linha-usuario" data-nome="@item.Nome.ToLower()" data-cargo="@item.CargoNome.ToLower()" data-email="@(item.Email?.ToLower() ?? "")" data-telefone="@(item.Telefone ?? "")">
                         <td data-label="Nome" style="text-align: left; padding-left: 20px;">
                             <span class="user-avatar">@primeiraLetra</span>
-                            <strong style="color: #1F2937;">@item.Nome</strong>
+                            <strong style="color: var(--text-1);">@item.Nome</strong>
                             @if (item.ExigirTrocaSenha)
                             {
                                 <span style="display: inline-flex; align-items: center; gap: 4px; background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-left: 8px;" title="Este usuário deve definir uma nova senha no próximo login">

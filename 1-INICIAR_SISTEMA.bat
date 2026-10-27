@@ -22,7 +22,11 @@ timeout /t 1 /nobreak >nul
 
 echo Iniciando o servidor na porta 5000...
 cd /d "%~dp0VestindoSonhos_Portavel"
-start "" "%EXE_PATH%"
+if exist "%USERPROFILE%\.dotnet\dotnet.exe" (
+    start "" "%USERPROFILE%\.dotnet\dotnet.exe" "%~dp0VestindoSonhos_Portavel\VestindoSonhos.dll"
+) else (
+    start "" "%EXE_PATH%"
+)
 
 timeout /t 3 /nobreak > nul
 

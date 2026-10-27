@@ -88,6 +88,8 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Beneficiários Atendidos'),
@@ -114,15 +116,15 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
                       )
                     : null,
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: isDark ? const Color(0xFF1F2232) : Colors.white,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+                  borderSide: BorderSide(color: isDark ? const Color(0xFF2D324A) : Colors.grey.shade300),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+                  borderSide: BorderSide(color: isDark ? const Color(0xFF2D324A) : Colors.grey.shade300),
                 ),
               ),
               onChanged: (_) {
@@ -238,10 +240,12 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
                         children: [
                           Text(
                             b.nome,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF2E2E3A),
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFFF3F4F6)
+                                  : const Color(0xFF2E2E3A),
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -355,15 +359,19 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4FA),
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? const Color(0xFF262A3D)
+                          : const Color(0xFFF3F4FA),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       'Necessidades: ${b.observacao}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
-                        color: Color(0xFF6F6F85),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFF9CA3AF)
+                            : const Color(0xFF6F6F85),
                       ),
                     ),
                   ),

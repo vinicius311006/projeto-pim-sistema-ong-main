@@ -244,7 +244,9 @@ class _ServerConfigDialogState extends State<ServerConfigDialog> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFF262A3D)
+                        : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
@@ -261,12 +263,18 @@ class _ServerConfigDialogState extends State<ServerConfigDialog> {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      const Text(
+                      Text(
                         '1. No PC, abra o Prompt (CMD) e digite: ipconfig\n'
                         '2. Copie o "Endereço IPv4" (ex: 192.168.1.15)\n'
                         '3. Digite acima: http://192.168.1.15:5000\n'
                         '4. Celular e PC devem estar no mesmo Wi-Fi!',
-                        style: TextStyle(fontSize: 11, color: Colors.black87, height: 1.4),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFFD1D5DB)
+                              : Colors.black87,
+                          height: 1.4,
+                        ),
                       ),
                     ],
                   ),

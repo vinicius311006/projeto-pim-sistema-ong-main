@@ -136,7 +136,9 @@ class _TrocarSenhaScreenState extends State<TrocarSenhaScreen> {
                     textAlign: TextAlign.center,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF2C2C35),
+                      color: theme.brightness == Brightness.dark
+                          ? const Color(0xFFF3F4F6)
+                          : const Color(0xFF2C2C35),
                     ),
                   ),
                   const SizedBox(height: 8),
