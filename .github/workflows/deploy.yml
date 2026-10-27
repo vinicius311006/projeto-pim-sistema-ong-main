@@ -32,12 +32,20 @@ jobs:
           PROJ_PATH=$(find . -name "VestindoSonhos.csproj" | head -n 1)
           dotnet build "$PROJ_PATH" --configuration Release --no-restore
 
-      - name: 5. Publicação dos Binários Otimizados
+      - name: 5. Execução de Testes Automatizados (xUnit)
+        run: |
+          TEST_PATH=$(find . -name "VestindoSonhos.Tests.csproj" | head -n 1)
+          if [ -n "$TEST_PATH" ]; then
+            echo "Executando testes automatizados em: $TEST_PATH"
+            dotnet test "$TEST_PATH" --configuration Release --verbosity normal
+          fi
+
+      - name: 6. Publicação dos Binários Otimizados
         run: |
           PROJ_PATH=$(find . -name "VestindoSonhos.csproj" | head -n 1)
           dotnet publish "$PROJ_PATH" --configuration Release --output ./publish --no-build
 
-      - name: 6. Upload dos Artefatos de Build
+      - name: 7. Upload dos Artefatos de Build
         uses: actions/upload-artifact@v4
         with:
           name: vestindo-sonhos-build-artifact

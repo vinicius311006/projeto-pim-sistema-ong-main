@@ -16,10 +16,11 @@ echo  [5] Gerar Executável Portátil (.exe para rodar em qualquer Windows)
 echo  [6] Gerar Aplicativo Android (.apk para celular)
 echo  [7] Salvar e Enviar alterações para o GitHub
 echo  [8] Abrir pasta do sistema portátil (VestindoSonhos_Portavel)
+echo  [9] Executar Testes Automatizados (.NET / xUnit)
 echo.
 echo  [0] Sair
 echo =====================================================================
-set /p OPCAO="Escolha uma opção [0-8]: "
+set /p OPCAO="Escolha uma opção [0-9]: "
 
 if "%OPCAO%"=="1" goto OPCAO_1
 if "%OPCAO%"=="2" goto OPCAO_2
@@ -29,6 +30,7 @@ if "%OPCAO%"=="5" goto OPCAO_5
 if "%OPCAO%"=="6" goto OPCAO_6
 if "%OPCAO%"=="7" goto OPCAO_7
 if "%OPCAO%"=="8" goto OPCAO_8
+if "%OPCAO%"=="9" goto OPCAO_9
 if "%OPCAO%"=="0" exit /b 0
 
 echo Opção inválida! Pressione qualquer tecla para tentar novamente...
@@ -77,4 +79,9 @@ goto MENU
 :OPCAO_8
 cls
 explorer "%~dp0VestindoSonhos_Portavel"
+goto MENU
+
+:OPCAO_9
+cls
+call "%~dp0rodar-testes-automatizados.bat"
 goto MENU
