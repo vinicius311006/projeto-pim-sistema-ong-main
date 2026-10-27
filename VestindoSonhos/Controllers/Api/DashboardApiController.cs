@@ -54,35 +54,44 @@ namespace VestindoSonhos.Controllers.Api
             var totalDependentes = await _context.Dependente.CountAsync();
 
             // 4. Inventário (produtos, unidades em estoque e itens doados/saídas)
-            var itensInventario = await _context.Produto.CountAsync();
-            var totalUnidadesEstoque = await _context.Inventario.SumAsync(i => (int?)i.Quantidade) ?? 0;
-
-            var transacoesInv = await _context.TransacaoInventario
-                .Include(ti => ti.IdNavigation)
-                    .ThenInclude(t => t.RazaoNavigation)
+            var produtos = await _context.Produto
                 .AsNoTracking()
+                .Include(p => p.CategoriaNavigation)
                 .ToListAsync();
 
-            var totalItensDoadosSaida = transacoesInv
-                .Where(ti => ti.IdNavigation?.RazaoNavigation?.Nome != null &&
-                            (ti.IdNavigation.RazaoNavigation.Nome.Contains("Saída", StringComparison.OrdinalIgnoreCase) ||
-                             ti.IdNavigation.RazaoNavigation.Nome.Contains("Saida", StringComparison.OrdinalIgnoreCase) ||
-                             ti.IdNavigation.RazaoNavigation.Nome.Contains("Doação", StringComparison.OrdinalIgnoreCase)))
-                .Sum(ti => ti.Quantidade);
+            var movInventario = await (from ti in _context.TransacaoInventario.AsNoTracking()
+                                       join t in _context.Transacao.AsNoTracking() on ti.TransacaoId equals t.Id
+                                       select new
+                                       {
+                                           ti.ProdutoId,
+                                           ti.Quantidade,
+                                           t.Razao
+                                       }).ToListAsync();
+
+            var estoquePorProduto = produtos.Select(p =>
+            {
+                var ent = movInventario.Where(m => m.ProdutoId == p.Id && m.Razao == "Entrada").Sum(m => m.Quantidade);
+                var sai = movInventario.Where(m => m.ProdutoId == p.Id && (m.Razao == "Saída" || m.Razao == "Saida")).Sum(m => m.Quantidade);
+                return new
+                {
+                    CategoriaNome = p.CategoriaNavigation?.Categoria ?? "Vestuário Geral",
+                    Estoque = Math.Max(0, ent - sai)
+                };
+            }).ToList();
+
+            var itensInventario = produtos.Count;
+            var totalUnidadesEstoque = estoquePorProduto.Sum(x => x.Estoque);
+            var totalItensDoadosSaida = movInventario
+                .Where(m => m.Razao == "Saída" || m.Razao == "Saida")
+                .Sum(m => m.Quantidade);
 
             // 5. Distribuição do Inventário por Categoria
-            var inventarioLista = await _context.Inventario
-                .Include(i => i.ProdutoNavigation)
-                    .ThenInclude(p => p.TipoAtivoNavigation)
-                .AsNoTracking()
-                .ToListAsync();
-
-            var inventarioPorCategoria = inventarioLista
-                .GroupBy(i => i.ProdutoNavigation?.TipoAtivoNavigation?.Nome ?? "Vestuário Geral")
+            var inventarioPorCategoria = estoquePorProduto
+                .GroupBy(x => x.CategoriaNome)
                 .Select(g => new CategoriaEstoqueMobileDto
                 {
                     Categoria = g.Key,
-                    Quantidade = g.Sum(x => x.Quantidade)
+                    Quantidade = totalUnidadesEstoque > 0 ? g.Sum(x => x.Estoque) : g.Count()
                 })
                 .OrderByDescending(g => g.Quantidade)
                 .Take(6)
@@ -91,53 +100,37 @@ namespace VestindoSonhos.Controllers.Api
             // 6. Financeiro (Saldo total, Entradas, Saídas, Doações e Últimas Transações)
             var saldoTotal = await _context.Carteira.SumAsync(c => (decimal?)c.Saldo) ?? 0m;
 
-            var todasTransacoesFin = await _context.TransacaoFinanceira
-                .Include(tf => tf.CarteiraNavigation)
-                .Include(tf => tf.IdNavigation)
-                    .ThenInclude(t => t.RazaoNavigation)
-                .Include(tf => tf.IdNavigation)
-                    .ThenInclude(t => t.CategoriaNavigation)
-                .AsNoTracking()
-                .OrderByDescending(tf => tf.Id)
-                .ToListAsync();
+            var todasTransacoesFin = await (from tf in _context.TransacaoFinanceira.AsNoTracking()
+                                            join t in _context.Transacao.AsNoTracking() on tf.Id equals t.Id
+                                            join c in _context.Categoria.AsNoTracking() on t.Categoria equals c.Id into catGroup
+                                            from c in catGroup.DefaultIfEmpty()
+                                            join cart in _context.Carteira.AsNoTracking() on tf.Carteira equals cart.Id into cartGroup
+                                            from cart in cartGroup.DefaultIfEmpty()
+                                            orderby t.Hora descending
+                                            select new TransacaoResumoMobileDto
+                                            {
+                                                Id = tf.Id,
+                                                Razao = t.Razao ?? "Entrada",
+                                                Categoria = c != null ? c.Nome : "Geral",
+                                                Carteira = cart != null ? cart.Nome : "Principal",
+                                                Valor = tf.Valor,
+                                                Observacao = t.Observacao
+                                            }).ToListAsync();
 
-            decimal entradasTotal = 0m;
-            decimal saidasTotal = 0m;
-            decimal totalDoacoes = 0m;
+            decimal entradasTotal = todasTransacoesFin
+                .Where(x => x.Razao.Contains("Entrada", StringComparison.OrdinalIgnoreCase))
+                .Sum(x => x.Valor);
 
-            foreach (var tf in todasTransacoesFin)
-            {
-                var razao = tf.IdNavigation?.RazaoNavigation?.Nome ?? "Entrada";
-                var cat = tf.IdNavigation?.CategoriaNavigation?.Nome ?? "Geral";
-                bool isEntrada = razao.Contains("Entrada", StringComparison.OrdinalIgnoreCase);
+            decimal saidasTotal = todasTransacoesFin
+                .Where(x => !x.Razao.Contains("Entrada", StringComparison.OrdinalIgnoreCase))
+                .Sum(x => x.Valor);
 
-                if (isEntrada)
-                {
-                    entradasTotal += tf.Valor;
-                    if (cat.Contains("Doação", StringComparison.OrdinalIgnoreCase) ||
-                        cat.Contains("Doacao", StringComparison.OrdinalIgnoreCase))
-                    {
-                        totalDoacoes += tf.Valor;
-                    }
-                }
-                else
-                {
-                    saidasTotal += tf.Valor;
-                }
-            }
+            decimal totalDoacoes = todasTransacoesFin
+                .Where(x => x.Categoria.Contains("Doação", StringComparison.OrdinalIgnoreCase) ||
+                            x.Categoria.Contains("Doacao", StringComparison.OrdinalIgnoreCase))
+                .Sum(x => x.Valor);
 
-            var ultimasTransacoes = todasTransacoesFin
-                .Take(5)
-                .Select(tf => new TransacaoResumoMobileDto
-                {
-                    Id = tf.Id,
-                    Razao = tf.IdNavigation?.RazaoNavigation?.Nome ?? "Entrada",
-                    Categoria = tf.IdNavigation?.CategoriaNavigation?.Nome ?? "Geral",
-                    Carteira = tf.CarteiraNavigation?.Nome ?? "Principal",
-                    Valor = tf.Valor,
-                    Observacao = tf.IdNavigation?.Observacao
-                })
-                .ToList();
+            var ultimasTransacoes = todasTransacoesFin.Take(5).ToList();
 
             // 7. Necessidades da comunidade (apenas tags reais do banco)
             var obsBanco = await _context.Beneficiario
