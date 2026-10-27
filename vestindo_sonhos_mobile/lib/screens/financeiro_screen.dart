@@ -28,6 +28,11 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
     });
 
     try {
+      final cargo = await _apiService.getUserCargo() ?? '';
+      if (!cargo.toLowerCase().contains('admin')) {
+        throw Exception('Acesso restrito: O módulo Financeiro é exclusivo para Administradores.');
+      }
+
       final token = await _apiService.getToken();
       if (token == null) {
         throw Exception('Sessão expirada. Faça login novamente.');

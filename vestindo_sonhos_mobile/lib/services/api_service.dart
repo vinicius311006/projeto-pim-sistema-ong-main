@@ -7,6 +7,7 @@ import '../models/dashboard_model.dart';
 import '../models/beneficiario_model.dart';
 import '../models/inventario_model.dart';
 import '../models/financeiro_model.dart';
+import '../models/voluntario_model.dart';
 
 /// Serviço responsável pela integração HTTP com o backend ASP.NET Core da ONG Vestindo Sonhos.
 class ApiService {
@@ -363,6 +364,88 @@ class ApiService {
 
     if (response.statusCode != 200) {
       final msg = _extrairMensagemErro(response.body, 'Falha ao excluir beneficiário');
+      throw Exception(msg);
+    }
+  }
+
+  // ==========================================
+  // Operações CRUD - Voluntários
+  // ==========================================
+
+  Future<List<VoluntarioModel>> getVoluntarios(String token) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/voluntarios');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> lista = jsonDecode(response.body);
+      return lista.map((e) => VoluntarioModel.fromJson(e as Map<String, dynamic>)).toList();
+    } else if (response.statusCode == 401) {
+      throw Exception('Sessão expirada. Faça login novamente.');
+    } else {
+      throw Exception('Falha ao carregar voluntários (${response.statusCode}).');
+    }
+  }
+
+  Future<void> criarVoluntario(String token, Map<String, dynamic> dados) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/voluntarios');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(dados),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao cadastrar voluntário');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> editarVoluntario(String token, int id, Map<String, dynamic> dados) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/voluntarios/$id');
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(dados),
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao atualizar voluntário');
+      throw Exception(msg);
+    }
+  }
+
+  Future<void> excluirVoluntario(String token, int id) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/voluntarios/$id');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao excluir voluntário');
       throw Exception(msg);
     }
   }

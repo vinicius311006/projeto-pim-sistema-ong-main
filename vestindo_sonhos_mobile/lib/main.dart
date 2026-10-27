@@ -5,6 +5,7 @@ import 'screens/eventos_screen.dart';
 import 'screens/beneficiarios_screen.dart';
 import 'screens/inventario_screen.dart';
 import 'screens/financeiro_screen.dart';
+import 'screens/voluntarios_screen.dart';
 import 'screens/configuracoes_saas_screen.dart';
 import 'services/api_service.dart';
 
@@ -119,6 +120,7 @@ class VestindoSonhosApp extends StatelessWidget {
             '/login': (context) => const LoginScreen(),
             '/home': (context) => const HomeScreen(),
             '/eventos': (context) => const EventosScreen(),
+            '/voluntarios': (context) => const VoluntariosScreen(),
             '/beneficiarios': (context) => const BeneficiariosScreen(),
             '/inventario': (context) => const InventarioScreen(),
             '/financeiro': (context) => const FinanceiroScreen(),

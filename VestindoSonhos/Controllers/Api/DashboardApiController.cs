@@ -97,40 +97,50 @@ namespace VestindoSonhos.Controllers.Api
                 .Take(6)
                 .ToList();
 
-            // 6. Financeiro (Saldo total, Entradas, Saídas, Doações e Últimas Transações)
-            var saldoTotal = await _context.Carteira.SumAsync(c => (decimal?)c.Saldo) ?? 0m;
+            // 6. Financeiro (Restrito apenas ao Administrador)
+            bool isAdmin = User.IsInRole("Administrador");
+            decimal saldoTotal = 0m;
+            decimal entradasTotal = 0m;
+            decimal saidasTotal = 0m;
+            decimal totalDoacoes = 0m;
+            var ultimasTransacoes = new List<TransacaoResumoMobileDto>();
 
-            var todasTransacoesFin = await (from tf in _context.TransacaoFinanceira.AsNoTracking()
-                                            join t in _context.Transacao.AsNoTracking() on tf.Id equals t.Id
-                                            join c in _context.Categoria.AsNoTracking() on t.Categoria equals c.Id into catGroup
-                                            from c in catGroup.DefaultIfEmpty()
-                                            join cart in _context.Carteira.AsNoTracking() on tf.Carteira equals cart.Id into cartGroup
-                                            from cart in cartGroup.DefaultIfEmpty()
-                                            orderby t.Hora descending
-                                            select new TransacaoResumoMobileDto
-                                            {
-                                                Id = tf.Id,
-                                                Razao = t.Razao ?? "Entrada",
-                                                Categoria = c != null ? c.Nome : "Geral",
-                                                Carteira = cart != null ? cart.Nome : "Principal",
-                                                Valor = tf.Valor,
-                                                Observacao = t.Observacao
-                                            }).ToListAsync();
+            if (isAdmin)
+            {
+                saldoTotal = await _context.Carteira.SumAsync(c => (decimal?)c.Saldo) ?? 0m;
 
-            decimal entradasTotal = todasTransacoesFin
-                .Where(x => x.Razao.Contains("Entrada", StringComparison.OrdinalIgnoreCase))
-                .Sum(x => x.Valor);
+                var todasTransacoesFin = await (from tf in _context.TransacaoFinanceira.AsNoTracking()
+                                                join t in _context.Transacao.AsNoTracking() on tf.Id equals t.Id
+                                                join c in _context.Categoria.AsNoTracking() on t.Categoria equals c.Id into catGroup
+                                                from c in catGroup.DefaultIfEmpty()
+                                                join cart in _context.Carteira.AsNoTracking() on tf.Carteira equals cart.Id into cartGroup
+                                                from cart in cartGroup.DefaultIfEmpty()
+                                                orderby t.Hora descending
+                                                select new TransacaoResumoMobileDto
+                                                {
+                                                    Id = tf.Id,
+                                                    Razao = t.Razao ?? "Entrada",
+                                                    Categoria = c != null ? c.Nome : "Geral",
+                                                    Carteira = cart != null ? cart.Nome : "Principal",
+                                                    Valor = tf.Valor,
+                                                    Observacao = t.Observacao
+                                                }).ToListAsync();
 
-            decimal saidasTotal = todasTransacoesFin
-                .Where(x => !x.Razao.Contains("Entrada", StringComparison.OrdinalIgnoreCase))
-                .Sum(x => x.Valor);
+                entradasTotal = todasTransacoesFin
+                    .Where(x => x.Razao.Contains("Entrada", StringComparison.OrdinalIgnoreCase))
+                    .Sum(x => x.Valor);
 
-            decimal totalDoacoes = todasTransacoesFin
-                .Where(x => x.Categoria.Contains("Doação", StringComparison.OrdinalIgnoreCase) ||
-                            x.Categoria.Contains("Doacao", StringComparison.OrdinalIgnoreCase))
-                .Sum(x => x.Valor);
+                saidasTotal = todasTransacoesFin
+                    .Where(x => !x.Razao.Contains("Entrada", StringComparison.OrdinalIgnoreCase))
+                    .Sum(x => x.Valor);
 
-            var ultimasTransacoes = todasTransacoesFin.Take(5).ToList();
+                totalDoacoes = todasTransacoesFin
+                    .Where(x => x.Categoria.Contains("Doação", StringComparison.OrdinalIgnoreCase) ||
+                                x.Categoria.Contains("Doacao", StringComparison.OrdinalIgnoreCase))
+                    .Sum(x => x.Valor);
+
+                ultimasTransacoes = todasTransacoesFin.Take(5).ToList();
+            }
 
             // 7. Necessidades da comunidade (apenas tags reais do banco)
             var obsBanco = await _context.Beneficiario

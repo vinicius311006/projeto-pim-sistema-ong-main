@@ -153,14 +153,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   end: Alignment.bottomRight,
                 ),
               ),
-              currentAccountPicture: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Text(
-                  _nome.isNotEmpty ? _nome[0].toUpperCase() : 'V',
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF7C6FE0),
+              currentAccountPicture: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: Text(
+                        _nome.isNotEmpty ? _nome[0].toUpperCase() : 'V',
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF7C6FE0),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -215,6 +227,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                   _buildDrawerItem(
+                    icon: Icons.volunteer_activism_rounded,
+                    label: 'Voluntários da ONG',
+                    textColor: textColor,
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/voluntarios').then((_) => _carregarDashboard());
+                    },
+                  ),
+                  _buildDrawerItem(
                     icon: Icons.inventory_2_rounded,
                     label: 'Inventário & Estoque',
                     textColor: textColor,
@@ -223,15 +244,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.pushNamed(context, '/inventario').then((_) => _carregarDashboard());
                     },
                   ),
-                  _buildDrawerItem(
-                    icon: Icons.account_balance_wallet_rounded,
-                    label: 'Financeiro & Doações',
-                    textColor: textColor,
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, '/financeiro').then((_) => _carregarDashboard());
-                    },
-                  ),
+                  if (_isAdmin)
+                    _buildDrawerItem(
+                      icon: Icons.account_balance_wallet_rounded,
+                      label: 'Financeiro & Doações',
+                      textColor: textColor,
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/financeiro').then((_) => _carregarDashboard());
+                      },
+                    ),
                   _buildDrawerItem(
                     icon: Icons.event_available_rounded,
                     label: 'Eventos & Ações',
@@ -439,21 +461,32 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildKpiCard(
                 titulo: 'Voluntários Ativos',
                 valor: '${d.voluntariosCadastrados}',
-                subtitulo: '${d.projetosAtivos} eventos ativos',
+                subtitulo: 'Toque p/ gerenciar',
                 icone: Icons.volunteer_activism_rounded,
                 cor: const Color(0xFF00B4D8),
                 isDark: isDark,
-                onTap: () => Navigator.pushNamed(context, '/eventos').then((_) => _carregarDashboard()),
+                onTap: () => Navigator.pushNamed(context, '/voluntarios').then((_) => _carregarDashboard()),
               ),
-              _buildKpiCard(
-                titulo: 'Saldo em Caixa',
-                valor: _formatarMoeda(d.saldoTotal),
-                subtitulo: 'Doações: ${_formatarMoeda(d.totalDoacoes)}',
-                icone: Icons.account_balance_wallet_rounded,
-                cor: const Color(0xFF2E9E5B),
-                isDark: isDark,
-                onTap: () => Navigator.pushNamed(context, '/financeiro').then((_) => _carregarDashboard()),
-              ),
+              if (_isAdmin)
+                _buildKpiCard(
+                  titulo: 'Saldo em Caixa',
+                  valor: _formatarMoeda(d.saldoTotal),
+                  subtitulo: 'Doações: ${_formatarMoeda(d.totalDoacoes)}',
+                  icone: Icons.account_balance_wallet_rounded,
+                  cor: const Color(0xFF2E9E5B),
+                  isDark: isDark,
+                  onTap: () => Navigator.pushNamed(context, '/financeiro').then((_) => _carregarDashboard()),
+                )
+              else
+                _buildKpiCard(
+                  titulo: 'Eventos Ativos',
+                  valor: '${d.projetosAtivos}',
+                  subtitulo: 'Campanhas da ONG',
+                  icone: Icons.event_available_rounded,
+                  cor: const Color(0xFF2E9E5B),
+                  isDark: isDark,
+                  onTap: () => Navigator.pushNamed(context, '/eventos').then((_) => _carregarDashboard()),
+                ),
               _buildKpiCard(
                 titulo: 'Inventário',
                 valor: '${d.itensInventarioTotal} itens',
@@ -467,9 +500,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 22),
 
-          // 3. Gráfico / Resumo de Evolução Financeira & Meta Mensal
-          _buildGraficoFinanceiroCard(d, isDark, textPrimary, textSecondary),
-          const SizedBox(height: 18),
+          // 3. Gráfico / Resumo de Evolução Financeira & Meta Mensal (Apenas Administrador)
+          if (_isAdmin) ...[
+            _buildGraficoFinanceiroCard(d, isDark, textPrimary, textSecondary),
+            const SizedBox(height: 18),
+          ],
 
           // 4. Gráfico de Distribuição do Inventário por Categoria
           _buildGraficoInventarioCard(d, isDark, textPrimary, textSecondary),
@@ -479,9 +514,11 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildDemandasComunidadeCard(d, isDark, textPrimary, textSecondary),
           const SizedBox(height: 22),
 
-          // 6. Tabela Rápida: Últimas Transações Financeiras
-          _buildUltimasTransacoesSection(d, isDark, textPrimary, textSecondary),
-          const SizedBox(height: 22),
+          // 6. Tabela Rápida: Últimas Transações Financeiras (Apenas Administrador)
+          if (_isAdmin) ...[
+            _buildUltimasTransacoesSection(d, isDark, textPrimary, textSecondary),
+            const SizedBox(height: 22),
+          ],
 
           // 7. Tabela Rápida: Próximos Eventos Agendados
           _buildProximosEventosSection(d, isDark, textPrimary, textSecondary),
@@ -502,21 +539,30 @@ class _HomeScreenState extends State<HomeScreen> {
             isDark: isDark,
           ),
           _buildModuloTile(
-            titulo: 'Inventário & Estoque',
-            subtitulo: 'Controle de doações físicas, entradas e saídas de roupas',
-            icone: Icons.checkroom_rounded,
+            titulo: 'Voluntários da ONG',
+            subtitulo: 'Cadastro de novos voluntários e equipe de apoio social',
+            icone: Icons.volunteer_activism_rounded,
             cor: const Color(0xFF00B4D8),
-            rota: '/inventario',
+            rota: '/voluntarios',
             isDark: isDark,
           ),
           _buildModuloTile(
-            titulo: 'Gestão Financeira & Doações',
-            subtitulo: 'Carteiras, receitas, despesas e balanço transparente',
-            icone: Icons.monetization_on_rounded,
-            cor: const Color(0xFF2E9E5B),
-            rota: '/financeiro',
+            titulo: 'Inventário & Estoque',
+            subtitulo: 'Controle de doações físicas, entradas e saídas de roupas',
+            icone: Icons.checkroom_rounded,
+            cor: const Color(0xFFF59E0B),
+            rota: '/inventario',
             isDark: isDark,
           ),
+          if (_isAdmin)
+            _buildModuloTile(
+              titulo: 'Gestão Financeira & Doações',
+              subtitulo: 'Carteiras, receitas, despesas e balanço transparente',
+              icone: Icons.monetization_on_rounded,
+              cor: const Color(0xFF2E9E5B),
+              rota: '/financeiro',
+              isDark: isDark,
+            ),
           _buildModuloTile(
             titulo: 'Eventos & Campanhas',
             subtitulo: 'Cronograma de ações sociais e escala de voluntários',
@@ -564,10 +610,24 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                radius: 22,
-                backgroundColor: Colors.white.withValues(alpha: 0.2),
-                child: const Icon(Icons.volunteer_activism_rounded, color: Colors.white, size: 24),
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white54, width: 1.5),
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      child: const Icon(Icons.volunteer_activism_rounded, color: Colors.white, size: 24),
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -612,9 +672,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Saldo Consolidado', style: TextStyle(color: Colors.white70, fontSize: 11)),
                     Text(
-                      _formatarMoeda(d.saldoTotal),
+                      _isAdmin ? 'Saldo Consolidado' : 'Eventos Ativos',
+                      style: const TextStyle(color: Colors.white70, fontSize: 11),
+                    ),
+                    Text(
+                      _isAdmin ? _formatarMoeda(d.saldoTotal) : '${d.projetosAtivos} campanhas',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),

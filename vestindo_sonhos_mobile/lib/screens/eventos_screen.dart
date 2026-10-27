@@ -64,7 +64,18 @@ class _EventosScreenState extends State<EventosScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Eventos Ativos'),
-        centerTitle: true,
+        centerTitle: false,
+        actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.pushNamed(context, '/voluntarios'),
+            icon: const Icon(Icons.volunteer_activism_rounded, color: Colors.white, size: 18),
+            label: const Text(
+              'Voluntários',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(width: 4),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _carregarEventos,
