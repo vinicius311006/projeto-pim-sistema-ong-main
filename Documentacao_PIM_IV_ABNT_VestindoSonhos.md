@@ -1,4 +1,4 @@
-﻿**UNIVERSIDADE PAULISTA – UNIP**  
+**UNIVERSIDADE PAULISTA – UNIP**  
 **Projeto Integrado Multidisciplinar**  
 **Curso Superior de Tecnologia em**  
 **Análise e Desenvolvimento de Sistemas**  
@@ -63,36 +63,39 @@ Keywords: Digital Transformation. Non-Profit Sector. ASP.NET Core. Flutter. Rela
 - 2.4 Proposta de valor e modelo de negócio social (Canvas) (p. 12)
 - 2.5 Benefícios esperados e análise de viabilidade (p. 13)
 - 2.6 Diferenciais competitivos e inovação social (p. 13)
-- **3 RESPONSABILIDADE SOCIAL, DIVERSIDADE E RELAÇÕES ÉTNICO-RACIAIS** (p. 14)
-- 3.1 Combate à discriminação e valorização da afrodescendência (p. 14)
-- 3.2 Valorização da diversidade no acolhimento de famílias (p. 14)
-- 3.3 Recursos tecnológicos inclusivos e acessibilidade digital (p. 15)
-- 3.4 Utilização da tecnologia para promoção da cidadania (p. 15)
-- **4 DESENVOLVIMENTO DA SOLUÇÃO WEB (DESENVOLVIMENTO WEB COM .NET)** (p. 16)
-- 4.1 Arquitetura da aplicação web ASP.NET Core MVC (.NET 10) (p. 16)
-- 4.2 Construção das APIs RESTful e contratos de integração (p. 16)
-- 4.3 Autenticação híbrida (Cookies e JWT) e segurança da informação (p. 17)
-- 4.4 Estrutura administrativa e integração entre módulos web (p. 18)
-- **5 DESENVOLVIMENTO DA SOLUÇÃO MOBILE (DESENVOLVIMENTO MOBILE)** (p. 19)
-- 5.1 Arquitetura do aplicativo móvel em Flutter e Material Design 3 (p. 19)
-- 5.2 Telas principais e fluxo de navegação por perfil (p. 19)
-- 5.3 Autenticação JWT, sincronização de dados e consumo das APIs REST (p. 20)
-- **6 ARQUITETURA DE SOFTWARE (PROGRAMAÇÃO APLICADA EM .NET)** (p. 21)
-- 6.1 Orientação a objetos e princípios SOLID aplicados (p. 21)
-- 6.2 Organização em camadas, modularização, ViewModels e DTOs (p. 22)
-- **7 PROJETO E PROGRAMAÇÃO DO BANCO DE DADOS** (p. 23)
-- 7.1 Modelo conceitual (MER) e modelo lógico normalizado (3FN) (p. 23)
-- 7.2 Modelo físico e dicionário das tabelas do MySQL 8.0 (p. 23)
-- 7.3 Stored Procedures, Triggers e Views implementadas (p. 24)
-- 7.4 Script completo do banco de dados (MySQL 8.0) (p. 25)
-- **8 INFRAESTRUTURA EM NUVEM E DEVOPS (CLOUD COMPUTING E DEVOPS)** (p. 28)
-- 8.1 Arquitetura em nuvem, serviços utilizados e containers Docker (p. 28)
-- 8.2 Pipeline CI/CD com GitHub Actions, monitoramento, escalabilidade e segurança (p. 29)
-- **9 GERENCIAMENTO ÁGIL DO PROJETO** (p. 30)
-- 9.1 Framework Scrum/Kanban, Product Backlog e Sprint Backlog (p. 30)
-- 9.2 Cronograma das Sprints, Quadro Kanban e definição das entregas (p. 31)
-- **CONCLUSÃO** (p. 32)
-- **REFERÊNCIAS** (p. 33)
+- 2.7 Levantamento de Requisitos Funcionais, Não Funcionais e Regras de Negócio (p. 14)
+- **3 RESPONSABILIDADE SOCIAL, DIVERSIDADE E RELAÇÕES ÉTNICO-RACIAIS** (p. 16)
+- 3.1 Combate à discriminação e valorização da afrodescendência (p. 16)
+- 3.2 Valorização da diversidade no acolhimento de famílias (p. 16)
+- 3.3 Recursos tecnológicos inclusivos, Dark Mode e acessibilidade digital (p. 17)
+- 3.4 Utilização da tecnologia para promoção da cidadania (p. 17)
+- **4 DESENVOLVIMENTO DA SOLUÇÃO WEB (DESENVOLVIMENTO WEB COM .NET)** (p. 18)
+- 4.1 Arquitetura da aplicação web ASP.NET Core MVC (.NET 10) e Dashboard Chart.js (p. 18)
+- 4.2 Construção das APIs RESTful e contratos de integração (p. 18)
+- 4.3 Autenticação híbrida (Cookies e JWT), RBAC e Configurações SaaS (p. 19)
+- 4.4 Estrutura administrativa e integração entre módulos web (p. 20)
+- **5 DESENVOLVIMENTO DA SOLUÇÃO MOBILE (DESENVOLVIMENTO MOBILE)** (p. 21)
+- 5.1 Arquitetura do aplicativo móvel em Flutter, Dark Mode e Material Design 3 (p. 21)
+- 5.2 Telas principais e fluxo de navegação por perfil (p. 21)
+- 5.3 Autenticação JWT, sincronização de dados e consumo das APIs REST (p. 22)
+- **6 ARQUITETURA DE SOFTWARE E TESTES AUTOMATIZADOS (PROGRAMAÇÃO APLICADA EM .NET)** (p. 23)
+- 6.1 Orientação a objetos e princípios SOLID aplicados (p. 23)
+- 6.2 Organização em camadas, modularização, ViewModels e DTOs (p. 24)
+- 6.3 Qualidade de software e suíte de testes automatizados (xUnit + EF Core InMemory) (p. 24)
+- **7 PROJETO E PROGRAMAÇÃO DO BANCO DE DADOS** (p. 25)
+- 7.1 Modelo conceitual (MER) e modelo lógico normalizado (3FN) (p. 25)
+- 7.2 Modelo físico e dicionário das tabelas do MySQL 8.0 (p. 26)
+- 7.3 Stored Procedures, Triggers e Views implementadas (p. 27)
+- 7.4 Script completo do banco de dados (MySQL 8.0) (p. 27)
+- **8 INFRAESTRUTURA EM NUVEM E DEVOPS (CLOUD COMPUTING E DEVOPS)** (p. 30)
+- 8.1 Arquitetura em nuvem, serviços utilizados e containers Docker (p. 30)
+- 8.2 Pipeline CI/CD com GitHub Actions, monitoramento, escalabilidade e segurança (p. 31)
+- **9 GERENCIAMENTO ÁGIL DO PROJETO** (p. 32)
+- 9.1 Framework Scrum/Kanban e Product Backlog detalhado (p. 32)
+- 9.2 Sprint Backlog detalhado por Sprint (Sprints 1 a 4) (p. 33)
+- 9.3 Cronograma das Sprints, Quadro Kanban completo e Definição de Pronto (DoD) (p. 34)
+- **CONCLUSÃO** (p. 35)
+- **REFERÊNCIAS** (p. 36)
 
 ---
 
@@ -222,7 +225,78 @@ A análise de viabilidade do projeto confirma sua plena exequibilidade nas esfer
 
 ### 2.6 Diferenciais competitivos e inovação social
 
-Como diferenciais competitivos destacam-se: (a) a extração algorítmica de hashtags de necessidades sociais diretamente do cadastro de beneficiários para alimentar o Dashboard executivo e mobile; (b) a flexibilidade de conexão em campo do aplicativo Flutter, que conta com um diálogo dedicado (`ServerConfigDialog`) para apontar o aplicativo para o IP local do servidor durante mutirões sem depender de internet externa; e (c) a sincronia em tempo real entre todas as operações realizadas no celular e no computador administrativo.
+Como diferenciais competitivos destacam-se: (a) o Dashboard Executivo Principal com gráficos interativos em Chart.js e extração algorítmica de hashtags de necessidades sociais reais diretamente do cadastro de beneficiários; (b) o Modo Escuro (*Dark Mode*) global em todo o sistema Web e Mobile; (c) a Plataforma de Configurações SaaS exclusiva para Administradores; (d) a flexibilidade de conexão em campo do aplicativo Flutter (`ServerConfigDialog`); e (e) a sincronia em tempo real entre todas as operações realizadas no celular e no computador administrativo.
+
+
+### 2.7 Levantamento de Requisitos Funcionais, Não Funcionais e Regras de Negócio
+
+Segundo Pressman e Maxim (2021) e Sommerville (2019), a engenharia de requisitos constitui a base contratual e técnica de qualquer projeto de software, dividindo-se em Requisitos Funcionais (serviços que o sistema deve prover ao usuário), Requisitos Não Funcionais (restrições de qualidade, desempenho, segurança e usabilidade) e Regras de Negócio (diretrizes institucionais da organização). As Tabelas 3, 4 e 5 consolidam o levantamento completo de requisitos da solução ONG Vestindo Sonhos.
+
+
+**Tabela 3 – Especificação dos Requisitos Funcionais (RF01 a RF20) do sistema ONG Vestindo Sonhos**
+
+| Código | Módulo | Descrição Detalhada do Requisito Funcional | Perfis Autorizados | Prioridade |
+| --- | --- | --- | --- | --- |
+| RF01 | Autenticação | Permitir login por e-mail e senha na Web (Cookie) e no App Mobile (Token JWT Bearer). | Administrador, Colaborador | Essencial |
+| RF02 | Segurança | Exigir redefinição obrigatória de senha no primeiro acesso quando o usuário possuir senha temporária inicial. | Administrador, Colaborador | Essencial |
+| RF03 | Dashboard | Exibir Dashboard Executivo como tela principal pós-login com 4 KPIs (Beneficiários, Voluntários, Saldo/Doações e Estoque), gráficos Chart.js e tabelas rápidas. | Administrador, Colaborador | Essencial |
+| RF04 | Tema Visual | Permitir alternância instantânea entre Modo Claro (Light Mode) e Modo Escuro (Dark Mode) em todas as telas Web e Mobile com persistência local. | Administrador, Colaborador | Alta |
+| RF05 | Beneficiários | Realizar o cadastro, listagem, pesquisa, edição e exclusão (CRUD) de famílias beneficiárias com situação cadastral (`Ok`, `Aguardando`, `Bloqueado`) e tags `#Necessidades`. | Administrador, Colaborador | Essencial |
+| RF06 | Dependentes | Cadastrar, editar e excluir dependentes vinculados a um beneficiário responsável (nome, idade, sexo e parentesco) na Web e no Mobile. | Administrador, Colaborador | Essencial |
+| RF07 | Voluntários | Permitir o cadastro, consulta, edição e exclusão de voluntários comunitários tanto pelo Portal Web quanto pelo Aplicativo Mobile (APK). | Administrador, Colaborador | Essencial |
+| RF08 | Eventos | Gerenciar campanhas solidárias e bazares (nome, data início/fim, local, responsável) e escalar/desvincular voluntários (`VoluntarioAtribuido`). | Administrador, Colaborador | Essencial |
+| RF09 | Produtos | Cadastrar, pesquisar, editar e excluir produtos do catálogo de doações (nome, cor, descrição/tamanho e categoria). | Administrador, Colaborador | Essencial |
+| RF10 | Categorias no APK | Permitir selecionar, criar, renomear e alterar a categoria de produtos do inventário e de lançamentos financeiros diretamente pelo Aplicativo Mobile (APK). | Administrador, Colaborador (Estoque) / Admin (Fin.) | Alta |
+| RF11 | Movimentação de Estoque | Registrar entradas (doações recebidas) e saídas (entregas a beneficiários) de produtos, atualizando automaticamente o saldo em estoque. | Administrador, Colaborador | Essencial |
+| RF12 | Gestão Financeira | Registrar transações financeiras de Entrada (Doações/Receitas) e Saída (Despesas) vinculadas a uma carteira e a uma categoria contábil. | Exclusivo Administrador | Essencial |
+| RF13 | Estorno Financeiro | Estornar automaticamente o valor no saldo da carteira correspondente sempre que uma transação financeira for excluída ou editada, tanto na Web quanto no Mobile. | Exclusivo Administrador | Essencial |
+| RF14 | Carteiras | Gerenciar contas e carteiras financeiras da ONG (Conta Principal, Caixa Físico, Fundo de Reserva) com proteção contra exclusão de carteira com saldo ativo. | Exclusivo Administrador | Alta |
+| RF15 | Configurações SaaS | Disponibilizar plataforma de Configurações Globais do Sistema estilo SaaS (Dados da ONG, Metas Mensais, Alertas de Estoque, Aparência, Cadastros Base, Segurança e Backup JSON). | Exclusivo Administrador | Alta |
+| RF16 | Exportação de Dados | Exportar relatórios gerenciais em CSV (UTF-8 com BOM para Excel) e backup completo do banco de dados em formato JSON. | Exclusivo Administrador | Média |
+| RF17 | Gestão de Usuários | Cadastrar, editar e remover usuários internos do sistema atribuindo-lhes o cargo de `Administrador` ou `Colaborador`. | Exclusivo Administrador | Essencial |
+| RF18 | Configurador de IP Mobile | Disponibilizar seletor dinâmico de endereço IP/Servidor no aplicativo móvel para conexão via Wi-Fi local, cabo USB ou nuvem sem recompilação. | Administrador, Colaborador | Alta |
+| RF19 | Sincronização AJAX/REST | Atualizar indicadores do Dashboard Web via endpoint JSON (`/Financeiro/DadosDashboardJson`) e sincronizar o App Mobile via APIs RESTful. | Administrador, Colaborador | Alta |
+| RF20 | Testes Automatizados | Prover suíte de testes automatizados (`VestindoSonhos.Tests`) com xUnit validando regras de negócio, RBAC e cálculos contábeis. | Equipe de Engenharia / CI | Alta |
+
+*Fonte: Elaborada pelos autores (2026).*
+
+
+**Tabela 4 – Especificação dos Requisitos Não Funcionais (RNF01 a RNF12)**
+
+| Código | Categoria ISO/IEC 25010 | Especificação Técnica e Critério de Aceitação Mensurável |
+| --- | --- | --- |
+| RNF01 | Desempenho e Eficiência | As consultas ao Dashboard e às APIs REST (`/api/*`) devem responder em tempo inferior a 500 ms em rede local utilizando consultas assíncronas (`async/await`) e `AsNoTracking()`. |
+| RNF02 | Segurança (Criptografia) | Todas as senhas de usuários devem ser armazenadas exclusivamente em formato de hash criptográfico salgado PBKDF2 (`PasswordHasher<Usuario>`). |
+| RNF03 | Segurança (Autorização) | O controle de acesso baseado em papéis (RBAC) deve bloquear com HTTP 401/403 qualquer tentativa de acesso de `Colaborador` aos endpoints `/api/financeiro` e `/Definicoes`. |
+| RNF04 | Usabilidade e Ergonomia | A interface Web (Bootstrap 5) e Mobile (Flutter Material 3) deve oferecer suporte nativo ao Modo Escuro (*Dark Mode*) e prevenção total de estouro de layout (*pixel overflow*). |
+| RNF05 | Compatibilidade Mobile | O aplicativo móvel deve ser compatível com dispositivos Android 8.0 (API 26) ou superior e adaptar-se a diferentes tamanhos e densidades de tela. |
+| RNF06 | Portabilidade Windows | O sistema deve contar com pacote portátil autocontido (`VestindoSonhos_Portavel` win-x64 self-contained) que execute sem exigir instalação prévia do .NET SDK na máquina-alvo. |
+| RNF07 | Confiabilidade e ACID | O banco de dados MySQL 8.0 deve utilizar o motor transacional `InnoDB` com chaves estrangeiras e *Triggers* para garantir consistência de saldo em estoque. |
+| RNF08 | Manutenibilidade | O código-fonte deve seguir arquitetura em camadas (Controllers, Models, ViewModels, DTOs) e possuir cobertura de testes automatizados com xUnit e EF Core InMemory. |
+| RNF09 | Interoperabilidade | A troca de dados entre o back-end .NET 10 e o aplicativo Flutter deve ocorrer via protocolo HTTP/REST utilizando payloads JSON padronizados em UTF-8. |
+| RNF10 | Disponibilidade e Resiliência | Na inicialização (`Program.cs`), o sistema deve verificar e aplicar automaticamente ajustes de esquema no banco de dados caso colunas novas estejam ausentes. |
+| RNF11 | Automação DevOps (CI/CD) | Todo *push* na branch `main` do GitHub deve acionar compilação, execução dos 21 testes automatizados (`dotnet test`) e publicação de artefatos no GitHub Actions. |
+| RNF12 | Conformidade Legal (LGPD) | Os dados pessoais sensíveis de beneficiários e dependentes (CPF, endereço, telefone) devem ser restritos a usuários autenticados, em conformidade com a Lei nº 13.709/2018. |
+
+*Fonte: Elaborada pelos autores (2026).*
+
+
+**Tabela 5 – Regras de Negócio (RN01 a RN10) da ONG Vestindo Sonhos**
+
+| Código | Regra de Negócio Institucional | Implementação Técnica no Sistema |
+| --- | --- | --- |
+| RN01 | Sigilo e Restrição Financeira ao Administrador | Apenas usuários com perfil `Administrador` podem visualizar saldos de carteiras, lançar receitas/despesas ou acessar o módulo Financeiro (Web e Mobile). Para o perfil `Colaborador`, o menu Financeiro e os KPIs monetários permanecem ocultos. |
+| RN02 | Restrição das Configurações Globais (SaaS) | A página de Configurações do Sistema (`/Definicoes` na Web e `ConfiguracoesSaasScreen` no Mobile) é estritamente exclusiva para o perfil `Administrador`. |
+| RN03 | Estorno Contábil Obrigatório na Exclusão/Edição | Ao excluir ou editar uma transação financeira (tanto no Portal Web quanto no App Mobile), o sistema deve reverter automaticamente o impacto no saldo da carteira (subtraindo se era Entrada; devolvendo/somando se era Saída). |
+| RN04 | Permissão Operacional Ampla para Colaboradores | O perfil `Colaborador` possui permissão total para cadastrar, editar e excluir Voluntários, Beneficiários, Dependentes, Eventos, Produtos, Categorias de Estoque e Movimentações de Inventário na Web e no APK. |
+| RN05 | Demandas Reais da Comunidade (Sem Dados Fictícios) | O gráfico e os cartões de `#Necessidades` da comunidade no Dashboard só devem exibir tags extraídas de observações reais de beneficiários cadastrados no banco; se não houver beneficiários, a lista deve permanecer vazia. |
+| RN06 | Proteção de Carteiras com Saldo Ativo | Uma carteira financeira não pode ser excluída enquanto possuir saldo diferente de `R$ 0,00`, prevenindo perda acidental de lastro contábil. |
+| RN07 | Validação de Valores e Quantidades Positivas | Nenhum lançamento financeiro ou movimentação de estoque pode ser registrado com valor ou quantidade menor ou igual a zero (`<= 0`). |
+| RN08 | Troca Obrigatória de Senha Temporária | Todo usuário recém-cadastrado ou com a flag `ExigirTrocaSenha = true` é interceptado no login (Web e Mobile) e obrigado a definir uma senha pessoal antes de navegar pelo sistema. |
+| RN09 | Integridade em Cascata de Dependentes e Escalas | A exclusão de um beneficiário remove em cascata seus dependentes vinculados; a exclusão de um voluntário remove previamente suas alocações em eventos (`VoluntarioAtribuido`). |
+| RN10 | Proteção de Categorias de Estoque em Uso | Uma categoria de inventário (`TiposAtivo`) não pode ser excluída caso existam produtos vinculados a ela no catálogo. |
+
+*Fonte: Elaborada pelos autores (2026).*
 
 
 ---
@@ -275,24 +349,24 @@ Para garantir resiliência operacional em qualquer máquina onde o sistema seja 
 
 ### 4.2 Construção das APIs RESTful e contratos de integração
 
-Para prover interoperabilidade com o aplicativo móvel Flutter e futuros sistemas parceiros, foram desenvolvidos sete controladores RESTful no diretório `VestindoSonhos/Controllers/Api/`, decorados com o atributo `[ApiController]` e roteamento semântico sob o prefixo `/api/`. As respostas utilizam objetos de transferência de dados (`Models/DTOs/`) serializados em formato JSON padrão CamelCase. A Tabela 3 apresenta o detalhamento técnico de todas as rotas da API REST construídas.
+Para prover interoperabilidade com o aplicativo móvel Flutter e futuros sistemas parceiros, foram desenvolvidos oito controladores RESTful no diretório `VestindoSonhos/Controllers/Api/`, decorados com o atributo `[ApiController]` e roteamento semântico sob o prefixo `/api/`. As respostas utilizam objetos de transferência de dados (`Models/DTOs/`) serializados em formato JSON padrão CamelCase. A Tabela 6 apresenta o detalhamento técnico de todas as rotas da API REST construídas.
 
 
-**Tabela 3 – Especificação técnica das APIs RESTful implementadas no back-end ASP.NET Core (.NET 10)**
+**Tabela 6 – Especificação técnica das APIs RESTful implementadas no back-end ASP.NET Core (.NET 10)**
 
 | Controlador REST | Verbo e Endpoint HTTP | Política de Acesso | Operação Realizada e Retorno JSON |
 | --- | --- | --- | --- |
 | AuthApiController | POST /api/auth/login | [AllowAnonymous] | Autentica usuário por e-mail e senha (com migração automática de hash PBKDF2), localiza vínculo de voluntário e retorna LoginResponseDto com Token JWT Bearer. |
 | AuthApiController | POST /api/auth/trocar-senha-obrigatoria | [AllowAnonymous] | Permite ao usuário redefinir sua senha temporária inicial (123456) diretamente pelo aplicativo móvel, atualizando ExigirTrocaSenha = false. |
-| DashboardApiController | GET /api/dashboard | Roles: Administrador, Colaborador | Consolida métricas em tempo real (projetos ativos, voluntários, estoque, beneficiários, saldos, ranking de tags #Necessidades e próximos 3 eventos). |
-| BeneficiariosApiController | GET, POST, PUT, DELETE /api/beneficiarios | Roles: Administrador, Colaborador | Gerencia o ciclo de vida completo (CRUD) dos beneficiários responsáveis, retornando a lista aninhada de seus dependentes. |
-| BeneficiariosApiController | POST, PUT, DELETE /api/beneficiarios/.../dependentes | Roles: Administrador, Colaborador | Adiciona, edita e remove dependentes vinculados a um beneficiário responsável (com validação de idade, sexo e parentesco). |
-| InventarioApiController | GET /api/inventario e GET /api/inventario/opcoes | Roles: Administrador, Colaborador | Lista todos os produtos com suas quantidades atuais na tabela Inventario e fornece opções de TiposAtivo e Beneficiários. |
-| InventarioApiController | POST, PUT, DELETE /api/inventario/produtos | Roles: Administrador, Colaborador | Cadastra novos produtos, edita atributos (nome, tamanho, cor, descrição, categoria) e realiza exclusão segura em cascata. |
-| InventarioApiController | POST /api/inventario/movimentar | Roles: Administrador, Colaborador | Lança entradas de doações ou saídas para beneficiários em Transacao e TransacaoInventario, validando disponibilidade física. |
-| InventarioApiController | POST, DELETE /api/inventario/tipos-ativo | Roles: Administrador, Colaborador | Permite criar e remover categorias de produtos (Roupas, Calçados, Alimentos, etc.) a partir do aplicativo. |
-| FinanceiroApiController | GET /api/financeiro e POST /api/financeiro/transacao | Role: Administrador | Retorna resumo de carteiras, total de entradas/saídas e registra transações financeiras atualizando atomicamente o saldo da carteira. |
-| EventosApiController | GET, POST, PUT, DELETE /api/eventos e /api/voluntarios | Roles: Administrador, Colaborador | Gerencia campanhas solidárias, cadastro de voluntários e vinculação/desvinculação em VoluntarioAtribuido. |
+| DashboardApiController | GET /api/dashboard | Roles: Administrador, Colaborador | Consolida métricas em tempo real (projetos ativos, voluntários, estoque, beneficiários, ranking de tags #Necessidades e próximos eventos; saldos financeiros visíveis apenas ao Administrador). |
+| DashboardApiController | GET, POST /api/dashboard/configuracoes | Role: Administrador | Consulta e salva as configurações globais da plataforma SaaS (metas mensais, estoque mínimo, dados da ONG e governança). |
+| BeneficiariosApiController | GET, POST, PUT, DELETE /api/beneficiarios | Roles: Administrador, Colaborador | Gerencia o ciclo de vida completo (CRUD) dos beneficiários responsáveis e contagem de dependentes. |
+| VoluntariosApiController | GET, POST, PUT, DELETE /api/voluntarios | Roles: Administrador, Colaborador | Permite cadastrar, listar, editar e excluir voluntários comunitários tanto para Administradores quanto para Colaboradores. |
+| InventarioApiController | GET /api/inventario e GET/POST/PUT/DELETE /api/inventario/categorias | Roles: Administrador, Colaborador | Lista produtos com estoque atual e permite criar, renomear, excluir e selecionar categorias de estoque (`TiposAtivo`) diretamente pelo APK. |
+| InventarioApiController | POST, PUT, DELETE /api/inventario/produtos | Roles: Administrador, Colaborador | Cadastra novos produtos, edita atributos e altera a categoria do produto (`PUT /api/inventario/produtos/{id}`). |
+| InventarioApiController | POST /api/inventario/movimentacao | Roles: Administrador, Colaborador | Lança entradas de doações ou saídas para beneficiários em Transacao e TransacaoInventario. |
+| FinanceiroApiController | GET /api/financeiro, POST/PUT/DELETE /api/financeiro/transacao e /categorias | Role: Administrador | Exclusivo para Administrador: retorna carteiras e categorias, registra/edita lançamentos (incluindo alteração de categoria) e estorna o saldo ao excluir. |
+| EventosApiController | GET, POST, PUT, DELETE /api/eventos | Roles: Administrador, Colaborador | Gerencia campanhas solidárias, datas, locais e vinculação de voluntários em VoluntarioAtribuido. |
 
 *Fonte: Elaborada pelos autores (2026).*
 
@@ -347,9 +421,9 @@ A comunicação entre o aplicativo móvel e o back-end .NET 10 ocorre de forma a
 ---
 
 
-## 6 ARQUITETURA DE SOFTWARE (PROGRAMAÇÃO APLICADA EM .NET)
+## 6 ARQUITETURA DE SOFTWARE E TESTES AUTOMATIZADOS (PROGRAMAÇÃO APLICADA EM .NET)
 
-A arquitetura de software define a estrutura fundamental de um sistema computacional, compreendendo seus elementos de software, as propriedades externamente visíveis desses elementos e os relacionamentos entre eles (BASS; CLEMENTS; KAZMAN, 2021). Na construção da solução Vestindo Sonhos, aplicaram-se os conceitos avançados da disciplina de Programação Aplicada em .NET para criar uma arquitetura limpa, fortemente tipada, orientada a objetos e organizada em camadas.
+A arquitetura de software define a estrutura fundamental de um sistema computacional, compreendendo seus elementos de software, as propriedades externamente visíveis desses elementos e os relacionamentos entre eles (BASS; CLEMENTS; KAZMAN, 2021). Na construção da solução Vestindo Sonhos, aplicaram-se os conceitos avançados da disciplina de Programação Aplicada em .NET para criar uma arquitetura limpa, fortemente tipada, orientada a objetos, organizada em camadas e validada por uma suíte completa de testes automatizados.
 
 
 ### 6.1 Orientação a objetos e princípios SOLID aplicados
@@ -363,19 +437,37 @@ A Programação Orientada a Objetos (POO) foi empregada de forma transversal em 
 
 ### 6.2 Organização em camadas, modularização, ViewModels e DTOs
 
-Conforme preconiza Fowler (2018), a separação de um sistema corporativo em camadas lógicas evita o acoplamento acidental entre a interface de usuário e o esquema físico do banco de dados. No projeto Vestindo Sonhos, além das camadas de Apresentação (Web Razor e Mobile Flutter), Aplicação (Controllers MVC e API) e Persistência (EF Core e MySQL), implementou-se uma camada específica de objetos de transporte composta por 15 `ViewModels` (voltadas às telas Web complexas, como `DashboardViewModel`, `HomeFinanceiraViewModel`, `DetalhesBeneficiarioViewModel` e `DetalhesEventoViewModel`) e 7 conjuntos de `DTOs` (voltados aos contratos JSON das APIs REST). A Tabela 4 sintetiza a organização arquitetural em camadas da solução.
+Conforme preconiza Fowler (2018), a separação de um sistema corporativo em camadas lógicas evita o acoplamento acidental entre a interface de usuário e o esquema físico do banco de dados. No projeto Vestindo Sonhos, além das camadas de Apresentação (Web Razor e Mobile Flutter), Aplicação (Controllers MVC e API) e Persistência (EF Core e MySQL), implementou-se uma camada específica de objetos de transporte composta por 15 `ViewModels` (voltadas às telas Web complexas, como `DashboardViewModel`, `HomeFinanceiraViewModel`, `DetalhesBeneficiarioViewModel` e `DetalhesEventoViewModel`) e 8 conjuntos de `DTOs` (voltados aos contratos JSON das APIs REST). A Tabela 7 sintetiza a organização arquitetural em camadas da solução.
 
 
-**Tabela 4 – Arquitetura em camadas e distribuição modular da solução tecnológica Vestindo Sonhos**
+**Tabela 7 – Arquitetura em camadas e distribuição modular da solução tecnológica Vestindo Sonhos**
 
 | Camada Lógica | Tecnologia / Namespace | Artefatos Principais | Papel Arquitetural |
 | --- | --- | --- | --- |
-| Apresentação Web | ASP.NET Core Razor Views + CSS3 + Chart.js | Views/Home, Beneficiarios, Inventario, Produtos, Financeiro, Eventos, Voluntarios | Renderização server-side de páginas HTML5 responsivas para administração na sede. |
-| Apresentação Mobile | Flutter SDK 3 + Dart (Material Design 3) | lib/screens/login, home, inventario, beneficiarios, financeiro, eventos | Aplicativo nativo Android/iOS para operação móvel em campo e campanhas. |
-| Serviços e Controle (API & MVC) | C# .NET 10 (VestindoSonhos.Controllers) | 12 Controladores MVC + 7 Controladores API RESTful + ExigirTrocaSenhaFilter | Roteamento HTTP, autenticação híbrida (Cookie/JWT), autorização por Roles e orquestração. |
+| Apresentação Web | ASP.NET Core Razor Views + Bootstrap 5 + Chart.js | Views/Financeiro/Dashboard, Definicoes, Beneficiarios, Inventario, Produtos, Eventos, Voluntarios | Renderização server-side de páginas HTML5 responsivas com Dark Mode global para administração na sede. |
+| Apresentação Mobile | Flutter SDK 3 + Dart (Material Design 3) | lib/screens/login, home, inventario, beneficiarios, voluntarios, financeiro, eventos, configuracoes_saas | Aplicativo nativo Android/iOS para operação móvel em campo e campanhas. |
+| Serviços e Controle (API & MVC) | C# .NET 10 (VestindoSonhos.Controllers) | 12 Controladores MVC + 8 Controladores API RESTful + ExigirTrocaSenhaFilter | Roteamento HTTP, autenticação híbrida (Cookie/JWT), autorização por Roles e orquestração. |
 | Transferência de Dados | C# ViewModels & DTOs | VestindoSonhos.ViewModels (15 classes) e VestindoSonhos.Models.DTOs | Isolamento entre entidades do banco e contratos de tela/JSON, prevenindo Overposting. |
 | Acesso a Dados (ORM) | Entity Framework Core 10 + LINQ | VestindosonhosdbContext.cs e Models/*.cs (14 entidades mapeadas) | Tradução de consultas LINQ tipadas em C# para comandos SQL parametrizados (anti-SQL Injection). |
+| Qualidade & Testes Automatizados | xUnit 2.9 + EF Core InMemory (.NET 10) | VestindoSonhos.Tests (VoluntariosApiTests, BeneficiariosApiTests, FinanceiroApiTests, DashboardAndRegrasNegocioTests) | Verificação automatizada de regras de negócio, RBAC, estornos contábeis e integridade referencial. |
 | Persistência Relacional | MySQL Server 8.0 (InnoDB) | VESTINDOSONHOSDB (Tabelas, FK Constraints, Views, Triggers, Procedures) | Armazenamento transacional ACID e execução de regras automatizadas de saldo. |
+
+*Fonte: Elaborada pelos autores (2026).*
+
+
+### 6.3 Qualidade de software e suíte de testes automatizados (xUnit + EF Core InMemory)
+
+Para assegurar a confiabilidade contínua das regras de negócio e prevenir regressões durante a evolução do código, foi criado o projeto de testes automatizados `VestindoSonhos.Tests` utilizando o framework **xUnit** aliado ao provedor de banco de dados em memória **Entity Framework Core InMemory**. Por meio da classe auxiliar `DbContextTestHelper`, cada teste instancia um banco de dados isolado em memória (`Guid.NewGuid()`) e simula a identidade de segurança (`ClaimsPrincipal`) tanto para o perfil `Administrador` quanto para `Colaborador`. A Tabela 8 apresenta os 21 casos de teste automatizados implementados e homologados com 100% de aprovação.
+
+
+**Tabela 8 – Suíte de 21 testes automatizados (xUnit) implementada no projeto VestindoSonhos.Tests**
+
+| Classe de Teste | Caso de Teste Automatizado (`[Fact]` / `[Theory]`) | Resultado |
+| --- | --- | --- |
+| `VoluntariosApiTests` | 1. Colaborador cadastra novo voluntário com higienização automática de CPF e Telefone.<br>2. Rejeição de cadastro com nome vazio ou em branco (`BadRequest` — 2 cenários `[Theory]`).<br>3. Listagem de voluntários em ordem alfabética.<br>4. Edição de dados cadastrais de voluntário existente.<br>5. Exclusão de voluntário removendo vínculos em eventos (`VoluntarioAtribuido`) em cascata. | Aprovado (6/6) |
+| `BeneficiariosApiTests` | 1. Cadastro de família beneficiária persistindo situação padrão `"Ok"` e telefone higienizado.<br>2. Rejeição de beneficiário sem nome com `BadRequest`.<br>3. Contabilização exata do número de dependentes vinculados na listagem.<br>4. Exclusão em cascata de dependentes ao excluir o beneficiário responsável. | Aprovado (4/4) |
+| `FinanceiroApiTests` | 1. Lançamento de `Entrada` (Doação) somando ao saldo da carteira.<br>2. Lançamento de `Saída` (Despesa) subtraindo do saldo da carteira.<br>3. Rejeição de lançamento financeiro com valor `0` ou negativo (`-50,00` — 2 cenários `[Theory]`).<br>4. Estorno automático do saldo na carteira ao excluir transação na API Mobile.<br>5. Estorno automático do saldo na carteira ao excluir transação no Portal Web (`FinanceiroController`).<br>6. Alteração de categoria de produto no Inventário via API Mobile atualizando o banco. | Aprovado (7/7) |
+| `DashboardAndRegrasNegocioTests` | 1. Regra RBAC: `Colaborador` recebe `0` para saldos financeiros e lista vazia de transações no Dashboard.<br>2. Regra RBAC: `Administrador` visualiza saldos, entradas, saídas e transações completas no Dashboard.<br>3. Dashboard sem beneficiários cadastrados retorna lista de demandas `#Tags` vazia (sem dados fictícios).<br>4. Criptografia PBKDF2 (`PasswordHasher<Usuario>`) valida senha correta e rejeita senha incorreta. | Aprovado (4/4) |
 
 *Fonte: Elaborada pelos autores (2026).*
 
@@ -390,17 +482,24 @@ Um projeto de banco de dados corporativo bem estruturado é determinante para ga
 
 ### 7.1 Modelo conceitual (MER) e modelo lógico normalizado (3FN)
 
-A modelagem conceitual (Modelo Entidade-Relacionamento – MER) identificou as entidades fundamentais do domínio da ONG e suas cardinalidades relacionais: um `Cargo` (`1:N`) classifica múltiplos registros de `Usuario`; um `Beneficiario` responsável (`1:N`) possui zero ou vários registros de `Dependente`; um `Usuario` responsável (`1:N`) coordena múltiplos `Eventos`, e cada evento relaciona-se em cardinalidade muitos-para-muitos (`N:N`) com `Voluntario` por meio da entidade associativa `VoluntarioAtribuido`. No domínio de estoque, um `TiposAtivo` (`1:N`) agrupa diversos itens de `Produto`, cada qual mantendo um relacionamento um-para-um (`1:1`) com seu saldo consolidado na entidade `Inventario`. Por fim, no núcleo transacional, `Usuario` (`1:N`) e `Categoria` (`1:N`) originam registros na entidade generalizada `Transacao`, que se especializa (`1:1`) em `TransacaoInventario` (vinculada a `Produto` e opcionalmente a `Beneficiario`) ou em `TransacaoFinanceira` (vinculada a `Carteira`).
+A modelagem conceitual e lógica (Modelo Entidade-Relacionamento – MER) identificou as entidades fundamentais do domínio da ONG e suas cardinalidades relacionais, conforme ilustrado na Figura 1: um `Cargo` (`1:N`) classifica múltiplos registros de `Usuario`; um `Beneficiario` responsável (`1:N`) possui zero ou vários registros de `Dependente`; um `Usuario` responsável (`1:N`) coordena múltiplos `Eventos`, e cada evento relaciona-se em cardinalidade muitos-para-muitos (`N:N`) com `Voluntario` por meio da entidade associativa `VoluntarioAtribuido`. No domínio de estoque, um `TiposAtivo` (`1:N`) agrupa diversos itens de `Produto`, cada qual mantendo um relacionamento com seu saldo consolidado na entidade `Inventario`. Por fim, no núcleo transacional, `Usuario` (`1:N`) e `Categoria` (`1:N`) originam registros na entidade generalizada `Transacao`, que se especializa em `TransacaoInventario` (vinculada a `Produto` e opcionalmente a `Beneficiario`) ou em `TransacaoFinanceira` (vinculada a `Carteira`).
 
-No modelo lógico relacional, todas as estruturas foram submetidas ao processo de normalização até a Terceira Forma Normal (3FN): (a) na Primeira Forma Normal (1FN), eliminaram-se atributos multivalorados e compostos, garantindo atomicidade em todas as colunas; (b) na Segunda Forma Normal (2FN), assegurou-se que todos os atributos não-chave dependam integralmente da chave primária, inclusive na tabela de chave composta `VoluntarioAtribuido(evento, voluntario)`, onde o atributo `data_adicao` depende do par `(evento, voluntario)`; e (c) na Terceira Forma Normal (3FN), removeram-se dependências transitivas ao isolar nomes de cargos, nomes de categorias contábeis e descrições de tipos de ativos nas tabelas `Cargos`, `Categoria` e `TiposAtivo`.
+
+**Figura 1 – Diagrama Entidade-Relacionamento (MER) do banco de dados VESTINDOSONHOSDB**
+
+![Diagrama Entidade-Relacionamento (MER) da ONG Vestindo Sonhos](VestindoSonhos/wwwroot/images/mer_vestindo_sonhos.png)
+
+*Fonte: Elaborada pelos autores no MySQL Workbench (2026).*
+
+No modelo lógico relacional, todas as estruturas foram submetidas ao processo de normalização até a Terceira Forma Normal (3FN): (a) na Primeira Forma Normal (1FN), eliminaram-se atributos multivalorados e compostos, garantindo atomicidade em todas as colunas; (b) na Segunda Forma Normal (2FN), assegurou-se que todos os atributos não-chave dependam integralmente da chave primária, inclusive nas tabelas de chave composta `VoluntarioAtribuido(evento, voluntario)` e `TransacaoInventario(produto_id, transacao_id)`; e (c) na Terceira Forma Normal (3FN), removeram-se dependências transitivas ao isolar nomes de cargos, nomes de categorias contábeis e descrições de tipos de ativos nas tabelas `Cargos`, `Categoria` e `TiposAtivo`.
 
 
 ### 7.2 Modelo físico e dicionário das tabelas do MySQL 8.0
 
-O modelo físico foi implementado utilizando o mecanismo de armazenamento transacional `InnoDB` (que oferece suporte completo às propriedades ACID — Atomicidade, Consistência, Isolamento e Durabilidade — e bloqueio em nível de linha) e o conjunto de caracteres `utf8mb4` com colação `utf8mb4_unicode_ci`. A Tabela 5 detalha o esquema físico completo das tabelas que compõem a base `VESTINDOSONHOSDB`.
+O modelo físico foi implementado utilizando o mecanismo de armazenamento transacional `InnoDB` (que oferece suporte completo às propriedades ACID — Atomicidade, Consistência, Isolamento e Durabilidade — e bloqueio em nível de linha) e o conjunto de caracteres `utf8mb4` com colação `utf8mb4_unicode_ci`. A Tabela 9 detalha o esquema físico completo das tabelas que compõem a base `VESTINDOSONHOSDB`.
 
 
-**Tabela 5 – Especificação do modelo físico das tabelas do banco de dados VESTINDOSONHOSDB**
+**Tabela 9 – Especificação do modelo físico das tabelas do banco de dados VESTINDOSONHOSDB**
 
 | Tabela | Colunas e Tipos Físicos (MySQL 8.0) | Restrições de Integridade (PK / FK / Unique) |
 | --- | --- | --- |
@@ -726,10 +825,10 @@ A disciplina de Cloud Computing e DevOps preconiza que o ciclo de vida moderno d
 
 ### 8.1 Arquitetura em nuvem, serviços utilizados e containers Docker
 
-A arquitetura de implantação em nuvem da solução Vestindo Sonhos foi desenhada sob o paradigma Cloud-Native utilizando containers Docker e serviços gerenciados de Plataforma como Serviço (PaaS), garantindo portabilidade entre provedores como Microsoft Azure e Amazon Web Services (AWS), além de permitir execução híbrida em servidor local da ONG. Nessa topologia, o tráfego externo HTTPS passa por uma camada de proteção de borda (CDN/WAF), alcança o serviço de computação em container que executa o binário ASP.NET Core (.NET 10) e persiste os dados em uma instância gerenciada de MySQL 8.0 em sub-rede privada. A Tabela 6 detalha os componentes dessa infraestrutura.
+A arquitetura de implantação em nuvem da solução Vestindo Sonhos foi desenhada sob o paradigma Cloud-Native utilizando containers Docker e serviços gerenciados de Plataforma como Serviço (PaaS), garantindo portabilidade entre provedores como Microsoft Azure e Amazon Web Services (AWS), além de permitir execução híbrida em servidor local da ONG. Nessa topologia, o tráfego externo HTTPS passa por uma camada de proteção de borda (CDN/WAF), alcança o serviço de computação em container que executa o binário ASP.NET Core (.NET 10) e persiste os dados em uma instância gerenciada de MySQL 8.0 em sub-rede privada. A Tabela 10 detalha os componentes dessa infraestrutura.
 
 
-**Tabela 6 – Especificação da arquitetura em nuvem, containers e serviços para a solução Vestindo Sonhos**
+**Tabela 10 – Especificação da arquitetura em nuvem, containers e serviços para a solução Vestindo Sonhos**
 
 | Componente Arquitetural | Serviço em Nuvem Especificado | Configuração Técnica e Finalidade |
 | --- | --- | --- |
@@ -751,47 +850,73 @@ Em termos de escalabilidade e segurança de infraestrutura, o uso de autenticaç
 
 ## 9 GERENCIAMENTO ÁGIL DO PROJETO
 
-A complexidade inerente ao desenvolvimento simultâneo de uma plataforma Web MVC, uma camada de APIs RESTful, um aplicativo móvel em Flutter e um banco de dados relacional exigiu a adoção de metodologias ágeis de gestão de projetos. Fundamentado no Guia do Scrum (SCHWABER; SUTHERLAND, 2020) combinado ao método Kanban, o gerenciamento do projeto priorizou entregas incrementais funcionais, inspeção contínua e rápida adaptação a mudanças.
+A complexidade inerente ao desenvolvimento simultâneo de uma plataforma Web MVC, uma camada de APIs RESTful, um aplicativo móvel em Flutter, uma suíte de testes automatizados e um banco de dados relacional exigiu a adoção de metodologias ágeis de gestão de projetos. Fundamentado no Guia do Scrum (SCHWABER; SUTHERLAND, 2020) combinado ao método Kanban, o gerenciamento do projeto priorizou entregas incrementais funcionais, inspeção contínua e rápida adaptação a mudanças.
 
 
-### 9.1 Framework Scrum/Kanban, Product Backlog e Sprint Backlog
+### 9.1 Framework Scrum/Kanban e Product Backlog detalhado
 
-No início do semestre, os requisitos funcionais e não funcionais levantados para a ONG Vestindo Sonhos foram organizados em um *Product Backlog* unificado. Cada item foi descrito no formato de História de Usuário (*"Como [papel], desejo [ação], para [benefício]"*), classificado por prioridade de negócio e estimado em *Story Points* pela técnica de *Planning Poker*. O trabalho foi distribuído em quatro *Sprints* de duas semanas cada, compondo o *Sprint Backlog* detalhado na Tabela 7.
+No início do projeto, os requisitos funcionais (`RF01` a `RF20`), requisitos não funcionais (`RNF01` a `RNF12`) e regras de negócio (`RN01` a `RN10`) foram estruturados em um *Product Backlog* priorizado pelo método **MoSCoW** (*Must Have*, *Should Have*, *Could Have*) e estimado em *Story Points* (escala Fibonacci: `3, 5, 8, 13`) por meio de *Planning Poker*. Ao todo, o Product Backlog contemplou **16 Histórias de Usuário (User Stories)** totalizando **105 Story Points**, distribuídas em 4 *Sprints* quinzenais, conforme detalhado na Tabela 11.
 
 
-**Tabela 7 – Product Backlog e Sprint Backlog do projeto tecnológico ONG Vestindo Sonhos**
+**Tabela 11 – Product Backlog completo do projeto ONG Vestindo Sonhos (User Stories, MoSCoW e Story Points)**
 
-| ID | Épico | História de Usuário / Item do Backlog | Prioridade | Story Points | Sprint Alocada |
-| --- | --- | --- | --- | --- | --- |
-| US01 | Banco de Dados | Modelar e implementar o banco VESTINDOSONHOSDB no MySQL 8.0 com 14 tabelas normalizadas, View, Stored Procedures e Trigger de estoque. | Alta | 8 | Sprint 1 |
-| US02 | Autenticação & Segurança | Implementar login híbrido (Cookie Web + JWT API), criptografia PBKDF2, perfis Admin/Colaborador e fluxo obrigatório de troca de senha inicial. | Alta | 8 | Sprint 1 |
-| US03 | Módulo Beneficiários Web | Desenvolver o CRUD Web de Beneficiários e o gerenciamento integrado de Dependentes (com idade, sexo, parentesco e observação). | Alta | 8 | Sprint 2 |
-| US04 | Módulo Inventário & Produtos | Desenvolver o controle Web de Inventário, catálogo de Produtos, Tipos de Ativo, baixa de estoque e exportação de relatórios CSV/Excel. | Alta | 8 | Sprint 2 |
-| US05 | Módulos Financeiro & Eventos | Construir o módulo Financeiro (Carteiras, Categorias, Doações e Caixa) e o módulo de Eventos com atribuição de Voluntários. | Média | 8 | Sprint 2 |
-| US06 | Camada de APIs RESTful | Construir os 7 controladores de API REST JSON (/api/auth, /dashboard, /beneficiarios, /inventario, /financeiro, /eventos, /usuarios). | Alta | 8 | Sprint 3 |
-| US07 | Aplicativo Mobile Flutter | Desenvolver o app Flutter Material 3 com telas de Login, Home responsiva (Admin e Colaborador), Inventário, Beneficiários, Financeiro e Eventos. | Alta | 13 | Sprint 3 |
-| US08 | DevOps, Pacote Portátil e ABNT | Configurar pipeline CI/CD no GitHub Actions, gerar executável portátil Windows, compilar APK Release e elaborar documentação ABNT PIM IV. | Alta | 5 | Sprint 4 |
+| ID | Épico | História de Usuário (*Como... Quero... Para...*) | Critérios de Aceitação Principais | MoSCoW | Story Points | Sprint |
+| --- | --- | --- | --- | --- | --- | --- |
+| US01 | Banco de Dados | Como DBA/Arquiteto, quero implementar o banco `VESTINDOSONHOSDB` no MySQL 8.0 com 14 tabelas normalizadas (3FN), Views, Stored Procedures e Trigger de estoque, para garantir integridade ACID. | Script SQL executa sem erros; `trg_AtualizaEstoque` atualiza saldo automaticamente. | Must Have | 8 | Sprint 1 |
+| US02 | Segurança & Auth | Como Usuário, quero autenticar-me via Cookie (Web) ou JWT Bearer (Mobile) com senha criptografada em PBKDF2 e ser obrigado a trocar a senha temporária no 1º acesso. | Senhas com hash PBKDF2; `ExigirTrocaSenhaFilter` ativo na Web e no APK. | Must Have | 8 | Sprint 1 |
+| US03 | RBAC & Governança | Como Administrador, quero que o módulo Financeiro e as Configurações SaaS sejam exclusivos do perfil `Administrador`, ocultando saldos financeiros do `Colaborador`. | Endpoints `/api/financeiro` e `/Definicoes` retornam `403` para Colaborador; UI oculta menu Financeiro. | Must Have | 5 | Sprint 1 |
+| US04 | Beneficiários Web | Como Colaborador, quero cadastrar, pesquisar, editar e excluir famílias beneficiárias e seus dependentes, registrando `#Tags` de necessidades reais. | CRUD completo de Beneficiário e Dependente com exclusão em cascata. | Must Have | 8 | Sprint 2 |
+| US05 | Inventário Web | Como Colaborador, quero gerenciar o catálogo de produtos, categorias (`TiposAtivo`) e registrar entradas e saídas de doações no estoque Web. | Entradas somam e saídas subtraem do estoque; exportação CSV funcional. | Must Have | 8 | Sprint 2 |
+| US06 | Financeiro Web | Como Administrador, quero gerenciar carteiras, categorias e transações financeiras na Web com estorno automático do saldo ao excluir ou editar um lançamento. | Ao excluir/editar Entrada ou Saída na Web, o saldo da `Carteira` é estornado/recalculado. | Must Have | 8 | Sprint 2 |
+| US07 | Eventos & Voluntários | Como Colaborador, quero cadastrar voluntários e agendar eventos beneficentes atribuindo equipes de voluntários em cada campanha. | Cadastro de voluntários e vínculo N:N em `VoluntarioAtribuido` operacionais. | Must Have | 5 | Sprint 2 |
+| US08 | Dashboard & Dark Mode | Como Gestor, quero que o Dashboard Executivo (Chart.js) seja a página principal do sistema e contar com Modo Escuro (*Dark Mode*) global em todas as telas. | 4 KPIs, gráficos de evolução financeira e estoque, tabelas rápidas e botão Dark Mode persistente. | Must Have | 8 | Sprint 2 |
+| US09 | Plataforma SaaS Admin | Como Administrador, quero acessar um painel de Configurações do Sistema estilo SaaS (5 abas) para gerenciar metas mensais, alertas de estoque e exportar backup JSON. | Tela `/Definicoes` na Web e `ConfiguracoesSaasScreen` no Mobile salvando em `saas_settings.json`. | Should Have | 5 | Sprint 3 |
+| US10 | APIs RESTful (.NET 10) | Como Desenvolvedor Mobile, quero consumir APIs RESTful JSON (`/api/auth`, `/dashboard`, `/beneficiarios`, `/voluntarios`, `/inventario`, `/financeiro`, `/eventos`). | 8 Controllers API documentados e autenticados via JWT Bearer. | Must Have | 8 | Sprint 3 |
+| US11 | App Mobile Base & Home | Como Usuário Mobile, quero acessar o aplicativo Android com a logo oficial da ONG, Dashboard responsivo sem overflows, Dark Mode e seletor dinâmico de IP. | Launcher icon oficial, `SafeArea`, `FittedBox` sem overflow e `ServerConfigDialog`. | Must Have | 8 | Sprint 3 |
+| US12 | Voluntários & Beneficiários APK | Como Colaborador em campo, quero cadastrar, editar e excluir Voluntários, Beneficiários e Dependentes diretamente pelo aplicativo celular (APK). | `VoluntariosScreen` e `BeneficiariosScreen` com CRUD completo integrado à API. | Must Have | 8 | Sprint 3 |
+| US13 | Categorias & Estoque APK | Como Usuário do APK, quero selecionar, criar, renomear e alterar a categoria de produtos do estoque e de lançamentos financeiros diretamente no celular. | Botão `Editar / Alterar Categoria` nos cards de produto e transações financeiras no APK. | Must Have | 5 | Sprint 4 |
+| US14 | Testes Automatizados | Como Engenheiro de Software, quero uma suíte de testes automatizados (`VestindoSonhos.Tests`) com xUnit e EF Core InMemory validando os módulos e regras de negócio. | 21 testes automatizados (`[Fact]` e `[Theory]`) passando com 0 erros (`rodar-testes-automatizados.bat`). | Must Have | 5 | Sprint 4 |
+| US15 | DevOps CI/CD & Portátil | Como DevOps, quero um pipeline no GitHub Actions que compile e execute os testes automatizados a cada *push*, além de gerar o executável portátil Windows e o APK. | Workflow `.github/workflows/deploy.yml` verde e pasta `VestindoSonhos_Portavel` atualizada. | Should Have | 5 | Sprint 4 |
+| US16 | Documentação ABNT PIM IV | Como Equipe Acadêmica, quero consolidar toda a documentação científica e técnica no padrão ABNT NBR 14724 / Manual UNIP com MER, Backlog e Kanban. | Documento Word (`.docx`) e PDF gerados com todas as 9 etapas do PIM IV. | Must Have | 3 | Sprint 4 |
 
 *Fonte: Elaborada pelos autores (2026).*
 
 
-### 9.2 Cronograma das Sprints, Quadro Kanban e definição das entregas
+### 9.2 Sprint Backlog detalhado por Sprint (Sprints 1 a 4)
 
-Para monitorar o fluxo de trabalho diário e evitar gargalos entre o desenvolvimento back-end e mobile, a equipe utilizou um Quadro Kanban dividido em quatro estágios: *A Fazer (To Do)*, *Em Desenvolvimento (In Progress)*, *Em Revisão e Testes Integrados (Testing/QA)* e *Concluído (Done)*. A Tabela 8 apresenta o cronograma executivo das Sprints, o estado final do Quadro Kanban e os artefatos concretos entregues em cada ciclo.
+Em cada reunião de planejamento (*Sprint Planning*), as Histórias de Usuário selecionadas do *Product Backlog* foram decompostas em tarefas técnicas de engenharia (*Sprint Backlog*), conforme apresentado na Tabela 12.
 
 
-**Tabela 8 – Cronograma executivo das Sprints, Quadro Kanban e entregas validadas**
+**Tabela 12 – Decomposição técnica do Sprint Backlog ao longo das 4 Sprints do projeto**
 
-| Sprint | Período de Execução | Quadro Kanban – Itens Validados em DONE | Entregáveis Incrementais Homologados |
+| Sprint | Meta da Sprint (*Sprint Goal*) | Histórias | Tarefas Técnicas Executadas (*Tasks*) |Pontos |
+| --- | --- | --- | --- | --- |
+| **Sprint 1**<br>(Semanas 1 e 2) | Fundação de Dados, Arquitetura .NET 10, Autenticação Híbrida e Controle de Acesso (RBAC). | US01, US02, US03 | • Modelagem do MER no MySQL Workbench e criação do `ScriptVestindoSonhos_MySQL.sql`.<br>• Programação da Procedure `sp_RelatorioFinanceiroResumido` e Trigger `trg_AtualizaEstoque`.<br>• Configuração do `VestindosonhosdbContext` (EF Core) e `SmartAuthScheme` (Cookie + JWT).<br>• Implementação de `PasswordHasher<Usuario>` (PBKDF2), `ExigirTrocaSenhaFilter` e restrição RBAC. | 21 pts |
+| **Sprint 2**<br>(Semanas 3 e 4) | Construção Completa do Portal Web MVC, Dashboard Executivo Chart.js e Dark Mode Global. | US04, US05, US06, US07, US08 | • Desenvolvimento dos Controllers e Views de Beneficiários, Dependentes, Voluntários e Eventos.<br>• Construção do módulo de Inventário e Produtos com baixa de estoque e exportação CSV.<br>• Implementação do Financeiro Web com estorno automático de saldo ao excluir/editar lançamentos.<br>• Criação do Dashboard Executivo Principal (`Dashboard.cshtml`) com Chart.js e Dark Mode Global. | 37 pts |
+| **Sprint 3**<br>(Semanas 5 e 6) | Plataforma SaaS Admin, Camada de APIs RESTful e Aplicativo Mobile Flutter (Android/iOS). | US09, US10, US11, US12 | • Desenvolvimento da Plataforma de Configurações SaaS em 5 abas (`/Definicoes` e API).<br>• Construção dos 8 Controllers RESTful em `Controllers/Api/` com DTOs padronizados.<br>• Criação do aplicativo Flutter (`vestindo_sonhos_mobile`) com logo oficial, Dark Mode e `ServerConfigDialog`.<br>• Implementação das telas mobile de Dashboard, Beneficiários, Voluntários e Eventos. | 29 pts |
+| **Sprint 4**<br>(Semanas 7 e 8) | Edição de Categorias no APK, Suíte de Testes Automatizados xUnit, Pipeline CI/CD e ABNT. | US13, US14, US15, US16 | • Adição de criação, seleção e alteração de categorias no APK (Inventário e Financeiro).<br>• Criação do projeto `VestindoSonhos.Tests` com 21 testes automatizados (xUnit + EF Core InMemory).<br>• Configuração do pipeline CI/CD no GitHub Actions (`deploy.yml`) e geração do pacote portátil `.exe` e `.apk`.<br>• Revisão final e geração da documentação ABNT (`.docx` e `.pdf`). | 18 pts |
+
+*Fonte: Elaborada pelos autores (2026).*
+
+
+### 9.3 Cronograma das Sprints, Quadro Kanban completo e Definição de Pronto (DoD)
+
+Para gerenciar visualmente o fluxo de trabalho diário e limitar o trabalho em progresso (*WIP Limit = 4 tarefas simultâneas*), a equipe operou um **Quadro Kanban** estruturado em cinco colunas: **1. Backlog / To Do (A Fazer)**, **2. In Progress (Em Desenvolvimento)**, **3. Code Review (Revisão de Código e Padrões)**, **4. Testing / QA (Testes Automatizados xUnit & Homologação Mobile)** e **5. Done (Concluído e Integrado na Main)**. A Tabela 13 retrata a consolidação final do Quadro Kanban e dos entregáveis de cada ciclo.
+
+
+**Tabela 13 – Quadro Kanban consolidado, fluxo de estágios e entregáveis homologados**
+
+| Coluna do Quadro Kanban | Limite WIP | Critério de Passagem (*Pull Criteria*) | Status Final ao Término da Sprint 4 (105 Story Points) |
 | --- | --- | --- | --- |
-| Sprint 1 | Semanas 1 a 2 | [DONE] US01 (MySQL 8.0 + Trigger + SPs)<br>[DONE] US02 (SmartAuth Cookie/JWT + PBKDF2) | Banco de dados operacional, script de importação automática e sistema de autenticação seguro. |
-| Sprint 2 | Semanas 3 a 4 | [DONE] US03 (Beneficiários e Dependentes)<br>[DONE] US04 (Inventário e Produtos)<br>[DONE] US05 (Financeiro, Carteiras e Eventos) | Portal Web MVC 100% funcional em todos os módulos administrativos e operacionais. |
-| Sprint 3 | Semanas 5 a 6 | [DONE] US06 (Suíte completa de APIs REST)<br>[DONE] US07 (App Mobile Flutter Android/iOS) | Integração completa Web-API-Mobile, app com Home e botão Sair para Colaborador e Admin, sem overflows. |
-| Sprint 4 | Semanas 7 a 8 | [DONE] US08 (GitHub Actions CI/CD + Executável Portátil + APK Release + Relatório ABNT) | Pacote VestindoSonhos_Portavel (.exe + .apk), pipeline CI/CD ativo e documentação ABNT concluída. |
+| **1. To Do (A Fazer)** | Sem limite | História refinada com critérios de aceite claros (DoR). | **0 itens pendentes** (100% do backlog puxado e executado). |
+| **2. In Progress (Em Execução)** | Máx. 4 | Desenvolvedor alocado codificando em branch/módulo. | **0 itens em aberto** (todas as implementações concluídas). |
+| **3. Code Review (Revisão)** | Máx. 3 | Compilação limpa (`0 Erros`) em `dotnet build` e `flutter analyze`. | **0 itens retidos** (padrões SOLID, RBAC e layouts revisados). |
+| **4. Testing / QA (xUnit)** | Máx. 3 | Aprovação nos **21 testes automatizados xUnit** e teste funcional Web/APK. | **0 falhas** (`21/21 testes aprovados` em `VestindoSonhos.Tests`). |
+| **5. Done (Concluído)** | Sem limite | Atende 100% da Definição de Pronto (DoD) e publicado no GitHub (`main`). | **16/16 Histórias Concluídas (`US01` a `US16` — 105 pts)**:<br>• `[DONE]` Banco MySQL 8.0 + MER + Trigger + Procedure<br>• `[DONE]` Portal Web MVC + Dashboard Chart.js + Dark Mode + SaaS Admin<br>• `[DONE]` Estorno Financeiro Web/Mobile + RBAC Administrador/Colaborador<br>• `[DONE]` App Mobile Flutter (APK) com Logo, Voluntários e Alteração de Categorias<br>• `[DONE]` Suíte de 21 Testes Automatizados (`VestindoSonhos.Tests`) + CI/CD GitHub Actions<br>• `[DONE]` Executável Portátil (`VestindoSonhos_Portavel`) + Documentação ABNT PIM IV |
 
 *Fonte: Elaborada pelos autores (2026).*
 
-Todas as entregas passaram por uma bateria rigorosa de validação automatizada e manual (Definição de Pronto — *Definition of Done*), verificando-se o retorno `200 OK` em todas as rotas autenticadas do portal Web e das APIs REST, a preservação de saldos de carteiras e estoque, a compilação limpa do pacote Android `VestindoSonhos_Mobile.apk` em modo Release e a sincronização integral no repositório GitHub.
+Todas as entregas cumpriram rigorosamente a **Definição de Pronto (*Definition of Done* — DoD)** estabelecida pela equipe: (1) código-fonte compilado em modo `Release` sem erros; (2) aprovação integral nos **21 testes automatizados** (`dotnet test`); (3) verificação de segurança RBAC garantindo que o perfil `Colaborador` não acesse dados financeiros nem configurações SaaS; (4) validação de estorno contábil nas carteiras ao excluir transações tanto na Web quanto no Mobile; (5) geração do pacote portátil Windows e do instalador Android `.apk`; e (6) código versionado e validado pela pipeline CI/CD no GitHub.
 
 
 ---
