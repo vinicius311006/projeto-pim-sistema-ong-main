@@ -99,8 +99,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
+        titleSpacing: 0,
         title: const Text(
-          'Dashboard Executivo',
+          'Dashboard',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         actions: [
@@ -126,9 +128,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       drawer: _buildDrawer(context, isDark),
-      body: RefreshIndicator(
-        onRefresh: _carregarDashboard,
-        child: _buildBody(theme, isDark),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _carregarDashboard,
+          child: _buildBody(theme, isDark),
+        ),
       ),
     );
   }
@@ -137,158 +141,163 @@ class _HomeScreenState extends State<HomeScreen> {
     final textColor = isDark ? const Color(0xFFE5E7EB) : const Color(0xFF2E2E3A);
 
     return Drawer(
-      child: Column(
-        children: [
-          UserAccountsDrawerHeader(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF7C6FE0), Color(0xFF5A4FCF)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            currentAccountPicture: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Text(
-                _nome.isNotEmpty ? _nome[0].toUpperCase() : 'V',
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF7C6FE0),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            UserAccountsDrawerHeader(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF7C6FE0), Color(0xFF5A4FCF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Text(
+                  _nome.isNotEmpty ? _nome[0].toUpperCase() : 'V',
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF7C6FE0),
+                  ),
+                ),
+              ),
+              accountName: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      _nome,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.22),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      _isAdmin ? 'Admin' : _cargo,
+                      style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              accountEmail: Text(
+                _email.isNotEmpty ? _email : _cargo,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.white70, fontSize: 13),
+              ),
             ),
-            accountName: Row(
-              children: [
-                Flexible(
-                  child: Text(
-                    _nome,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.22),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    _isAdmin ? 'Admin' : _cargo,
-                    style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-            accountEmail: Text(
-              _email.isNotEmpty ? _email : _cargo,
-              style: const TextStyle(color: Colors.white70, fontSize: 13),
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                _buildDrawerItem(
-                  icon: Icons.dashboard_rounded,
-                  label: 'Dashboard Principal',
-                  selected: true,
-                  textColor: textColor,
-                  onTap: () => Navigator.pop(context),
-                ),
-                _buildDrawerItem(
-                  icon: Icons.people_alt_rounded,
-                  label: 'Beneficiários',
-                  textColor: textColor,
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, '/beneficiarios').then((_) => _carregarDashboard());
-                  },
-                ),
-                _buildDrawerItem(
-                  icon: Icons.inventory_2_rounded,
-                  label: 'Inventário & Estoque',
-                  textColor: textColor,
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, '/inventario').then((_) => _carregarDashboard());
-                  },
-                ),
-                _buildDrawerItem(
-                  icon: Icons.account_balance_wallet_rounded,
-                  label: 'Financeiro & Doações',
-                  textColor: textColor,
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, '/financeiro').then((_) => _carregarDashboard());
-                  },
-                ),
-                _buildDrawerItem(
-                  icon: Icons.event_available_rounded,
-                  label: 'Eventos & Ações',
-                  textColor: textColor,
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, '/eventos').then((_) => _carregarDashboard());
-                  },
-                ),
-                const Divider(),
-                SwitchListTile(
-                  secondary: Icon(
-                    isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                    color: const Color(0xFF7C6FE0),
-                  ),
-                  title: Text(
-                    'Modo Escuro',
-                    style: TextStyle(fontWeight: FontWeight.w600, color: textColor),
-                  ),
-                  value: isDark,
-                  activeThumbColor: const Color(0xFF7C6FE0),
-                  onChanged: (_) => toggleAppTheme(),
-                ),
-                if (_isAdmin)
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
                   _buildDrawerItem(
-                    icon: Icons.tune_rounded,
-                    label: 'Configurações do Sistema (SaaS)',
+                    icon: Icons.dashboard_rounded,
+                    label: 'Dashboard Principal',
+                    selected: true,
+                    textColor: textColor,
+                    onTap: () => Navigator.pop(context),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.people_alt_rounded,
+                    label: 'Beneficiários',
                     textColor: textColor,
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.pushNamed(context, '/configuracoes').then((_) => _carregarDashboard());
+                      Navigator.pushNamed(context, '/beneficiarios').then((_) => _carregarDashboard());
                     },
                   ),
-                _buildDrawerItem(
-                  icon: Icons.dns_rounded,
-                  label: 'Configurar Servidor / IP',
-                  textColor: textColor,
-                  onTap: () async {
-                    Navigator.pop(context);
-                    final alterou = await ServerConfigDialog.show(context);
-                    if (alterou == true) {
-                      _carregarDashboard();
-                    }
-                  },
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.logout_rounded, color: Color(0xFFE25555)),
-                  title: const Text(
-                    'Sair da Conta',
-                    style: TextStyle(color: Color(0xFFE25555), fontWeight: FontWeight.bold),
+                  _buildDrawerItem(
+                    icon: Icons.inventory_2_rounded,
+                    label: 'Inventário & Estoque',
+                    textColor: textColor,
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/inventario').then((_) => _carregarDashboard());
+                    },
                   ),
-                  onTap: _fazerLogout,
-                ),
-              ],
+                  _buildDrawerItem(
+                    icon: Icons.account_balance_wallet_rounded,
+                    label: 'Financeiro & Doações',
+                    textColor: textColor,
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/financeiro').then((_) => _carregarDashboard());
+                    },
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.event_available_rounded,
+                    label: 'Eventos & Ações',
+                    textColor: textColor,
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/eventos').then((_) => _carregarDashboard());
+                    },
+                  ),
+                  const Divider(),
+                  SwitchListTile(
+                    secondary: Icon(
+                      isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                      color: const Color(0xFF7C6FE0),
+                    ),
+                    title: Text(
+                      'Modo Escuro',
+                      style: TextStyle(fontWeight: FontWeight.w600, color: textColor),
+                    ),
+                    value: isDark,
+                    activeThumbColor: const Color(0xFF7C6FE0),
+                    onChanged: (_) => toggleAppTheme(),
+                  ),
+                  if (_isAdmin)
+                    _buildDrawerItem(
+                      icon: Icons.tune_rounded,
+                      label: 'Configurações SaaS (Admin)',
+                      textColor: textColor,
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/configuracoes').then((_) => _carregarDashboard());
+                      },
+                    ),
+                  _buildDrawerItem(
+                    icon: Icons.dns_rounded,
+                    label: 'Configurar Servidor / IP',
+                    textColor: textColor,
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final alterou = await ServerConfigDialog.show(context);
+                      if (alterou == true) {
+                        _carregarDashboard();
+                      }
+                    },
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.logout_rounded, color: Color(0xFFE25555)),
+                    title: const Text(
+                      'Sair da Conta',
+                      style: TextStyle(color: Color(0xFFE25555), fontWeight: FontWeight.bold),
+                    ),
+                    onTap: _fazerLogout,
+                  ),
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Text(
-              'Vestindo Sonhos • Gestão ONG v2.0',
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Text(
+                'Vestindo Sonhos • Gestão ONG v2.0',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -333,6 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 12),
               Text(
                 'Não foi possível sincronizar o Dashboard',
+                textAlign: TextAlign.center,
                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 6),
@@ -340,6 +350,8 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 16),
               Wrap(
                 spacing: 10,
+                runSpacing: 8,
+                alignment: WrapAlignment.center,
                 children: [
                   ElevatedButton.icon(
                     onPressed: _carregarDashboard,
@@ -365,7 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -375,12 +387,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // 2. KPIs Principais (4 Indicadores do Topo)
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Indicadores Chave (KPIs)',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: textPrimary),
+              Expanded(
+                child: Text(
+                  'Indicadores Chave (KPIs)',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary),
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
@@ -390,7 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.sync_rounded, size: 14, color: Color(0xFF2E9E5B)),
+                    Icon(Icons.sync_rounded, size: 13, color: Color(0xFF2E9E5B)),
                     SizedBox(width: 4),
                     Text(
                       'Tempo Real',
@@ -409,7 +425,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisSpacing: 12,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 1.32,
+            childAspectRatio: 1.12,
             children: [
               _buildKpiCard(
                 titulo: 'Beneficiários',
@@ -474,7 +490,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // 8. Acesso Rápido aos Módulos
           Text(
             'Acesso Rápido aos Módulos',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: textPrimary),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary),
           ),
           const SizedBox(height: 10),
           _buildModuloTile(
@@ -518,7 +534,7 @@ class _HomeScreenState extends State<HomeScreen> {
               rota: '/configuracoes',
               isDark: isDark,
             ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
         ],
       ),
     );
@@ -560,15 +576,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text(
                       d.nomeOrganizacao,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                     Text(
                       'Olá, $_nome!',
-                      style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
@@ -586,27 +607,40 @@ class _HomeScreenState extends State<HomeScreen> {
           const Divider(color: Colors.white24, height: 1),
           const SizedBox(height: 12),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Saldo Consolidado', style: TextStyle(color: Colors.white70, fontSize: 11)),
-                  Text(
-                    _formatarMoeda(d.saldoTotal),
-                    style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Saldo Consolidado', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                    Text(
+                      _formatarMoeda(d.saldoTotal),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  const Text('Peças Doadas (Saídas)', style: TextStyle(color: Colors.white70, fontSize: 11)),
-                  Text(
-                    '${d.totalItensDoadosSaida} unidades',
-                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ],
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text(
+                      'Peças Doadas (Saídas)',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.white70, fontSize: 11),
+                    ),
+                    Text(
+                      '${d.totalItensDoadosSaida} unidades',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -633,7 +667,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
         decoration: BoxDecoration(
           color: cardBg,
           borderRadius: BorderRadius.circular(16),
@@ -647,39 +681,61 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(7),
                   decoration: BoxDecoration(
                     color: cor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(icone, color: cor, size: 20),
+                  child: Icon(icone, color: cor, size: 19),
                 ),
-                Icon(Icons.arrow_forward_ios_rounded, size: 13, color: subColor),
+                Icon(Icons.arrow_forward_ios_rounded, size: 12, color: subColor),
               ],
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  valor,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: titleColor),
-                ),
-                Text(
-                  titulo,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: subColor),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitulo,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 10, color: cor, fontWeight: FontWeight.w600),
-                ),
-              ],
+            Flexible(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      valor,
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: titleColor,
+                        height: 1.15,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    titulo,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: subColor,
+                      height: 1.15,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitulo,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: cor,
+                      fontWeight: FontWeight.w600,
+                      height: 1.15,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -736,9 +792,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(fontSize: 11, color: Color(0xFF2E9E5B), fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          _formatarMoeda(d.entradasMesAtual),
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            _formatarMoeda(d.entradasMesAtual),
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary),
+                          ),
                         ),
                       ],
                     ),
@@ -760,9 +820,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(fontSize: 11, color: Color(0xFFE25555), fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          _formatarMoeda(d.saidasMesAtual),
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            _formatarMoeda(d.saidasMesAtual),
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textPrimary),
+                          ),
                         ),
                       ],
                     ),
@@ -791,12 +855,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 14),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Meta Mensal de Doações (${_formatarMoeda(d.metaArrecadacaoMensal)})',
-                  style: TextStyle(fontSize: 12, color: textSecondary),
+                Expanded(
+                  child: Text(
+                    'Meta Mensal (${_formatarMoeda(d.metaArrecadacaoMensal)})',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, color: textSecondary),
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   '${(pctMeta * 100).toStringAsFixed(0)}%',
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF7C6FE0)),
@@ -876,12 +944,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            item.categoria,
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary),
+                          Expanded(
+                            child: Text(
+                              item.categoria,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary),
+                            ),
                           ),
+                          const SizedBox(width: 8),
                           Text(
                             '${item.quantidade} un. (${(pct * 100).toStringAsFixed(0)}%)',
                             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: cor),
@@ -1016,13 +1088,20 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Últimas Transações Financeiras',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: textPrimary),
+            Expanded(
+              child: Text(
+                'Últimas Transações Financeiras',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary),
+              ),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+              ),
               onPressed: () => Navigator.pushNamed(context, '/financeiro').then((_) => _carregarDashboard()),
               child: const Text('Ver Tudo'),
             ),
@@ -1060,6 +1139,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 title: Text(
                   t.categoria,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textPrimary),
                 ),
                 subtitle: Text(
@@ -1089,13 +1170,20 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Próximos Eventos Agendados',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: textPrimary),
+            Expanded(
+              child: Text(
+                'Próximos Eventos Agendados',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textPrimary),
+              ),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+              ),
               onPressed: () => Navigator.pushNamed(context, '/eventos').then((_) => _carregarDashboard()),
               child: const Text('Ver Todos'),
             ),
@@ -1125,6 +1213,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 title: Text(
                   ev.nome,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textPrimary),
                 ),
                 subtitle: Column(
@@ -1133,7 +1223,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 4),
                     Text('📅 ${ev.dataInicioFormatada}', style: TextStyle(fontSize: 12, color: textSecondary)),
                     if (ev.local != null && ev.local!.isNotEmpty)
-                      Text('📍 ${ev.local}', style: TextStyle(fontSize: 12, color: textSecondary)),
+                      Text(
+                        '📍 ${ev.local}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 12, color: textSecondary),
+                      ),
                   ],
                 ),
                 trailing: Container(

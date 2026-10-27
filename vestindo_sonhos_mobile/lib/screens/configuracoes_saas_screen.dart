@@ -160,7 +160,8 @@ class _ConfiguracoesSaasScreenState extends State<ConfiguracoesSaasScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configurações SaaS (Admin)'),
+        centerTitle: false,
+        title: const Text('Configurações SaaS', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_outlined),
@@ -169,7 +170,8 @@ class _ConfiguracoesSaasScreenState extends State<ConfiguracoesSaasScreen> {
           ),
         ],
       ),
-      body: _carregando
+      body: SafeArea(
+        child: _carregando
           ? const Center(child: CircularProgressIndicator())
           : !_isAdmin
               ? Center(
@@ -224,9 +226,11 @@ class _ConfiguracoesSaasScreenState extends State<ConfiguracoesSaasScreen> {
                                   children: [
                                     Icon(Icons.palette_outlined, color: theme.colorScheme.primary),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      'Aparência & Tema do Sistema',
-                                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                    Expanded(
+                                      child: Text(
+                                        'Aparência & Tema do Sistema',
+                                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -257,9 +261,11 @@ class _ConfiguracoesSaasScreenState extends State<ConfiguracoesSaasScreen> {
                                   children: [
                                     Icon(Icons.business_rounded, color: theme.colorScheme.primary),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      'Dados da Organização & Metas',
-                                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                    Expanded(
+                                      child: Text(
+                                        'Dados da Organização & Metas',
+                                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -337,9 +343,11 @@ class _ConfiguracoesSaasScreenState extends State<ConfiguracoesSaasScreen> {
                                   children: [
                                     Icon(Icons.shield_outlined, color: theme.colorScheme.primary),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      'Segurança, Governança & API',
-                                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                    Expanded(
+                                      child: Text(
+                                        'Segurança, Governança & API',
+                                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -405,6 +413,7 @@ class _ConfiguracoesSaasScreenState extends State<ConfiguracoesSaasScreen> {
                     ),
                   ),
                 ),
+      ),
     );
   }
 }

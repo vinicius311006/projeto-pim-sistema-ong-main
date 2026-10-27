@@ -111,11 +111,19 @@ class _InventarioScreenState extends State<InventarioScreen> {
               border: Border.all(color: const Color(0xFF7C6FE0).withValues(alpha: 0.25)),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildInfoResumo('Produtos Cadastrados', '${_itens.length} itens', Icons.category_outlined, isDark),
-                Container(height: 30, width: 1, color: isDark ? const Color(0xFF2D324A) : Colors.grey.shade300),
-                _buildInfoResumo('Total em Estoque', '$_totalEstoqueGeral un', Icons.inventory_2_outlined, isDark),
+                Expanded(
+                  child: _buildInfoResumo('Produtos Cadastrados', '${_itens.length} itens', Icons.category_outlined, isDark),
+                ),
+                Container(
+                  height: 30,
+                  width: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  color: isDark ? const Color(0xFF2D324A) : Colors.grey.shade300,
+                ),
+                Expanded(
+                  child: _buildInfoResumo('Total em Estoque', '$_totalEstoqueGeral un', Icons.inventory_2_outlined, isDark),
+                ),
               ],
             ),
           ),
@@ -214,25 +222,31 @@ class _InventarioScreenState extends State<InventarioScreen> {
       children: [
         Icon(icone, color: const Color(0xFF7C6FE0), size: 22),
         const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6F6F85),
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6F6F85),
+                ),
               ),
-            ),
-            Text(
-              valor,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: isDark ? const Color(0xFFF3F4F6) : const Color(0xFF2E2E3A),
+              Text(
+                valor,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? const Color(0xFFF3F4F6) : const Color(0xFF2E2E3A),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );

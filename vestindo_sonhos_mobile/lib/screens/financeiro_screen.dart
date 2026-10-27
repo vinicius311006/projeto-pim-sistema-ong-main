@@ -280,18 +280,22 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
 
           // Seção de Transações Recentes
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Últimas Movimentações',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? const Color(0xFFF3F4F6)
-                      : const Color(0xFF2E2E3A),
+              Expanded(
+                child: Text(
+                  'Últimas Movimentações',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFFF3F4F6)
+                        : const Color(0xFF2E2E3A),
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               Text(
                 '${f.ultimasTransacoes.length} registros',
                 style: TextStyle(
