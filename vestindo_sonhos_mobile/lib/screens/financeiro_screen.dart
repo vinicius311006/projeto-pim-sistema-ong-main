@@ -807,8 +807,8 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
                     : ListView.separated(
                         shrinkWrap: true,
                         itemCount: lista.length,
-                        separatorBuilder: (_, _) => const Divider(height: 1),
-                        itemBuilder: (_, idx) {
+                        separatorBuilder: (context, index) => const Divider(height: 1),
+                        itemBuilder: (context, idx) {
                           final cat = lista[idx];
                           return ListTile(
                             contentPadding: EdgeInsets.zero,

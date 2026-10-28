@@ -1112,8 +1112,8 @@ class _InventarioScreenState extends State<InventarioScreen> {
                     : ListView.separated(
                         shrinkWrap: true,
                         itemCount: _categoriasDb.length,
-                        separatorBuilder: (_, _) => const Divider(height: 1),
-                        itemBuilder: (_, idx) {
+                        separatorBuilder: (context, index) => const Divider(height: 1),
+                        itemBuilder: (context, idx) {
                           final cat = _categoriasDb[idx];
                           return ListTile(
                             contentPadding: EdgeInsets.zero,
