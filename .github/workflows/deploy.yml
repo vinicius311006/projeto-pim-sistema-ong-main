@@ -53,12 +53,16 @@ jobs:
           retention-days: 7
 
   build-apk:
-    name: Compilação do Aplicativo Android (APK)
+    name: Compilação do Aplicativo Android (APK e Web)
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: 1. Checkout do Repositório
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 2. Configuração do Java 17
         uses: actions/setup-java@v4
@@ -76,11 +80,30 @@ jobs:
         working-directory: ./vestindo_sonhos_mobile
         run: flutter pub get
 
-      - name: 5. Compilação do APK Android (Release)
+      - name: 5. Compilação do Flutter Web (/mobile/)
+        working-directory: ./vestindo_sonhos_mobile
+        run: flutter build web --base-href /mobile/ --no-tree-shake-icons
+
+      - name: 6. Sincronizar arquivos Web em VestindoSonhos/wwwroot/mobile/
+        run: |
+          rm -rf VestindoSonhos/wwwroot/mobile/*
+          cp -r vestindo_sonhos_mobile/build/web/* VestindoSonhos/wwwroot/mobile/
+
+      - name: 7. Commit e Push do Flutter Web atualizado
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add VestindoSonhos/wwwroot/mobile/
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(mobile): sincronizar bundle compilado do Flutter Web em /mobile/ [skip ci]"
+            git push origin main
+          fi
+
+      - name: 8. Compilação do APK Android (Release)
         working-directory: ./vestindo_sonhos_mobile
         run: flutter build apk --release --no-tree-shake-icons
 
-      - name: 6. Upload do APK como Artefato
+      - name: 9. Upload do APK como Artefato
         uses: actions/upload-artifact@v4
         with:
           name: VestindoSonhos_Mobile_APK
