@@ -54,7 +54,6 @@ namespace VestindoSonhos.Controllers.Api
 
             // 1. Busca o usuário correspondente no banco de dados com seu Cargo
             var usuario = await _context.Usuario
-                .Include(u => u.CargoNavigation)
                 .FirstOrDefaultAsync(u => u.Email == emailLimpo);
 
             // 2. Se não encontrar em Usuário, verifica se existe registro na tabela Voluntário para log informativo
@@ -103,7 +102,8 @@ namespace VestindoSonhos.Controllers.Api
             var expireHours = int.TryParse(_configuration["Jwt:ExpireHours"], out var hours) ? hours : 8;
 
             var expiration = DateTime.UtcNow.AddHours(expireHours);
-            var cargoNome = usuario.CargoNavigation?.Nome ?? "Colaborador";
+            var cargo = await _context.Cargo.FindAsync(usuario.Cargo);
+            var cargoNome = cargo?.Nome ?? (usuario.Cargo == 1 ? "Administrador" : "Colaborador");
 
             var claims = new List<Claim>
             {

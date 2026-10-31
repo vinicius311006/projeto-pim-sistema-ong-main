@@ -37,29 +37,39 @@ namespace VestindoSonhos.Controllers
         {
             var passwordHasher = new PasswordHasher<Usuario>();
             var emailLimpo = model.Email?.Trim() ?? string.Empty;
-            var usuario = _context.Usuario.Include(u => u.CargoNavigation)
-                .FirstOrDefault(u => u.Email.ToLower() == emailLimpo.ToLower());
-            if(usuario == null)
+
+            var usuario = await _context.Usuario.FirstOrDefaultAsync(u => u.Email == emailLimpo);
+            if (usuario == null)
+            {
+                usuario = await _context.Usuario.FirstOrDefaultAsync(u => EF.Functions.Like(u.Email, emailLimpo));
+            }
+
+            if (usuario == null)
             {
                 ModelState.AddModelError(nameof(model.Senha), "Email ou senha inválidos.");
                 return View(model);
             }
+
             // Temporario migração de senha explícitas
             if (!usuario.Senha.StartsWith("$"))
             {
                 if (usuario.Senha == model.Senha)
                 {
                     usuario.Senha = passwordHasher.HashPassword(usuario, model.Senha);
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                 }
             }
             // Temp ^
             var result = passwordHasher.VerifyHashedPassword(usuario, usuario.Senha, model.Senha);
-            if(result == PasswordVerificationResult.Failed)
+            if (result == PasswordVerificationResult.Failed)
             {
                 ModelState.AddModelError(nameof(model.Senha), "Email ou senha inválidos.");
                 return View(model);
             }
+
+            // Identifica o perfil (Cargo 1 = Administrador, 2 = Colaborador)
+            var cargo = await _context.Cargo.FindAsync(usuario.Cargo);
+            var roleName = cargo?.Nome ?? (usuario.Cargo == 1 ? "Administrador" : "Colaborador");
 
             // Verifica se o administrador exigiu a troca de senha temporária
             if (usuario.ExigirTrocaSenha)
@@ -69,7 +79,7 @@ namespace VestindoSonhos.Controllers
                     new Claim(ClaimTypes.Name, usuario.Email ?? string.Empty),
                     new Claim("Nome", usuario.Nome ?? string.Empty),
                     new Claim("UserId", usuario.Id.ToString()),
-                    new Claim(ClaimTypes.Role, usuario.CargoNavigation?.Nome ?? "Administrador"),
+                    new Claim(ClaimTypes.Role, roleName),
                     new Claim("ExigeTrocaSenha", "true")
                 };
 
@@ -89,7 +99,7 @@ namespace VestindoSonhos.Controllers
                 new Claim(ClaimTypes.Name, usuario.Email ?? string.Empty),
                 new Claim("Nome", usuario.Nome ?? string.Empty),
                 new Claim("UserId", usuario.Id.ToString()),
-                new Claim(ClaimTypes.Role, usuario.CargoNavigation?.Nome ?? "Administrador"),
+                new Claim(ClaimTypes.Role, roleName),
             };
 
             var claimsIdentity = new ClaimsIdentity(
@@ -162,11 +172,14 @@ namespace VestindoSonhos.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var usuario = await _context.Usuario.Include(u => u.CargoNavigation).FirstOrDefaultAsync(u => u.Id == userId);
+            var usuario = await _context.Usuario.FirstOrDefaultAsync(u => u.Id == userId);
             if (usuario == null)
             {
                 return RedirectToAction(nameof(Index));
             }
+
+            var cargo = await _context.Cargo.FindAsync(usuario.Cargo);
+            var roleName = cargo?.Nome ?? (usuario.Cargo == 1 ? "Administrador" : "Colaborador");
 
             // Não permite reutilizar senhas padrão conhecidas
             if (model.NovaSenha == "123456" || model.NovaSenha.Equals("Ong@2026", StringComparison.OrdinalIgnoreCase))
@@ -193,7 +206,7 @@ namespace VestindoSonhos.Controllers
                 new Claim(ClaimTypes.Name, usuario.Email ?? string.Empty),
                 new Claim("Nome", usuario.Nome),
                 new Claim("UserId", usuario.Id.ToString()),
-                new Claim(ClaimTypes.Role, usuario.CargoNavigation?.Nome ?? "Usuário")
+                new Claim(ClaimTypes.Role, roleName)
             };
 
             var claimsIdentity = new ClaimsIdentity(
