@@ -105,6 +105,11 @@ using (var scope = app.Services.CreateScope())
     try { db.Database.ExecuteSqlRaw("ALTER TABLE Dependente ADD COLUMN observacao VARCHAR(255) NULL;"); } catch { }
     try { db.Database.ExecuteSqlRaw("ALTER TABLE Produto MODIFY COLUMN descricao VARCHAR(255) NULL DEFAULT '';"); } catch { }
     try { db.Database.ExecuteSqlRaw("ALTER TABLE Produto MODIFY COLUMN cor VARCHAR(15) NULL DEFAULT '';"); } catch { }
+    try { db.Database.ExecuteSqlRaw("UPDATE TiposAtivo SET categoria = 'Calçados' WHERE id = 2 OR categoria LIKE 'Cal%ados';"); } catch { }
+    try { db.Database.ExecuteSqlRaw("UPDATE Categoria SET nome = 'Doação' WHERE id = 1 OR nome LIKE 'Doa%o';"); } catch { }
+    try { db.Database.ExecuteSqlRaw("UPDATE Carteira SET nome = 'Caixa Físico (Sede)' WHERE id = 2;"); } catch { }
+    try { db.Database.ExecuteSqlRaw("UPDATE Eventos SET local = 'Ginásio Municipal', observacao = 'Arrecadação de casacos e cobertores' WHERE id = 1;"); } catch { }
+    try { db.Database.ExecuteSqlRaw("UPDATE Eventos SET observacao = 'Venda comunitária e distribuição' WHERE id = 2;"); } catch { }
 }
 
 var cookiePolicyOptions = new CookiePolicyOptions

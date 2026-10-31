@@ -3,8 +3,10 @@
 -- Script DDL & Recursos Avançados Adaptados para MySQL (MySQL Workbench)
 -- ==============================================================================
 
-CREATE DATABASE IF NOT EXISTS VESTINDOSONHOSDB;
+CREATE DATABASE IF NOT EXISTS VESTINDOSONHOSDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE VESTINDOSONHOSDB;
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
 
 -- ------------------------------------------------------------------------------
 -- 1. CRIAÇÃO DAS TABELAS
