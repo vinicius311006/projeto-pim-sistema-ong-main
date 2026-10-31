@@ -355,7 +355,7 @@ class _ConfiguracoesSaasScreenState extends State<ConfiguracoesSaasScreen> {
                                 SwitchListTile(
                                   contentPadding: EdgeInsets.zero,
                                   title: const Text('Exigir troca de senha no 1º acesso'),
-                                  subtitle: const Text('Obriga novos voluntários a definirem senha própria'),
+                                  subtitle: const Text('Obriga todos os usuários a definirem senha própria'),
                                   value: _exigirTrocaSenha,
                                   activeThumbColor: const Color(0xFF7C6FE0),
                                   onChanged: (v) => setState(() => _exigirTrocaSenha = v),
