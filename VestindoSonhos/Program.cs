@@ -58,7 +58,12 @@ builder.Services.AddAuthentication(options =>
 })
 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
 {
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    options.Cookie.Name = "VestindoSonhos.Auth";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.IsEssential = true;
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
     options.SlidingExpiration = true;
     options.AccessDeniedPath = "/Erro/AcessoNegado";
     options.LoginPath = "/Login";
@@ -101,7 +106,8 @@ using (var scope = app.Services.CreateScope())
 
 var cookiePolicyOptions = new CookiePolicyOptions
 {
-    MinimumSameSitePolicy = SameSiteMode.Strict,
+    MinimumSameSitePolicy = SameSiteMode.Lax,
+    Secure = CookieSecurePolicy.SameAsRequest
 };
 
 app.UseCookiePolicy(cookiePolicyOptions);

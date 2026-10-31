@@ -36,7 +36,9 @@ namespace VestindoSonhos.Controllers
         public async Task<IActionResult> Index([Bind("Email", "Senha")] LoginViewModel model)
         {
             var passwordHasher = new PasswordHasher<Usuario>();
-            var usuario = _context.Usuario.Include(u => u.CargoNavigation).FirstOrDefault(u => u.Email == model.Email);
+            var emailLimpo = model.Email?.Trim() ?? string.Empty;
+            var usuario = _context.Usuario.Include(u => u.CargoNavigation)
+                .FirstOrDefault(u => u.Email.ToLower() == emailLimpo.ToLower());
             if(usuario == null)
             {
                 ModelState.AddModelError(nameof(model.Senha), "Email ou senha inválidos.");
@@ -65,9 +67,9 @@ namespace VestindoSonhos.Controllers
                 var claimsObrigatorias = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, usuario.Email ?? string.Empty),
-                    new Claim("Nome", usuario.Nome),
+                    new Claim("Nome", usuario.Nome ?? string.Empty),
                     new Claim("UserId", usuario.Id.ToString()),
-                    new Claim(ClaimTypes.Role, usuario.CargoNavigation?.Nome ?? "Usuário"),
+                    new Claim(ClaimTypes.Role, usuario.CargoNavigation?.Nome ?? "Administrador"),
                     new Claim("ExigeTrocaSenha", "true")
                 };
 
@@ -84,10 +86,10 @@ namespace VestindoSonhos.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, usuario.Email),
-                new Claim("Nome", usuario.Nome),
+                new Claim(ClaimTypes.Name, usuario.Email ?? string.Empty),
+                new Claim("Nome", usuario.Nome ?? string.Empty),
                 new Claim("UserId", usuario.Id.ToString()),
-                new Claim(ClaimTypes.Role, usuario.CargoNavigation.Nome),
+                new Claim(ClaimTypes.Role, usuario.CargoNavigation?.Nome ?? "Administrador"),
             };
 
             var claimsIdentity = new ClaimsIdentity(
@@ -95,7 +97,9 @@ namespace VestindoSonhos.Controllers
 
             var authProperties = new AuthenticationProperties
             {
+                IsPersistent = true,
                 AllowRefresh = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
             };
 
             await HttpContext.SignInAsync(
