@@ -28,6 +28,7 @@ services:
     container_name: vestindosonhos-app
     restart: unless-stopped
     ports:
+      - "80:5000"
       - "5000:5000"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
