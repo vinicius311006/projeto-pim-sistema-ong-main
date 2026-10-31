@@ -57,14 +57,16 @@
                                 <i class="material-symbols-outlined">chart_data</i><span>Dashboard</span>
                             </a>
                         </li>
-                        @if (User.IsInRole("Administrador"))
-                        {
-                            <li class="items">
-                                <a title="Financeiro" asp-area="" asp-controller="Financeiro" asp-action="Financeiro">
-                                    <i class="material-symbols-outlined">volunteer_activism</i><span>Financeiro</span>
-                                </a>
-                            </li>
-                        }
+                        <li class="items">
+                            <a title="Beneficiários" asp-area="" asp-controller="Beneficiarios" asp-action="Index">
+                                <i class="material-symbols-outlined">person_heart</i><span>Beneficiários</span>
+                            </a>
+                        </li>
+                        <li class="items">
+                            <a title="Eventos" asp-area="" asp-controller="Eventos" asp-action="Index">
+                                <i class="material-symbols-outlined">calendar_month</i><span>Eventos</span>
+                            </a>
+                        </li>
                         <li class="items">
                             <a title="Inventário" asp-area="" asp-controller="Inventario" asp-action="Index">
                                 <i class="material-symbols-outlined">box</i><span>Inventário</span>
@@ -73,21 +75,16 @@
                         @if (User.IsInRole("Administrador"))
                         {
                             <li class="items">
+                                <a title="Financeiro" asp-area="" asp-controller="Financeiro" asp-action="Financeiro">
+                                    <i class="material-symbols-outlined">volunteer_activism</i><span>Financeiro</span>
+                                </a>
+                            </li>
+                            <li class="items">
                                 <a title="Usuários" asp-area="" asp-controller="Usuarios" asp-action="Index">
                                     <i class="material-symbols-outlined">account_circle</i><span>Usuários</span>
                                 </a>
                             </li>
                         }
-                        <li class="items">
-                            <a title="Eventos" asp-area="" asp-controller="Eventos" asp-action="Index">
-                                <i class="material-symbols-outlined">calendar_month</i><span>Eventos</span>
-                            </a>
-                        </li>
-                        <li class="items">
-                            <a title="Beneficiários" asp-area="" asp-controller="Beneficiarios" asp-action="Index">
-                                <i class="material-symbols-outlined">person_heart</i><span>Beneficiários</span>
-                            </a>
-                        </li>
                     </ul>
                 }
             </div>
