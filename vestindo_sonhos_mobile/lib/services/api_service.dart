@@ -16,12 +16,7 @@ class ApiService {
 
   /// Retorna a URL base do servidor por padrão dependendo da plataforma
   static String getDefaultServerUrl() {
-    try {
-      if (Platform.isAndroid) {
-        return 'http://10.0.2.2:5000';
-      }
-    } catch (_) {}
-    return 'http://localhost:5000';
+    return 'http://3.145.151.61';
   }
 
   /// Obtém a URL do servidor configurada ou padrão

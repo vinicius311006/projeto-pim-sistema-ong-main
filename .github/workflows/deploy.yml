@@ -51,3 +51,38 @@ jobs:
           name: vestindo-sonhos-build-artifact
           path: ./publish
           retention-days: 7
+
+  build-apk:
+    name: Compilação do Aplicativo Android (APK)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: 2. Configuração do Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: 3. Configuração do Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: 4. Obtenção de Dependências
+        working-directory: ./vestindo_sonhos_mobile
+        run: flutter pub get
+
+      - name: 5. Compilação do APK Android (Release)
+        working-directory: ./vestindo_sonhos_mobile
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: 6. Upload do APK como Artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: VestindoSonhos_Mobile_APK
+          path: vestindo_sonhos_mobile/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30

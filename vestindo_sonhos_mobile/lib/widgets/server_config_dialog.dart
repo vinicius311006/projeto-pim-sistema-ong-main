@@ -173,6 +173,11 @@ class _ServerConfigDialogState extends State<ServerConfigDialog> {
                   runSpacing: 4,
                   children: [
                     ActionChip(
+                      avatar: const Icon(Icons.cloud_done, size: 16),
+                      label: const Text('Nuvem AWS (3.145.151.61)', style: TextStyle(fontSize: 12)),
+                      onPressed: () => _aplicarPredefinicao('http://3.145.151.61'),
+                    ),
+                    ActionChip(
                       avatar: const Icon(Icons.cable, size: 16),
                       label: const Text('Cabo USB', style: TextStyle(fontSize: 12)),
                       onPressed: () => _aplicarPredefinicao('http://localhost:5000'),
