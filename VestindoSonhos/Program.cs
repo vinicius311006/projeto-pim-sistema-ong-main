@@ -15,7 +15,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<VestindosonhosdbContext>(options =>
 {
-    if (!string.IsNullOrEmpty(connectionString) && (connectionString.Contains("Port=3306") || connectionString.Contains("User=") || connectionString.Contains("uid=")))
+    var connLower = (connectionString ?? string.Empty).ToLowerInvariant();
+    if (!string.IsNullOrEmpty(connectionString) && (connLower.Contains("3306") || connLower.Contains("user=") || connLower.Contains("uid=") || connLower.Contains("server=db") || connLower.Contains("vestindosonhosdb") || connLower.Contains("mysql")))
     {
         options.UseMySQL(connectionString);
     }
@@ -113,7 +114,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthentication();
