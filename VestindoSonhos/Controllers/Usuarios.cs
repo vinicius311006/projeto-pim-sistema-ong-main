@@ -189,8 +189,7 @@ namespace VestindoSonhos.Controllers
                                  DataNascimento = u.DataNascimento,
                                  Telefone = u.Telefone,
                                  Email = u.Email,
-                                 Endereco = u.Endereco,
-                                 ExigirTrocaSenha = u.ExigirTrocaSenha
+                                 Endereco = u.Endereco
                              }).FirstOrDefault();
             if (usuario == null)
             {
@@ -204,7 +203,7 @@ namespace VestindoSonhos.Controllers
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(int id, [Bind("Id,Nome,Cargo,DataNascimento,Telefone,Email,Endereco,NovaSenha,ConfirmarNovaSenha,ExigirTrocaSenha")] EditUsuariosViewModel usuario)
+        public async Task<IActionResult> Editar(int id, [Bind("Id,Nome,Cargo,DataNascimento,Telefone,Email,Endereco")] EditUsuariosViewModel usuario)
         {
             if (id != usuario.Id)
             {
@@ -230,18 +229,6 @@ namespace VestindoSonhos.Controllers
                 usuario.Endereco = usuario.Endereco.Substring(0, 80);
             }
 
-            if (!string.IsNullOrWhiteSpace(usuario.NovaSenha))
-            {
-                if (usuario.NovaSenha.Length < 6)
-                {
-                    ModelState.AddModelError(nameof(usuario.NovaSenha), "A nova senha deve ter no mínimo 6 caracteres.");
-                }
-                if (usuario.NovaSenha != usuario.ConfirmarNovaSenha)
-                {
-                    ModelState.AddModelError(nameof(usuario.ConfirmarNovaSenha), "As senhas não coincidem.");
-                }
-            }
-
             if (ModelState.IsValid)
             {
                 var usuario_bd = await _context.Usuario.FirstOrDefaultAsync(u => u.Id == id);
@@ -264,21 +251,10 @@ namespace VestindoSonhos.Controllers
                 usuario_bd.Telefone = usuario.Telefone;
                 usuario_bd.Email = usuario.Email;
                 usuario_bd.Endereco = usuario.Endereco;
-                usuario_bd.ExigirTrocaSenha = usuario.ExigirTrocaSenha;
-
-                if (!string.IsNullOrWhiteSpace(usuario.NovaSenha))
-                {
-                    var passwordHasher = new PasswordHasher<Usuario>();
-                    usuario_bd.Senha = passwordHasher.HashPassword(usuario_bd, usuario.NovaSenha);
-                    TempData["Sucesso"] = $"Usuário '{usuario_bd.Nome}' atualizado com nova senha definida!";
-                }
-                else
-                {
-                    TempData["Sucesso"] = $"Usuário '{usuario_bd.Nome}' atualizado com sucesso!";
-                }
 
                 _context.Update(usuario_bd);
                 await _context.SaveChangesAsync();
+                TempData["Sucesso"] = $"Usuário '{usuario_bd.Nome}' atualizado com sucesso!";
                 return RedirectToAction(nameof(Index));
             }
 

@@ -48,41 +48,6 @@
                 <span asp-validation-for="Endereco" class="text-danger"></span>
             </div>
 
-            <hr style="margin: 20px 0; border: none; border-top: 1px solid #E5E7EB;" />
-            <div style="margin-bottom: 15px;">
-                <h3 style="font-size: 16px; color: #2C2C35; margin: 0 0 4px; display: flex; align-items: center; gap: 6px;">
-                    <span class="material-symbols-outlined" style="font-size: 18px; color: #7C6FE0;">lock_reset</span>
-                    Redefinir Senha (Opcional)
-                </h3>
-                <small style="color: #6B7280;">Deixe em branco caso deseje manter a senha atual do usuário.</small>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="NovaSenha" class="control-label">Nova Senha</label>
-                <input asp-for="NovaSenha" type="password" class="form-control" maxlength="100" placeholder="Deixe em branco para manter a atual" />
-                <span asp-validation-for="NovaSenha" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="ConfirmarNovaSenha" class="control-label">Confirmar Nova Senha</label>
-                <input asp-for="ConfirmarNovaSenha" type="password" class="form-control" maxlength="100" placeholder="Repita a nova senha" />
-                <span asp-validation-for="ConfirmarNovaSenha" class="text-danger"></span>
-            </div>
-
-            <div class="form-group" style="background: #F8F9FD; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px 14px; margin-bottom: 20px;">
-                <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
-                    <input type="checkbox" asp-for="ExigirTrocaSenha" style="width: 18px; height: 18px; margin-top: 2px; accent-color: #7C6FE0; cursor: pointer;" />
-                    <div>
-                        <span style="font-weight: 600; font-size: 13px; color: #1F2937; display: block;">
-                            Exigir alteração de senha no próximo login
-                        </span>
-                        <span style="font-size: 12px; color: #6B7280; display: block; margin-top: 2px; line-height: 1.4;">
-                            Marque se desejar que o usuário seja obrigado a definir uma nova senha no próximo acesso.
-                        </span>
-                    </div>
-                </label>
-            </div>
-
             <div class="form-group">
                 <input type="submit" value="Salvar Alterações" class="btn btn-primary" />
             </div>
