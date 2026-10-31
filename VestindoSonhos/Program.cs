@@ -7,7 +7,7 @@ using System.Text;
 using VestindoSonhos.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls("http://0.0.0.0:5000;http://localhost:5000");
+builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
 // Configuração do DbContext
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
