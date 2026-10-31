@@ -68,8 +68,19 @@ namespace VestindoSonhos.Controllers
             }
 
             // Identifica o perfil (Cargo 1 = Administrador, 2 = Colaborador)
-            var cargo = await _context.Cargo.FindAsync(usuario.Cargo);
-            var roleName = cargo?.Nome ?? (usuario.Cargo == 1 ? "Administrador" : "Colaborador");
+            string roleName = usuario.Cargo == 1 ? "Administrador" : "Colaborador";
+            try
+            {
+                var cargo = await _context.Cargo.FindAsync(usuario.Cargo);
+                if (!string.IsNullOrEmpty(cargo?.Nome))
+                {
+                    roleName = cargo.Nome;
+                }
+            }
+            catch
+            {
+                roleName = usuario.Cargo == 1 ? "Administrador" : "Colaborador";
+            }
 
             // Verifica se o administrador exigiu a troca de senha temporária
             if (usuario.ExigirTrocaSenha)
@@ -178,8 +189,19 @@ namespace VestindoSonhos.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var cargo = await _context.Cargo.FindAsync(usuario.Cargo);
-            var roleName = cargo?.Nome ?? (usuario.Cargo == 1 ? "Administrador" : "Colaborador");
+            string roleName = usuario.Cargo == 1 ? "Administrador" : "Colaborador";
+            try
+            {
+                var cargo = await _context.Cargo.FindAsync(usuario.Cargo);
+                if (!string.IsNullOrEmpty(cargo?.Nome))
+                {
+                    roleName = cargo.Nome;
+                }
+            }
+            catch
+            {
+                roleName = usuario.Cargo == 1 ? "Administrador" : "Colaborador";
+            }
 
             // Não permite reutilizar senhas padrão conhecidas
             if (model.NovaSenha == "123456" || model.NovaSenha.Equals("Ong@2026", StringComparison.OrdinalIgnoreCase))

@@ -277,8 +277,11 @@ DELIMITER ;
 -- ------------------------------------------------------------------------------
 
 CREATE OR REPLACE VIEW cargo AS SELECT * FROM Cargos;
+CREATE OR REPLACE VIEW Cargo AS SELECT * FROM Cargos;
 CREATE OR REPLACE VIEW evento AS SELECT * FROM Eventos;
+CREATE OR REPLACE VIEW Evento AS SELECT * FROM Eventos;
 CREATE OR REPLACE VIEW tipos_ativo AS SELECT * FROM TiposAtivo;
+CREATE OR REPLACE VIEW Tipos_ativo AS SELECT * FROM TiposAtivo;
 CREATE OR REPLACE VIEW voluntario_atribuido AS SELECT * FROM VoluntarioAtribuido;
 
 -- ------------------------------------------------------------------------------

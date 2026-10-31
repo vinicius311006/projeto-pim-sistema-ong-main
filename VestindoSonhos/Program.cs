@@ -97,6 +97,9 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<VestindosonhosdbContext>();
+    try { db.Database.ExecuteSqlRaw("CREATE OR REPLACE VIEW Cargo AS SELECT * FROM Cargos;"); } catch { }
+    try { db.Database.ExecuteSqlRaw("CREATE OR REPLACE VIEW Evento AS SELECT * FROM Eventos;"); } catch { }
+    try { db.Database.ExecuteSqlRaw("CREATE OR REPLACE VIEW Tipos_ativo AS SELECT * FROM TiposAtivo;"); } catch { }
     try { db.Database.ExecuteSqlRaw("ALTER TABLE Dependente MODIFY COLUMN ano_nascimento INT NULL DEFAULT 0;"); } catch { }
     try { db.Database.ExecuteSqlRaw("ALTER TABLE Dependente ADD COLUMN idade INT NOT NULL DEFAULT 0;"); } catch { }
     try { db.Database.ExecuteSqlRaw("ALTER TABLE Dependente ADD COLUMN observacao VARCHAR(255) NULL;"); } catch { }

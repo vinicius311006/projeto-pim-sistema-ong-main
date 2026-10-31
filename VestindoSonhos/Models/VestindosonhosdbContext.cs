@@ -76,6 +76,7 @@ public partial class VestindosonhosdbContext : DbContext
 
         modelBuilder.Entity<Cargo>(entity =>
         {
+            entity.ToTable("Cargos");
             entity.HasKey(e => e.Id).HasName("PK__Cargo__3213E83F81CDD3A4");
 
             entity.Property(e => e.Id).HasColumnName("id");
@@ -138,6 +139,7 @@ public partial class VestindosonhosdbContext : DbContext
 
         modelBuilder.Entity<Evento>(entity =>
         {
+            entity.ToTable("Eventos");
             entity.HasKey(e => e.Id).HasName("PK__Evento__3213E83F27871B31");
 
             entity.Property(e => e.Id).HasColumnName("id");
@@ -185,7 +187,7 @@ public partial class VestindosonhosdbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Tipos_at__3213E83F8EF166EC");
 
-            entity.ToTable("Tipos_ativo");
+            entity.ToTable("TiposAtivo");
 
             entity.HasIndex(e => e.Categoria, "UQ__Tipos_at__1179412FC33A7C31").IsUnique();
 

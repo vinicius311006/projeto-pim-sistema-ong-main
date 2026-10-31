@@ -102,8 +102,19 @@ namespace VestindoSonhos.Controllers.Api
             var expireHours = int.TryParse(_configuration["Jwt:ExpireHours"], out var hours) ? hours : 8;
 
             var expiration = DateTime.UtcNow.AddHours(expireHours);
-            var cargo = await _context.Cargo.FindAsync(usuario.Cargo);
-            var cargoNome = cargo?.Nome ?? (usuario.Cargo == 1 ? "Administrador" : "Colaborador");
+            string cargoNome = usuario.Cargo == 1 ? "Administrador" : "Colaborador";
+            try
+            {
+                var cargo = await _context.Cargo.FindAsync(usuario.Cargo);
+                if (!string.IsNullOrEmpty(cargo?.Nome))
+                {
+                    cargoNome = cargo.Nome;
+                }
+            }
+            catch
+            {
+                cargoNome = usuario.Cargo == 1 ? "Administrador" : "Colaborador";
+            }
 
             var claims = new List<Claim>
             {
