@@ -9,9 +9,14 @@ using VestindoSonhos.Models;
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
-// Configuração do DbContext
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? builder.Configuration.GetConnectionString("ConnectionStrings");
+// Configuração do DbContext (lê de User Secrets ou Variáveis de Ambiente)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    connectionString = builder.Configuration.GetConnectionString("ConnectionStrings")
+        ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+        ?? "Server=localhost;Port=3306;Database=VESTINDOSONHOSDB;";
+}
 
 builder.Services.AddDbContext<VestindosonhosdbContext>(options =>
 {
@@ -27,8 +32,12 @@ builder.Services.AddDbContext<VestindosonhosdbContext>(options =>
     options.EnableSensitiveDataLogging();
 });
 
-// Configurações do JWT
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "VestindoSonhos_ChaveSecretaSuperSegura_JWT_2026_Key!";
+// Configurações do JWT (lê de User Secrets ou Variáveis de Ambiente)
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? Convert.ToBase64String(Encoding.UTF8.GetBytes("VestindoSonhos_Default_Runtime_Signing_Key_2026"));
+}
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "VestindoSonhosAPI";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "VestindoSonhosMobile";
 

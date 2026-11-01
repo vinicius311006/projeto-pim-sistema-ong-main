@@ -73,21 +73,21 @@ Solução corporativa completa para a gestão de beneficiários, doações finan
   - **Beneficiários (`BeneficiariosApiTests`):** Cadastro social com situação padrão `"Ok"`, validação de campos obrigatórios e contagem/exclusão de dependentes.
   - **Financeiro (`FinanceiroApiTests`):** Lançamento de Entradas e Saídas atualizando o saldo das carteiras, rejeição de valores zero/negativos e estorno automático ao excluir transação.
   - **Segurança RBAC & Dashboard (`DashboardAndRegrasNegocioTests`):** Ocultação de saldos e transações financeiras para perfil `Colaborador`, visualização total para `Administrador` e criptografia PBKDF2 (`PasswordHasher<Usuario>`).
-- **Execução com 1 Clique:** Execute [`rodar-testes-automatizados.bat`](./rodar-testes-automatizados.bat) ou `dotnet test ./VestindoSonhos.Tests/VestindoSonhos.Tests.csproj`.
+- **Execução dos Testes:** Execute `dotnet test ./VestindoSonhos.Tests/VestindoSonhos.Tests.csproj`.
 
 ---
 
 ## 💻 Formas de Execução
 
-### Opção 1: Inicialização Rápida com 1 Clique (Windows)
-1. Execute [`importar-banco-local.bat`](./importar-banco-local.bat) para garantir que o banco `VESTINDOSONHOSDB` esteja criado no MySQL local.
-2. Dê dois cliques em [`1-INICIAR_SISTEMA.bat`](./1-INICIAR_SISTEMA.bat) (ou em `VestindoSonhos_Portavel\1-CLIQUE_INICIAR_SISTEMA.bat`).
-3. Caso deseje regerar a pasta portátil, execute [`gerar-executavel-portatil.bat`](./gerar-executavel-portatil.bat).
-4. Acesse no navegador: [http://localhost:5000/Login](http://localhost:5000/Login)
-
-### Credenciais Administrativas Padrão
-- **E-mail:** `admin@teste.org`
-- **Senha:** `123456`
+### Opção 1: Execução via .NET CLI / Visual Studio (User Secrets)
+1. Configure a string de conexão e a chave JWT via **User Secrets** (fora do controle de versão):
+```bash
+cd VestindoSonhos
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Port=3306;Database=VESTINDOSONHOSDB;User=SEU_USUARIO;Password=SUA_SENHA;"
+dotnet user-secrets set "Jwt:Key" "SUA_CHAVE_SECRETA_JWT_COM_PELO_MENOS_32_BYTES"
+dotnet run
+```
+2. Acesse no navegador: [http://localhost:5000/Login](http://localhost:5000/Login)
 
 ### 📱 Executar o Aplicativo Mobile (Flutter)
 ```bash
@@ -124,11 +124,6 @@ projeto-pim-sistema-ong-main/
 │   │   └── widgets/                   # Componentes (Configurador de IP dinâmico)
 │   └── pubspec.yaml                   # Dependências do Flutter
 ├── ScriptVestindoSonhos_MySQL.sql     # Script completo do MySQL 8.0 (Tabelas + Procedure + Trigger)
-├── 1-INICIAR_SISTEMA.bat              # Inicializador rápido do servidor Web + API
-├── rodar-testes-automatizados.bat     # Executor da suíte de testes automatizados (xUnit) em 1 clique
-├── gerar-executavel-portatil.bat      # Gerador do pacote portátil (VestindoSonhos_Portavel)
-├── importar-banco-local.bat           # Importador automático do banco MySQL
-├── subir-para-github.bat              # Sincronizador automático com o GitHub em 1 clique
 └── README.md                          # Documentação geral da solução
 ```
 

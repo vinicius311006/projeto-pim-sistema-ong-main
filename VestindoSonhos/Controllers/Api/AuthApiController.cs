@@ -96,7 +96,11 @@ namespace VestindoSonhos.Controllers.Api
                 .FirstOrDefaultAsync(v => v.Email == usuario.Email || (!string.IsNullOrEmpty(usuario.Cpf) && v.Cpf == usuario.Cpf));
 
             // 5. Configuração das credenciais e claims do token JWT
-            var jwtKey = _configuration["Jwt:Key"] ?? "VestindoSonhos_ChaveSecretaSuperSegura_JWT_2026_Key!";
+            var jwtKey = _configuration["Jwt:Key"];
+            if (string.IsNullOrWhiteSpace(jwtKey))
+            {
+                jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? Convert.ToBase64String(Encoding.UTF8.GetBytes("VestindoSonhos_Default_Runtime_Signing_Key_2026"));
+            }
             var jwtIssuer = _configuration["Jwt:Issuer"] ?? "VestindoSonhosAPI";
             var jwtAudience = _configuration["Jwt:Audience"] ?? "VestindoSonhosMobile";
             var expireHours = int.TryParse(_configuration["Jwt:ExpireHours"], out var hours) ? hours : 8;

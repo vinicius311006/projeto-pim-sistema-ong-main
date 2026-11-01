@@ -503,3 +503,17 @@ VestindoSonhos/wwwroot/mobile/.last_build_id
 *.map
 *.symbols
 
+# banco SQLite local (tem os hashes das senhas)
+*.db
+*.db-shm
+*.db-wal
+
+# React publicado
+dist/
+
+# Documentos ABNT e guias locais
+Documentacao_PIM_IV_ABNT_VestindoSonhos.*
+Guia_Defesa_Tecnica_Banca_PIM_IV.pdf
+docs/
+
+
