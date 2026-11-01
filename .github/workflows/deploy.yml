@@ -88,6 +88,8 @@ jobs:
         run: |
           rm -rf VestindoSonhos/wwwroot/mobile/*
           cp -r vestindo_sonhos_mobile/build/web/* VestindoSonhos/wwwroot/mobile/
+          rm -rf VestindoSonhos/wwwroot/mobile/canvaskit
+          rm -f VestindoSonhos/wwwroot/mobile/.last_build_id
 
       - name: 7. Commit e Push do Flutter Web atualizado
         run: |

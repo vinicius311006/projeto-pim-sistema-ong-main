@@ -494,3 +494,12 @@ VestindoSonhos_Portavel.zip
 *.zip
 projeto-pim-sistema-ong-main/
 publish/
+
+# Evitar bloqueio de antivirus/SmartScreen e excesso de peso ao baixar ZIP do GitHub
+*.bat
+*.cmd
+VestindoSonhos/wwwroot/mobile/canvaskit/
+VestindoSonhos/wwwroot/mobile/.last_build_id
+*.map
+*.symbols
+
