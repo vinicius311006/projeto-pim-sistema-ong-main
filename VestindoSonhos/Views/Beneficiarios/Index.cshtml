@@ -1,57 +1,152 @@
 @model IEnumerable<VestindoSonhos.Models.Beneficiario>
+@using System.Linq
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Gestão de Beneficiários";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var lista = Model ?? Enumerable.Empty<VestindoSonhos.Models.Beneficiario>();
+    var total = lista.Count();
+    var vulneraveis = lista.Count(b => !string.IsNullOrEmpty(b.Situacao) && (b.Situacao.ToLower().Contains("vulner") || b.Situacao.ToLower().Contains("crit") || b.Situacao.ToLower().Contains("crít") || b.Situacao.ToLower().Contains("baixa") || b.Situacao.ToLower().Contains("desempreg")));
+    var acompanhados = total - vulneraveis;
 }
+
+<link rel="stylesheet" href="~/css/tabela.css" />
 
 <div class="container-tabela">
-    <h1>Beneficiários</h1>
+    <!-- Cabeçalho SaaS -->
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+        <div>
+            <h1>Gestão de Beneficiários &amp; Famílias</h1>
+            <p style="margin:4px 0 0; color:var(--text-2, #6B7280); font-size:13.5px;">
+                Cadastro social, acompanhamento de vulnerabilidade e gestão de dependentes assistidos pela ONG
+            </p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn btn-primary" asp-action="Criar">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>Novo Beneficiário</span>
+            </a>
+        </div>
+    </div>
 
-    <div class="card">
-
-        <div class="card-topo">
-            <h3>Detalhes dos Beneficiários</h3>
-            <a class="btn btn-primary" asp-action="Criar"><span class="material-symbols-outlined">add</span>Novo</a>
+    <!-- KPIs -->
+    <div class="vs-kpi-row">
+        <div class="vs-kpi-box">
+            <div class="vs-kpi-ico" style="background:rgba(124, 111, 224, 0.12); color:#7C6FE0;">
+                <span class="material-symbols-outlined">diversity_1</span>
+            </div>
+            <div class="vs-kpi-txt">
+                <h4>@total</h4>
+                <p>Total de Beneficiários</p>
+            </div>
         </div>
 
-        <table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Nome</th>
-            <th>Telefone</th>
-            <th>Endereço</th>
-            <th>Situação</th>
-            <th>Observação</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nome)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Telefone)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Endereco)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Situacao)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Observacao)
-            </td>
-            <td>
-                <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span>Editar</a>
-                <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span>Detalhes</a>
-                <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
-            </td>
-        </tr>
+        <div class="vs-kpi-box">
+            <div class="vs-kpi-ico" style="background:rgba(245, 158, 11, 0.12); color:#D97706;">
+                <span class="material-symbols-outlined">priority_high</span>
+            </div>
+            <div class="vs-kpi-txt">
+                <h4>@vulneraveis</h4>
+                <p>Atenção Prioritária / Vulnerabilidade</p>
+            </div>
+        </div>
+
+        <div class="vs-kpi-box">
+            <div class="vs-kpi-ico" style="background:rgba(16, 185, 129, 0.12); color:#059669;">
+                <span class="material-symbols-outlined">verified_user</span>
+            </div>
+            <div class="vs-kpi-txt">
+                <h4>@acompanhados</h4>
+                <p>Em Acompanhamento Regular</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card da Tabela -->
+    <div class="card">
+        <div class="vs-filter-bar">
+            <div class="vs-search-field">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" id="buscaBeneficiarios" placeholder="Pesquisar por nome, telefone, endereço ou situação..." onkeyup="filtrarBeneficiarios(this.value)" />
+            </div>
+            <span style="font-size:13px; color:var(--text-2, #6B7280); font-weight:600;">
+                Exibindo <strong style="color:#7C6FE0;">@total</strong> família(s) cadastrada(s)
+            </span>
+        </div>
+
+        <div style="overflow-x:auto;">
+            <table class="table" id="tabelaBeneficiarios">
+                <thead>
+                    <tr>
+                        <th>Beneficiário / Responsável</th>
+                        <th>Telefone</th>
+                        <th>Endereço</th>
+                        <th>Situação Social</th>
+                        <th>Observação</th>
+                        <th style="text-align:right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!lista.Any())
+                    {
+                        <tr>
+                            <td colspan="6" style="text-align:center; padding:32px; color:#9CA3AF;">
+                                Nenhum beneficiário cadastrado no momento.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in lista)
+                        {
+                            var inicial = !string.IsNullOrEmpty(item.Nome) ? item.Nome[0].ToString().ToUpper() : "B";
+                            var sit = item.Situacao ?? "Regular";
+                            var isPrioridade = sit.ToLower().Contains("vulner") || sit.ToLower().Contains("crit") || sit.ToLower().Contains("crít") || sit.ToLower().Contains("baixa") || sit.ToLower().Contains("desempreg");
+                            <tr>
+                                <td>
+                                    <span class="vs-avatar-sm">@inicial</span>
+                                    <strong>@item.Nome</strong>
+                                </td>
+                                <td>@(string.IsNullOrWhiteSpace(item.Telefone) ? "-" : item.Telefone)</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.Endereco) ? "-" : item.Endereco)</td>
+                                <td>
+                                    <span style="display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; background:@(isPrioridade ? "#FEF3C7" : "#ECFDF5"); color:@(isPrioridade ? "#B45309" : "#059669"); border:1px solid @(isPrioridade ? "#FDE68A" : "#A7F3D0");">
+                                        <span class="material-symbols-outlined" style="font-size:14px;">@(isPrioridade ? "warning" : "check_circle")</span>
+                                        @sit
+                                    </span>
+                                </td>
+                                <td style="color:var(--text-2, #6B7280);">@(string.IsNullOrWhiteSpace(item.Observacao) ? "-" : item.Observacao)</td>
+                                <td style="text-align:right;">
+                                    <div class="vs-actions">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-view" title="Ver Ficha e Dependentes">
+                                            <span class="material-symbols-outlined">family_restroom</span>Dependentes
+                                        </a>
+                                        <a asp-action="Editar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-edit" title="Editar Beneficiário">
+                                            <span class="material-symbols-outlined">edit</span>Editar
+                                        </a>
+                                        <a asp-action="Apagar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-del" title="Remover Beneficiário">
+                                            <span class="material-symbols-outlined">delete</span>Excluir
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function filtrarBeneficiarios(termo) {
+            var filtro = (termo || '').toLowerCase().trim();
+            var linhas = document.querySelectorAll('#tabelaBeneficiarios tbody tr');
+            linhas.forEach(function (linha) {
+                var texto = (linha.innerText || '').toLowerCase();
+                linha.style.display = texto.indexOf(filtro) !== -1 ? '' : 'none';
+            });
+        }
+    </script>
 }
-    </tbody>
-</table>
-</div>
-</div>

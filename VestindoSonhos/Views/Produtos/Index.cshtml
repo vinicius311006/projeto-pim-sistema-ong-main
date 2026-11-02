@@ -1,60 +1,139 @@
 @model IEnumerable<VestindoSonhos.Models.Produto>
-<link rel="stylesheet" href="~/css/tabela.css">
+@using System.Linq
 
 @{
-    ViewData["Title"] = "Produtos";
+    ViewData["Title"] = "Catálogo de Produtos";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var lista = Model ?? Enumerable.Empty<VestindoSonhos.Models.Produto>();
+    var totalCategorias = lista.Select(p => p.CategoriaNavigation?.Categoria).Where(c => !string.IsNullOrEmpty(c)).Distinct().Count();
 }
 
+<link rel="stylesheet" href="~/css/tabela.css" />
+
 <div class="container-tabela">
-    <div class="btn-back" style="margin-bottom: 12px;">
-        <a asp-controller="Inventario" asp-action="Index"><i class="material-symbols-outlined">arrow_back_ios</i>Voltar para Inventário</a>
+    <!-- Cabeçalho -->
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+        <div>
+            <h1>Catálogo de Produtos &amp; Donativos</h1>
+            <p style="margin:4px 0 0; color:var(--text-2, #6B7280); font-size:13.5px;">
+                Itens cadastrados para controle de estoque, doações de roupas, alimentos e kits sociais
+            </p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn" asp-controller="Inventario" asp-action="Index" style="background:var(--color-5, #FFF); border:1px solid var(--color-6, #D1D5DB); color:var(--text-1, #374151);">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span>Voltar ao Inventário</span>
+            </a>
+            <a class="btn" asp-controller="TiposAtivo" asp-action="Index" style="background:var(--color-5, #FFF); border:1px solid var(--color-6, #D1D5DB); color:var(--text-1, #374151);">
+                <span class="material-symbols-outlined">category</span>
+                <span>Categorias de Produtos</span>
+            </a>
+            <a class="btn" asp-controller="Inventario" asp-action="Criar" style="background:var(--color-5, #FFF); border:1px solid var(--color-6, #D1D5DB); color:var(--text-1, #374151);">
+                <span class="material-symbols-outlined">swap_horiz</span>
+                <span>Nova Movimentação</span>
+            </a>
+            <a class="btn btn-primary" asp-controller="Produtos" asp-action="Criar">
+                <span class="material-symbols-outlined">add_box</span>
+                <span>Novo Produto</span>
+            </a>
+        </div>
     </div>
 
-    <h1>Produtos</h1>
-
-    <div class="card">
-        <div class="card-topo">
-            <h3>Catálogo de Produtos</h3>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a class="btn btn-primary" asp-controller="Produtos" asp-action="Criar"><span class="material-symbols-outlined">add</span>Novo Produto</a>
-                <a class="btn btn-primary" asp-controller="Inventario" asp-action="Criar"><span class="material-symbols-outlined">swap_horiz</span>Nova Movimentação</a>
+    <!-- KPIs -->
+    <div class="vs-kpi-row">
+        <div class="vs-kpi-box">
+            <div class="vs-kpi-ico" style="background:rgba(124, 111, 224, 0.12); color:#7C6FE0;">
+                <span class="material-symbols-outlined">inventory_2</span>
+            </div>
+            <div class="vs-kpi-txt">
+                <h4>@lista.Count()</h4>
+                <p>Produtos Cadastrados no Catálogo</p>
             </div>
         </div>
 
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Descrição</th>
-                    <th>Cor</th>
-                    <th>Categoria</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-        @foreach (var item in Model) {
-                <tr>
-                    <td data-label="Nome">
-                        @Html.DisplayFor(modelItem => item.Nome)
-                    </td>
-                    <td data-label="Descrição">
-                        @Html.DisplayFor(modelItem => item.Descricao)
-                    </td>
-                    <td data-label="Cor">
-                        @Html.DisplayFor(modelItem => item.Cor)
-                    </td>
-                    <td data-label="Categoria">
-                        @Html.DisplayFor(modelItem => item.CategoriaNavigation.Categoria)
-                    </td>
-                    <td>
-                        <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span>Editar</a>
-                        <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span>Detalhes</a>
-                        <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
-                    </td>
-                </tr>
-        }
-            </tbody>
-        </table>
+        <div class="vs-kpi-box">
+            <div class="vs-kpi-ico" style="background:rgba(37, 99, 235, 0.12); color:#2563EB;">
+                <span class="material-symbols-outlined">category</span>
+            </div>
+            <div class="vs-kpi-txt">
+                <h4>@totalCategorias</h4>
+                <p>Categorias de Produtos em Uso</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="card">
+        <div class="vs-filter-bar">
+            <div class="vs-search-field">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" id="buscaProdutos" placeholder="Pesquisar por nome, descrição, cor ou categoria..." onkeyup="filtrarProdutos(this.value)" />
+            </div>
+            <span style="font-size:13px; color:var(--text-2, #6B7280); font-weight:600;">
+                Total: <strong style="color:#7C6FE0;">@lista.Count()</strong> produto(s)
+            </span>
+        </div>
+
+        <div style="overflow-x:auto;">
+            <table class="table" id="tabelaProdutos">
+                <thead>
+                    <tr>
+                        <th>Produto / Item</th>
+                        <th>Descrição / Tamanho</th>
+                        <th>Cor</th>
+                        <th>Categoria</th>
+                        <th style="text-align:right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in lista)
+                    {
+                        <tr>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:10px; font-weight:600;">
+                                    <span style="width:34px; height:34px; border-radius:10px; background:rgba(124, 111, 224, 0.12); color:#7C6FE0; display:inline-flex; align-items:center; justify-content:center;">
+                                        <span class="material-symbols-outlined" style="font-size:18px;">checkroom</span>
+                                    </span>
+                                    <span>@item.Nome</span>
+                                </div>
+                            </td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Descricao) ? "-" : item.Descricao)</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Cor) ? "-" : item.Cor)</td>
+                            <td>
+                                <span style="padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; background:#EDE9FE; color:#6D28D9; border:1px solid #DDD6FE;">
+                                    @(item.CategoriaNavigation?.Categoria ?? "Geral")
+                                </span>
+                            </td>
+                            <td style="text-align:right;">
+                                <div class="vs-actions">
+                                    <a asp-action="Editar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-edit">
+                                        <span class="material-symbols-outlined">edit</span>Editar
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-view">
+                                        <span class="material-symbols-outlined">visibility</span>Detalhes
+                                    </a>
+                                    <a asp-action="Apagar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-del">
+                                        <span class="material-symbols-outlined">delete</span>Excluir
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function filtrarProdutos(termo) {
+            var filtro = (termo || '').toLowerCase().trim();
+            var linhas = document.querySelectorAll('#tabelaProdutos tbody tr');
+            linhas.forEach(function (linha) {
+                var texto = (linha.innerText || '').toLowerCase();
+                linha.style.display = texto.indexOf(filtro) !== -1 ? '' : 'none';
+            });
+        }
+    </script>
+}

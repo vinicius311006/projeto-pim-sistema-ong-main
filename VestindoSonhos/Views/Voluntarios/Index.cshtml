@@ -1,71 +1,112 @@
 @model IEnumerable<VestindoSonhos.Models.Voluntario>
-<link rel="stylesheet" href="~/css/tabela.css" />
+@using System.Linq
 
 @{
-    ViewData["Title"] = "Voluntários";
+    ViewData["Title"] = "Gestão de Voluntários";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var lista = Model ?? Enumerable.Empty<VestindoSonhos.Models.Voluntario>();
 }
+
+<link rel="stylesheet" href="~/css/tabela.css" />
 
 <div class="container-tabela">
-    <div class="btn-back" style="margin-bottom: 10px;">
-        <a asp-controller="Eventos" asp-action="Index" style="display: inline-flex; align-items: center; text-decoration: none; color: inherit;"><i class="material-symbols-outlined">arrow_back_ios</i>Voltar para Eventos</a>
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+        <div>
+            <h1>Gestão de Voluntários</h1>
+            <p style="margin:4px 0 0; color:var(--text-2, #6B7280); font-size:13.5px;">
+                Cadastro e acompanhamento da equipe de voluntários atuantes nas campanhas da ONG
+            </p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn" asp-controller="Eventos" asp-action="Index" style="background:var(--color-5, #FFF); border:1px solid var(--color-6, #D1D5DB); color:var(--text-1, #374151);">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span>Voltar para Campanhas</span>
+            </a>
+            <a class="btn btn-primary" asp-action="Criar">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>Novo Voluntário</span>
+            </a>
+        </div>
     </div>
-    <h1>Voluntários</h1>
+
+    <div class="vs-kpi-row">
+        <div class="vs-kpi-box">
+            <div class="vs-kpi-ico" style="background:rgba(124, 111, 224, 0.12); color:#7C6FE0;">
+                <span class="material-symbols-outlined">volunteer_activism</span>
+            </div>
+            <div class="vs-kpi-txt">
+                <h4>@lista.Count()</h4>
+                <p>Voluntários Ativos Cadastrados</p>
+            </div>
+        </div>
+    </div>
 
     <div class="card">
-
-        <div class="card-topo">
-            <h3>Detalhes dos Voluntários</h3>
-            <a class="btn btn-primary" asp-action="Criar"><span class="material-symbols-outlined">add</span>Novo</a>
+        <div class="vs-filter-bar">
+            <div class="vs-search-field">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" id="buscaVoluntarios" placeholder="Pesquisar voluntário por nome, CPF, telefone ou e-mail..." onkeyup="filtrarVoluntarios(this.value)" />
+            </div>
+            <span style="font-size:13px; color:var(--text-2, #6B7280); font-weight:600;">
+                Total: <strong style="color:#7C6FE0;">@lista.Count()</strong> voluntário(s)
+            </span>
         </div>
 
-        <table class="table table-striped">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nome)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Cpf)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Endereco)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Telefone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nome)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Cpf)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Endereco)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Telefone)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span>Editar</a>
-                <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">filter_alt</span>Detalhes</a>
-                <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
-            </td>
-        </tr>
+        <div style="overflow-x:auto;">
+            <table class="table" id="tabelaVoluntarios">
+                <thead>
+                    <tr>
+                        <th>Nome do Voluntário</th>
+                        <th>CPF</th>
+                        <th>Telefone</th>
+                        <th>E-mail</th>
+                        <th>Endereço</th>
+                        <th style="text-align:right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in lista)
+                    {
+                        var inicial = !string.IsNullOrEmpty(item.Nome) ? item.Nome[0].ToString().ToUpper() : "V";
+                        <tr>
+                            <td>
+                                <span class="vs-avatar-sm">@inicial</span>
+                                <strong>@item.Nome</strong>
+                            </td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Cpf) ? "-" : item.Cpf)</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Telefone) ? "-" : item.Telefone)</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Email) ? "-" : item.Email)</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Endereco) ? "-" : item.Endereco)</td>
+                            <td style="text-align:right;">
+                                <div class="vs-actions">
+                                    <a asp-action="Editar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-edit">
+                                        <span class="material-symbols-outlined">edit</span>Editar
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-view">
+                                        <span class="material-symbols-outlined">visibility</span>Detalhes
+                                    </a>
+                                    <a asp-action="Apagar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-del">
+                                        <span class="material-symbols-outlined">delete</span>Excluir
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function filtrarVoluntarios(termo) {
+            var filtro = (termo || '').toLowerCase().trim();
+            var linhas = document.querySelectorAll('#tabelaVoluntarios tbody tr');
+            linhas.forEach(function (linha) {
+                var texto = (linha.innerText || '').toLowerCase();
+                linha.style.display = texto.indexOf(filtro) !== -1 ? '' : 'none';
+            });
+        }
+    </script>
 }
-    </tbody>
-</table>
-</div>
-</div>

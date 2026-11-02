@@ -1,36 +1,89 @@
 @model IEnumerable<VestindoSonhos.Models.TiposAtivo>
+@using System.Linq
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Categorias de Produtos";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var lista = Model ?? Enumerable.Empty<VestindoSonhos.Models.TiposAtivo>();
 }
 
-<h1>Index</h1>
+<link rel="stylesheet" href="~/css/tabela.css" />
 
-<p>
-    <a asp-action="Criar">Criar Novo</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Categoria)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Categoria)
-            </td>
-            <td>
-                <a asp-action="Editar" asp-route-id="@item.Id">Editar</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
-                    <a asp-action="Apagar" asp-route-id="@item.Id">Apagar</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="container-tabela">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+        <div>
+            <h1>Categorias de Produtos (Tipos de Ativo)</h1>
+            <p style="margin:4px 0 0; color:var(--text-2, #6B7280); font-size:13.5px;">
+                Classificação de donativos e itens físicos do inventário (sincronizada com Web, App Mobile e /mobile)
+            </p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn" asp-controller="Inventario" asp-action="Index" style="background:var(--color-5, #FFF); border:1px solid var(--color-6, #D1D5DB); color:var(--text-1, #374151);">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span>Voltar ao Inventário</span>
+            </a>
+            <a class="btn" asp-controller="Produtos" asp-action="Index" style="background:var(--color-5, #FFF); border:1px solid var(--color-6, #D1D5DB); color:var(--text-1, #374151);">
+                <span class="material-symbols-outlined">inventory_2</span>
+                <span>Catálogo de Produtos</span>
+            </a>
+            <a class="btn btn-primary" asp-action="Criar">
+                <span class="material-symbols-outlined">add_circle</span>
+                <span>Nova Categoria de Produto</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-topo">
+            <h3>Categorias de Estoque Cadastradas (@lista.Count())</h3>
+        </div>
+
+        <div style="overflow-x:auto;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width:90px;">Código</th>
+                        <th>Nome da Categoria de Produto</th>
+                        <th>Sincronização</th>
+                        <th style="text-align:right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in lista)
+                    {
+                        <tr>
+                            <td style="color:#6B7280; font-weight:600;">#@item.Id</td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:10px; font-weight:600;">
+                                    <span style="width:34px; height:34px; border-radius:10px; background:rgba(124, 111, 224, 0.12); color:#7C6FE0; display:inline-flex; align-items:center; justify-content:center;">
+                                        <span class="material-symbols-outlined" style="font-size:18px;">label</span>
+                                    </span>
+                                    <span>@item.Categoria</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span style="display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; background:#ECFDF5; color:#059669; border:1px solid #A7F3D0;">
+                                    <span class="material-symbols-outlined" style="font-size:14px;">sync</span>
+                                    Web, APK &amp; /mobile
+                                </span>
+                            </td>
+                            <td style="text-align:right;">
+                                <div class="vs-actions">
+                                    <a asp-action="Editar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-edit">
+                                        <span class="material-symbols-outlined">edit</span>Editar
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-view">
+                                        <span class="material-symbols-outlined">visibility</span>Detalhes
+                                    </a>
+                                    <a asp-action="Apagar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-del">
+                                        <span class="material-symbols-outlined">delete</span>Excluir
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

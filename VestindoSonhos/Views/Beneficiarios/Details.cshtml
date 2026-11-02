@@ -1,129 +1,167 @@
 @model VestindoSonhos.ViewModels.DetalhesBeneficiarioViewModel
+@using System.Linq
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Ficha do Beneficiário & Dependentes";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var ben = Model?.beneficiario;
+    var dependentes = Model?.listaDependentes ?? Enumerable.Empty<VestindoSonhos.Models.Dependente>();
+    var inicial = ben != null && !string.IsNullOrEmpty(ben.Nome) ? ben.Nome[0].ToString().ToUpper() : "B";
 }
 
+<link rel="stylesheet" href="~/css/tabela.css" />
+
 <div class="container-tabela">
-    <h1>Beneficiários</h1>
+    <!-- Cabeçalho -->
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+        <div>
+            <h1>Ficha Social &amp; Dependentes</h1>
+            <p style="margin:4px 0 0; color:var(--text-2, #6B7280); font-size:13.5px;">
+                Informações cadastrais do titular e relação de dependentes vinculados à família
+            </p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn" asp-action="Index" style="background:var(--color-5, #FFF); border:1px solid var(--color-6, #D1D5DB); color:var(--text-1, #374151);">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span>Voltar para Beneficiários</span>
+            </a>
+            @if (ben != null)
+            {
+                <a class="btn btn-primary" asp-action="Editar" asp-route-id="@ben.Id">
+                    <span class="material-symbols-outlined">edit</span>
+                    <span>Editar Titular</span>
+                </a>
+            }
+        </div>
+    </div>
 
-    <div class="card">
+    @if (ben != null)
+    {
+        <!-- Card de Perfil do Beneficiário -->
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:20px;">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <div style="width:60px; height:60px; border-radius:16px; background:linear-gradient(135deg, #7C6FE0 0%, #6354D4 100%); color:#FFF; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800;">
+                        @inicial
+                    </div>
+                    <div>
+                        <h2 style="margin:0; font-size:21px; font-weight:800; color:var(--text-1, #111827);">@ben.Nome</h2>
+                        <p style="margin:4px 0 0; font-size:13.5px; color:var(--text-2, #6B7280);">
+                            Situação: <strong style="color:#7C6FE0;">@(string.IsNullOrWhiteSpace(ben.Situacao) ? "Regular" : ben.Situacao)</strong>
+                        </p>
+                    </div>
+                </div>
+                <div class="vs-actions">
+                    <a asp-action="Editar" asp-route-id="@ben.Id" class="vs-pill-btn vs-pill-edit">
+                        <span class="material-symbols-outlined">edit</span>Editar
+                    </a>
+                    <a asp-action="Apagar" asp-route-id="@ben.Id" class="vs-pill-btn vs-pill-del">
+                        <span class="material-symbols-outlined">delete</span>Excluir Titular
+                    </a>
+                </div>
+            </div>
 
-        <div class="card-topo">
-            <h3>Detalhes dos Beneficiários</h3>
-            <a class="btn btn-primary" asp-action="Criar"><span class="material-symbols-outlined">add</span>Novo</a>
+            <div class="vs-kpi-row" style="margin-top:8px;">
+                <div class="vs-kpi-box" style="padding:14px 18px;">
+                    <div class="vs-kpi-ico" style="background:rgba(124, 111, 224, 0.12); color:#7C6FE0;">
+                        <span class="material-symbols-outlined">call</span>
+                    </div>
+                    <div class="vs-kpi-txt">
+                        <h4 style="font-size:16px;">@(string.IsNullOrWhiteSpace(ben.Telefone) ? "Não informado" : ben.Telefone)</h4>
+                        <p>Telefone de Contato</p>
+                    </div>
+                </div>
+
+                <div class="vs-kpi-box" style="padding:14px 18px;">
+                    <div class="vs-kpi-ico" style="background:rgba(37, 99, 235, 0.12); color:#2563EB;">
+                        <span class="material-symbols-outlined">location_on</span>
+                    </div>
+                    <div class="vs-kpi-txt">
+                        <h4 style="font-size:15px;">@(string.IsNullOrWhiteSpace(ben.Endereco) ? "Não informado" : ben.Endereco)</h4>
+                        <p>Endereço Residencial</p>
+                    </div>
+                </div>
+
+                <div class="vs-kpi-box" style="padding:14px 18px;">
+                    <div class="vs-kpi-ico" style="background:rgba(16, 185, 129, 0.12); color:#059669;">
+                        <span class="material-symbols-outlined">notes</span>
+                    </div>
+                    <div class="vs-kpi-txt">
+                        <h4 style="font-size:15px;">@(string.IsNullOrWhiteSpace(ben.Observacao) ? "Sem observações" : ben.Observacao)</h4>
+                        <p>Observações Sociais</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Telefone</th>
-                <th>Endereço</th>
-                <th>Situação</th>
-                <th>Observação</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.listaBeneficiario)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Nome)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Telefone)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Endereco)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Situacao)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Observacao)
-                    </td>
-                    <td>
-                        <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span>Editar</a>
-                        <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span>Detalhes</a>
-                        <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-</div>
-<hr />
-<div>
-    <dl class="row">
-        <dt class="col-sm-2">Nome</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.beneficiario.Nome)</dd>
-        <dt class="col-sm-2">Telefone</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.beneficiario.Telefone)</dd>
-        <dt class="col-sm-2">Endereço</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.beneficiario.Endereco)</dd>
-        <dt class="col-sm-2">Situação</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.beneficiario.Situacao)</dd>
-        <dt class="col-sm-2">Observação</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.beneficiario.Observacao)</dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Editar" asp-route-id="@Model.beneficiario.Id"><span class="material-symbols-outlined">edit</span>Editar</a>
-    <a asp-action="Apagar" asp-route-id="@Model.beneficiario.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
-</div>
+        <!-- Card de Dependentes -->
+        <div class="card">
+            <div class="card-topo">
+                <div>
+                    <h3>Dependentes Vinculados (@dependentes.Count())</h3>
+                    <p style="margin:2px 0 0; font-size:12.5px; color:var(--text-2, #6B7280);">Membros familiares cadastrados sob responsabilidade de @ben.Nome</p>
+                </div>
+                <a class="btn btn-primary" asp-controller="Dependentes" asp-action="Criar" asp-route-idBeneficiario="@ben.Id">
+                    <span class="material-symbols-outlined">person_add</span>
+                    <span>Novo Dependente</span>
+                </a>
+            </div>
 
-
-<div class="container-tabela">
-    <div class="card-topo">
-        <h3>Dependentes</h3>
-        <a class="btn btn-primary" asp-controller="Dependentes" asp-action="Criar" asp-route-idBeneficiario="@Model.beneficiario.Id"><span class="material-symbols-outlined">add</span>Novo dependente</a>
-    </div>
-    <div class="card">
-        @if (Model.listaDependentes.Any())
-        {
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Idade</th>
-                        <th>Sexo</th>
-                        <th>Parentesco</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.listaDependentes)
-                    {
+            <div style="overflow-x:auto;">
+                <table class="table">
+                    <thead>
                         <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Nome)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Idade)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Sexo)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Parentesco)
-                            </td>
-                            <td>
-                                <a asp-controller="Dependentes" asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span>Editar</a>
-                                <a asp-controller="Dependentes" asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span>Detalhes</a>
-                                <a asp-controller="Dependentes" asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
-                            </td>
+                            <th>Nome do Dependente</th>
+                            <th>Idade</th>
+                            <th>Sexo</th>
+                            <th>Parentesco</th>
+                            <th style="text-align:right;">Ações</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        }
-        else
-        {
-            <p style="padding: 16px; margin: 0; color: #6F6F85; font-style: italic;">Nenhum dependente cadastrado para este beneficiário.</p>
-        }
-    </div>
+                    </thead>
+                    <tbody>
+                        @if (!dependentes.Any())
+                        {
+                            <tr>
+                                <td colspan="5" style="text-align:center; padding:32px; color:#9CA3AF;">
+                                    Nenhum dependente vinculado a este beneficiário até o momento.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in dependentes)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="vs-avatar-sm" style="background:#2563EB;">@(!string.IsNullOrEmpty(item.Nome) ? item.Nome[0].ToString().ToUpper() : "D")</span>
+                                        <strong>@item.Nome</strong>
+                                    </td>
+                                    <td>@item.Idade anos</td>
+                                    <td>@item.Sexo</td>
+                                    <td>
+                                        <span style="padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; background:#EDE9FE; color:#6D28D9;">
+                                            @item.Parentesco
+                                        </span>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <div class="vs-actions">
+                                            <a asp-controller="Dependentes" asp-action="Editar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-edit">
+                                                <span class="material-symbols-outlined">edit</span>Editar
+                                            </a>
+                                            <a asp-controller="Dependentes" asp-action="Details" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-view">
+                                                <span class="material-symbols-outlined">visibility</span>Detalhes
+                                            </a>
+                                            <a asp-controller="Dependentes" asp-action="Apagar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-del">
+                                                <span class="material-symbols-outlined">delete</span>Excluir
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
 </div>

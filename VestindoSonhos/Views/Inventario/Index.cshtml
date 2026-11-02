@@ -1,71 +1,166 @@
 @model IEnumerable<VestindoSonhos.ViewModels.InventarioSimplesViewModel>
-<link rel="stylesheet" href="~/css/tabela.css">
+@using System.Linq
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Controle de Inventário & Estoque";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var lista = Model ?? Enumerable.Empty<VestindoSonhos.ViewModels.InventarioSimplesViewModel>();
+    var totalMov = lista.Count();
+    var totalEntradas = lista.Where(i => i.Razao != null && i.Razao.ToLower().Contains("entrada")).Sum(i => i.Quantidade);
+    var totalSaidas = lista.Where(i => i.Razao == null || !i.Razao.ToLower().Contains("entrada")).Sum(i => i.Quantidade);
 }
 
+<link rel="stylesheet" href="~/css/tabela.css" />
 
-<div class= 'container-tabela'>
-<h1>Inventário</h1>
+<div class="container-tabela">
+    <!-- Cabeçalho SaaS -->
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+        <div>
+            <h1>Controle de Inventário &amp; Estoque</h1>
+            <p style="margin:4px 0 0; color:var(--text-2, #6B7280); font-size:13.5px;">
+                Rastreabilidade de entradas de donativos, saídas para beneficiários e saldo físico de produtos
+            </p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn" asp-controller="TiposAtivo" asp-action="Index" style="background:var(--color-5, #FFF); border:1px solid var(--color-6, #D1D5DB); color:var(--text-1, #374151);">
+                <span class="material-symbols-outlined">category</span>
+                <span>Categorias de Produtos</span>
+            </a>
+            <a class="btn" asp-controller="Produtos" asp-action="Index" style="background:var(--color-5, #FFF); border:1px solid var(--color-6, #D1D5DB); color:var(--text-1, #374151);">
+                <span class="material-symbols-outlined">inventory_2</span>
+                <span>Catálogo de Produtos</span>
+            </a>
+            <a class="btn" asp-controller="Produtos" asp-action="Criar" style="background:var(--color-5, #FFF); border:1px solid var(--color-6, #D1D5DB); color:var(--text-1, #374151);">
+                <span class="material-symbols-outlined">add_box</span>
+                <span>Novo Produto</span>
+            </a>
+            <a class="btn btn-primary" asp-action="Criar">
+                <span class="material-symbols-outlined">swap_horiz</span>
+                <span>Nova Movimentação</span>
+            </a>
+        </div>
+    </div>
 
-<div class="card">
+    <!-- KPIs de Estoque -->
+    <div class="vs-kpi-row">
+        <div class="vs-kpi-box">
+            <div class="vs-kpi-ico" style="background:rgba(124, 111, 224, 0.12); color:#7C6FE0;">
+                <span class="material-symbols-outlined">receipt_long</span>
+            </div>
+            <div class="vs-kpi-txt">
+                <h4>@totalMov</h4>
+                <p>Movimentações Registradas</p>
+            </div>
+        </div>
 
-<div class="card-topo">
-    <h3>Detalhes do Inventário</h3>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <a class="btn btn-primary" asp-controller="Produtos" asp-action="Index"><span class="material-symbols-outlined">inventory_2</span>Produtos</a>
-        <a class="btn btn-primary" asp-controller="Produtos" asp-action="Criar"><span class="material-symbols-outlined">add_box</span>Novo Produto</a>
-        <a class="btn btn-primary" asp-action="Criar"><span class="material-symbols-outlined">add</span>Nova Movimentação</a>
+        <div class="vs-kpi-box">
+            <div class="vs-kpi-ico" style="background:rgba(16, 185, 129, 0.12); color:#059669;">
+                <span class="material-symbols-outlined">south_west</span>
+            </div>
+            <div class="vs-kpi-txt">
+                <h4 style="color:#059669;">+@totalEntradas un.</h4>
+                <p>Itens Recebidos (Entradas)</p>
+            </div>
+        </div>
+
+        <div class="vs-kpi-box">
+            <div class="vs-kpi-ico" style="background:rgba(239, 68, 68, 0.12); color:#DC2626;">
+                <span class="material-symbols-outlined">north_east</span>
+            </div>
+            <div class="vs-kpi-txt">
+                <h4 style="color:#DC2626;">-@totalSaidas un.</h4>
+                <p>Itens Doados / Distribuídos (Saídas)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card Principal -->
+    <div class="card">
+        <div class="vs-filter-bar">
+            <div class="vs-search-field">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" id="buscaInventario" placeholder="Pesquisar por produto, tipo (Entrada/Saída) ou data..." onkeyup="filtrarInventario(this.value)" />
+            </div>
+            <span style="font-size:13px; color:var(--text-2, #6B7280); font-weight:600;">
+                Total de registros: <strong style="color:#7C6FE0;">@totalMov</strong>
+            </span>
+        </div>
+
+        <div style="overflow-x:auto;">
+            <table class="table" id="tabelaInventario">
+                <thead>
+                    <tr>
+                        <th>Tipo de Operação</th>
+                        <th>Produto / Donativo</th>
+                        <th>Quantidade</th>
+                        <th>Data / Hora</th>
+                        <th style="text-align:right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!lista.Any())
+                    {
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding:32px; color:#9CA3AF;">
+                                Nenhuma movimentação de estoque registrada até o momento.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in lista)
+                        {
+                            var isEntrada = item.Razao != null && item.Razao.ToLower().Contains("entrada");
+                            <tr>
+                                <td>
+                                    <span style="display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; background:@(isEntrada ? "#ECFDF5" : "#FEF2F2"); color:@(isEntrada ? "#059669" : "#DC2626"); border:1px solid @(isEntrada ? "#A7F3D0" : "#FECACA");">
+                                        <span class="material-symbols-outlined" style="font-size:14px;">@(isEntrada ? "south_west" : "north_east")</span>
+                                        @(isEntrada ? "Entrada" : "Saída")
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="display:flex; align-items:center; gap:10px; font-weight:600;">
+                                        <span style="width:34px; height:34px; border-radius:10px; background:rgba(124, 111, 224, 0.12); color:#7C6FE0; display:inline-flex; align-items:center; justify-content:center;">
+                                            <span class="material-symbols-outlined" style="font-size:18px;">inventory_2</span>
+                                        </span>
+                                        <span>@item.NomeProduto</span>
+                                    </div>
+                                </td>
+                                <td style="font-weight:700; color:@(isEntrada ? "#059669" : "#DC2626");">
+                                    @(isEntrada ? "+" : "-")@item.Quantidade un.
+                                </td>
+                                <td>@(item.Hora?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                                <td style="text-align:right;">
+                                    <div class="vs-actions">
+                                        <a asp-action="Editar" asp-route-id="@item.TransacaoId" class="vs-pill-btn vs-pill-edit" title="Editar Movimentação">
+                                            <span class="material-symbols-outlined">edit</span>Editar
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.TransacaoId" class="vs-pill-btn vs-pill-view" title="Ver Detalhes">
+                                            <span class="material-symbols-outlined">visibility</span>Detalhes
+                                        </a>
+                                        <a asp-action="Apagar" asp-route-id="@item.TransacaoId" class="vs-pill-btn vs-pill-del" title="Excluir Movimentação">
+                                            <span class="material-symbols-outlined">delete</span>Excluir
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(Model => Model.Razao)
-            </th>
-            <th>
-                Produto
-            </th>
-            <th>
-                @Html.DisplayNameFor(Model => Model.Quantidade)
-            </th>
-            <th>
-                @Html.DisplayNameFor(Model => Model.Hora)
-            </th>
-            <th> </th>
-            <th> </th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td data-label="Razão">
-                @Html.DisplayFor(modelItem => item.Razao)
-            </td>
-            <td data-label="Produto">
-                @Html.DisplayFor(modelItem => item.NomeProduto)
-            </td>
-            <td data-label="Quantidade">
-                @Html.DisplayFor(modelItem => item.Quantidade)
-            </td>
-            <td data-label="Hora">
-                @Html.DisplayFor(modelItem => item.Hora)
-            </td>
-            <td data-label="Id">
-                    <input hidden type="text" name="Id" value="@Html.DisplayFor(modelItem => item.Id)"/>
-            </td>
-            <td>
-                    <a asp-action="Editar" asp-route-id="@item.TransacaoId"><span class="material-symbols-outlined">edit</span>Editar</a>                       
-                    <a asp-action="Details" asp-route-id="@item.TransacaoId"><span class="material-symbols-outlined">search</span>Detalhes</a>
-                    <a asp-action="Apagar" asp-route-id="@item.TransacaoId"><span class="material-symbols-outlined">delete</span>Apagar</a>
-            </td>
-        </tr>
+@section Scripts {
+    <script>
+        function filtrarInventario(termo) {
+            var filtro = (termo || '').toLowerCase().trim();
+            var linhas = document.querySelectorAll('#tabelaInventario tbody tr');
+            linhas.forEach(function (linha) {
+                var texto = (linha.innerText || '').toLowerCase();
+                linha.style.display = texto.indexOf(filtro) !== -1 ? '' : 'none';
+            });
+        }
+    </script>
 }
-    </tbody>
-</table>
-</div>
-</div>

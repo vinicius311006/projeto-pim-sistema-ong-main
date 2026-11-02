@@ -1,89 +1,323 @@
 @model VestindoSonhos.ViewModels.EventosViewModel
-
-<link rel="stylesheet" href="~/css/eventos.css">
-  
+@using System.Globalization
+@using System.Linq
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Campanhas & Eventos";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var ptBr = new CultureInfo("pt-BR");
+    var eventos = Model?.Eventos ?? Enumerable.Empty<VestindoSonhos.Models.Evento>();
+    var voluntarios = Model?.Voluntarios ?? Enumerable.Empty<VestindoSonhos.Models.Voluntario>();
+    var agora = DateTime.Now;
+    var ativos = eventos.Count(e => e.data_fim == null || e.data_fim >= agora);
 }
 
-<h1>Campanhas</h1>
+<link rel="stylesheet" href="~/css/tabela.css" />
 
-<div class="container-eventos">
+<style>
+    .vs-ev-grid {
+        display: grid;
+        grid-template-columns: 1.35fr 1fr;
+        gap: 22px;
+    }
 
-<!-- -----------------------------------Tabelas da Esquerda ---------------------------------------------------->
-<div>
-  <div class="card-header">
-    <h3>Detalhes das Campanhas</h3>
-    <a class="btn btn-primary" asp-action="Criar"><span class="material-symbols-outlined">add</span>Novo</a>
-  </div>
+    @@media (max-width: 1080px) {
+        .vs-ev-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 
-  <hr />
+    .vs-event-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
 
-  
-    <div class="card card-eventos">
-        <h2>Próximos Eventos</h2>
-        @foreach (var item in Model.Eventos)
-        {
-        <div class="card-evento">
-            <h3><strong>@item.data_inicio.ToString().Split(" ")[0]</strong></h3>
+    .vs-event-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 16px 18px;
+        border-radius: 14px;
+        background: var(--color-5, #FFFFFF);
+        border: 1px solid var(--color-6, #E5E7EB);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        transition: all 0.2s ease;
+    }
 
-            <div class=card-info>
-              <p> <strong>@item.Nome</strong></p>
-              <p> <strong>@item.data_inicio - @item.data_fim</strong></p>
-              <p>@item.ResponsavelNavigation.Nome</p>
-              <p>@item.Local</p>
+    .vs-event-item:hover {
+        border-color: #7C6FE0;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(124, 111, 224, 0.08);
+    }
+
+    .vs-event-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        min-width: 240px;
+    }
+
+    .vs-cal-tile {
+        width: 58px;
+        height: 62px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #7C6FE0 0%, #5B4BC4 100%);
+        color: #FFFFFF;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 4px 10px rgba(124, 111, 224, 0.25);
+    }
+
+    .vs-cal-day {
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.1;
+    }
+
+    .vs-cal-month {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        opacity: 0.9;
+    }
+
+    .vs-event-meta h4 {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-1, #111827);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .vs-event-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        font-size: 12.5px;
+        color: var(--text-2, #6B7280);
+    }
+
+    .vs-event-details span {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .vs-event-details .material-symbols-outlined {
+        font-size: 15px;
+        color: #7C6FE0;
+    }
+</style>
+
+<div class="container-tabela">
+    <!-- Cabeçalho -->
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+        <div>
+            <h1>Campanhas, Eventos &amp; Voluntariado</h1>
+            <p style="margin:4px 0 0; color:var(--text-2, #6B7280); font-size:13.5px;">
+                Planejamento de ações sociais, cronograma de campanhas solidárias e gestão de voluntários
+            </p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn" asp-controller="Voluntarios" asp-action="Index" style="background:var(--color-5, #FFF); border:1px solid var(--color-6, #D1D5DB); color:var(--text-1, #374151);">
+                <span class="material-symbols-outlined">groups</span>
+                <span>Ver Voluntários</span>
+            </a>
+            <a class="btn" asp-controller="Voluntarios" asp-action="Criar" style="background:var(--color-5, #FFF); border:1px solid var(--color-6, #D1D5DB); color:var(--text-1, #374151);">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>Novo Voluntário</span>
+            </a>
+            <a class="btn btn-primary" asp-action="Criar">
+                <span class="material-symbols-outlined">event_available</span>
+                <span>Nova Campanha / Evento</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="vs-kpi-row">
+        <div class="vs-kpi-box">
+            <div class="vs-kpi-ico" style="background:rgba(124, 111, 224, 0.12); color:#7C6FE0;">
+                <span class="material-symbols-outlined">calendar_month</span>
+            </div>
+            <div class="vs-kpi-txt">
+                <h4>@eventos.Count()</h4>
+                <p>Total de Campanhas &amp; Eventos</p>
+            </div>
+        </div>
+
+        <div class="vs-kpi-box">
+            <div class="vs-kpi-ico" style="background:rgba(16, 185, 129, 0.12); color:#059669;">
+                <span class="material-symbols-outlined">upcoming</span>
+            </div>
+            <div class="vs-kpi-txt">
+                <h4>@ativos</h4>
+                <p>Campanhas Ativas / Agendadas</p>
+            </div>
+        </div>
+
+        <div class="vs-kpi-box">
+            <div class="vs-kpi-ico" style="background:rgba(37, 99, 235, 0.12); color:#2563EB;">
+                <span class="material-symbols-outlined">volunteer_activism</span>
+            </div>
+            <div class="vs-kpi-txt">
+                <h4>@voluntarios.Count()</h4>
+                <p>Voluntários Cadastrados</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid Principal: Eventos (Esquerda) + Voluntários (Direita) -->
+    <div class="vs-ev-grid">
+        <!-- Coluna 1: Cronograma de Campanhas e Eventos -->
+        <div class="card">
+            <div class="card-topo">
+                <div>
+                    <h3>Cronograma de Campanhas &amp; Eventos</h3>
+                    <p style="margin:2px 0 0; font-size:12.5px; color:var(--text-2, #6B7280);">Agenda completa de ações sociais e eventos da ONG</p>
+                </div>
+                <a class="btn btn-primary" style="padding:7px 14px; font-size:12.5px;" asp-action="Criar">
+                    <span class="material-symbols-outlined" style="font-size:17px;">add</span>Nova Campanha
+                </a>
             </div>
 
-            <div class="btn-group">
-                  <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span>Editar</a> 
-                        <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span>Detalhes</a>
-                  <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span>Apagar</a>
-              </div>
+            <div class="vs-event-list">
+                @if (!eventos.Any())
+                {
+                    <div style="text-align:center; padding:36px; color:#9CA3AF;">
+                        Nenhuma campanha ou evento cadastrado até o momento.
+                    </div>
+                }
+                else
+                {
+                    @foreach (var item in eventos)
+                    {
+                        var dia = item.data_inicio?.ToString("dd") ?? "--";
+                        var mes = item.data_inicio?.ToString("MMM", ptBr).Replace(".", "") ?? "MÊS";
+                        var emAndamento = item.data_fim == null || item.data_fim >= agora;
+                        <div class="vs-event-item">
+                            <div class="vs-event-left">
+                                <div class="vs-cal-tile">
+                                    <span class="vs-cal-day">@dia</span>
+                                    <span class="vs-cal-month">@mes</span>
+                                </div>
+                                <div class="vs-event-meta">
+                                    <h4>
+                                        <span>@item.Nome</span>
+                                        <span style="padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; background:@(emAndamento ? "#ECFDF5" : "#F3F4F6"); color:@(emAndamento ? "#059669" : "#6B7280");">
+                                            @(emAndamento ? "Agendado / Ativo" : "Concluído")
+                                        </span>
+                                    </h4>
+                                    <div class="vs-event-details">
+                                        <span>
+                                            <span class="material-symbols-outlined">schedule</span>
+                                            @(item.data_inicio?.ToString("dd/MM/yyyy HH:mm") ?? "-") até @(item.data_fim?.ToString("dd/MM/yyyy HH:mm") ?? "-")
+                                        </span>
+                                        <span>
+                                            <span class="material-symbols-outlined">location_on</span>
+                                            @(string.IsNullOrWhiteSpace(item.Local) ? "Sede da ONG" : item.Local)
+                                        </span>
+                                        <span>
+                                            <span class="material-symbols-outlined">person</span>
+                                            @(item.ResponsavelNavigation?.Nome ?? "Coordenação")
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="vs-actions">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-view" title="Ver Detalhes do Evento">
+                                    <span class="material-symbols-outlined">visibility</span>Detalhes
+                                </a>
+                                <a asp-action="Editar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-edit" title="Editar Evento">
+                                    <span class="material-symbols-outlined">edit</span>Editar
+                                </a>
+                                <a asp-action="Apagar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-del" title="Excluir Evento">
+                                    <span class="material-symbols-outlined">delete</span>Excluir
+                                </a>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
         </div>
-        }
+
+        <!-- Coluna 2: Equipe de Voluntários -->
+        <div class="card">
+            <div class="card-topo">
+                <div>
+                    <h3>Equipe de Voluntários</h3>
+                    <p style="margin:2px 0 0; font-size:12.5px; color:var(--text-2, #6B7280);">Voluntários ativos para apoio nas campanhas</p>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <a class="btn" style="padding:7px 12px; font-size:12px; border:1px solid var(--color-6, #D1D5DB);" asp-controller="Voluntarios" asp-action="Index">
+                        Ver Todos
+                    </a>
+                    <a class="btn btn-primary" style="padding:7px 12px; font-size:12px;" asp-controller="Voluntarios" asp-action="Criar">
+                        <span class="material-symbols-outlined" style="font-size:16px;">add</span>Novo
+                    </a>
+                </div>
+            </div>
+
+            <div style="overflow-x:auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Voluntário</th>
+                            <th>Telefone</th>
+                            <th style="text-align:right;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!voluntarios.Any())
+                        {
+                            <tr>
+                                <td colspan="3" style="text-align:center; padding:28px; color:#9CA3AF;">
+                                    Nenhum voluntário cadastrado.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in voluntarios)
+                            {
+                                var inicial = !string.IsNullOrEmpty(item.Nome) ? item.Nome[0].ToString().ToUpper() : "V";
+                                <tr>
+                                    <td>
+                                        <span class="vs-avatar-sm">@inicial</span>
+                                        <strong>@item.Nome</strong>
+                                    </td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.Telefone) ? "-" : item.Telefone)</td>
+                                    <td style="text-align:right;">
+                                        <div class="vs-actions">
+                                            <a asp-controller="Voluntarios" asp-action="Editar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-edit" title="Editar Voluntário">
+                                                <span class="material-symbols-outlined">edit</span>
+                                            </a>
+                                            <a asp-controller="Voluntarios" asp-action="Details" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-view" title="Detalhes">
+                                                <span class="material-symbols-outlined">visibility</span>
+                                            </a>
+                                            <a asp-controller="Voluntarios" asp-action="Apagar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-del" title="Excluir">
+                                                <span class="material-symbols-outlined">delete</span>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</div>
-
-<!-- -----------------------------------Tabelas da Direita ---------------------------------------------------->
-<div>
-<div class="card card-calendario">
-  <h2>Calendário</h2>
-</div>
-
-<div class="card card-voluntario">
-  <h2>Voluntários</h2>
-  <a class="btn btn-primary" asp-controller="Voluntarios" asp-action="Criar"><span class="material-symbols-outlined">add</span>Novo</a>
-
-  <table class="table table-striped">
-    <thead>
-    <tr>
-        <th>Nome</th>
-        <th>Telefone</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody> 
-@foreach (var item in Model.Voluntarios){ 
-
-      <tr>
-        <td data-label="Nome">
-            @Html.DisplayFor(modelItem => item.Nome)
-        </td >
-        <td data-label="Telefone">
-            @Html.DisplayFor(modelItem => item.Telefone)
-        </td>
-          <td>
-              <a asp-controller="Voluntarios" asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span></a> 
-              <a asp-controller="Voluntarios" asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span> </a> 
-              <a asp-controller="Voluntarios" asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span> </a>
-          </td>
-      </tr>
-}
-      </tbody>
-    </table>
-</div>
-</div>
-
 </div>

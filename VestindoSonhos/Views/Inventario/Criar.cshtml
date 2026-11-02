@@ -18,9 +18,11 @@
 			</div>
 			<div class="form-group">
 				<label asp-for="CategoriaTransacao" class="control-label">Categoria</label>
-				<select asp-for="CategoriaTransacao" class="form-control" asp-items="ViewBag.Categoria"></select>
+				<div style="display:flex; gap:8px; align-items:center;">
+					<select asp-for="CategoriaTransacao" class="form-control" asp-items="ViewBag.Categoria"></select>
+					<a asp-controller="Categoria" asp-action="Criar" asp-route-returnUrl="@Context.Request.Path" class="vs-pill-btn vs-pill-edit" style="white-space:nowrap; padding:9px 14px;">+ Nova Categoria</a>
+				</div>
 				<span asp-validation-for="CategoriaTransacao" asp-items="ViewBag.Categoria" class="text-danger"></span>
-				<a asp-controller="Categoria" asp-action="Criar" asp-route-returnUrl="@Context.Request.Path"> + </a>
 			</div>
 			<div class="form-group">
 				<label asp-for="Beneficiario" class="control-label">Beneficiários</label>

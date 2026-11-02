@@ -1,101 +1,152 @@
 @model VestindoSonhos.ViewModels.DetalhesEventoViewModel
-<link rel="stylesheet" href="~/css/formularios.css" />
+@using System.Linq
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalhes da Campanha / Evento";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var ev = Model?.evento;
+    var voluntarios = Model?.listaVoluntarios ?? Enumerable.Empty<VestindoSonhos.Models.Voluntario>();
 }
-<div class="container-formulario">
 
-    <div class="btn-back">
-        <a asp-controller="Eventos" asp-action="Index"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
-    </div>
+<link rel="stylesheet" href="~/css/tabela.css" />
 
-
-    <div class="form-card">
-        <h1>Detalhes</h1>
-
+<div class="container-tabela">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
         <div>
-            <h4>Eventos</h4>
-            <hr />
-            <dl class="form-context row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.evento.Nome)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.evento.Nome)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.evento.data_inicio)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.evento.data_inicio)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.evento.Local)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.evento.Local)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.evento.data_fim)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.evento.data_fim)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.evento.Responsavel)
-        </dt>
-        <dd class = "col-sm-10">
-            @Model.evento.ResponsavelNavigation?.Nome
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.evento.Observacao)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.evento.Observacao)
-        </dd>
-    </dl>
-    <div>
-        <a asp-action="Editar" asp-route-id="@Model?.evento.Id">Editar</a>
+            <h1>Detalhes da Campanha / Evento</h1>
+            <p style="margin:4px 0 0; color:var(--text-2, #6B7280); font-size:13.5px;">
+                Informações completas do evento, local, responsável e relação de voluntários
+            </p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn" asp-controller="Eventos" asp-action="Index" style="background:var(--color-5, #FFF); border:1px solid var(--color-6, #D1D5DB); color:var(--text-1, #374151);">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span>Voltar para Campanhas</span>
+            </a>
+            @if (ev != null)
+            {
+                <a class="btn btn-primary" asp-action="Editar" asp-route-id="@ev.Id">
+                    <span class="material-symbols-outlined">edit</span>
+                    <span>Editar Campanha</span>
+                </a>
+            }
+        </div>
     </div>
-</div>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Nome</th>
-            <th>Telefone</th>
-            <th>Email</th>
-            <th>Endereço</th>
-            <th>CPF</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.listaVoluntarios)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Nome)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Telefone)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Endereco)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Cpf)
-                </td>
-                <td>
-                    <a asp-controller="Voluntarios" asp-action="Editar" asp-route-id="@item.Id">Editar</a> |
-                    <a asp-controller="Voluntarios" asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
-                </td>
-            </tr>
-        }
-    </tbody>
-    </table>
-</div>
+
+    @if (ev != null)
+    {
+        <div class="card">
+            <div class="card-topo">
+                <div>
+                    <h3 style="font-size:20px;">@ev.Nome</h3>
+                    <p style="margin:4px 0 0; font-size:13px; color:var(--text-2, #6B7280);">
+                        Responsável: <strong style="color:#7C6FE0;">@(ev.ResponsavelNavigation?.Nome ?? "Coordenação")</strong>
+                    </p>
+                </div>
+                <div class="vs-actions">
+                    <a asp-action="Editar" asp-route-id="@ev.Id" class="vs-pill-btn vs-pill-edit">
+                        <span class="material-symbols-outlined">edit</span>Editar
+                    </a>
+                    <a asp-action="Apagar" asp-route-id="@ev.Id" class="vs-pill-btn vs-pill-del">
+                        <span class="material-symbols-outlined">delete</span>Excluir
+                    </a>
+                </div>
+            </div>
+
+            <div class="vs-kpi-row">
+                <div class="vs-kpi-box">
+                    <div class="vs-kpi-ico" style="background:rgba(124, 111, 224, 0.12); color:#7C6FE0;">
+                        <span class="material-symbols-outlined">event</span>
+                    </div>
+                    <div class="vs-kpi-txt">
+                        <h4 style="font-size:16px;">@(ev.data_inicio?.ToString("dd/MM/yyyy HH:mm") ?? "-")</h4>
+                        <p>Início do Evento</p>
+                    </div>
+                </div>
+
+                <div class="vs-kpi-box">
+                    <div class="vs-kpi-ico" style="background:rgba(16, 185, 129, 0.12); color:#059669;">
+                        <span class="material-symbols-outlined">event_available</span>
+                    </div>
+                    <div class="vs-kpi-txt">
+                        <h4 style="font-size:16px;">@(ev.data_fim?.ToString("dd/MM/yyyy HH:mm") ?? "-")</h4>
+                        <p>Término Previsto</p>
+                    </div>
+                </div>
+
+                <div class="vs-kpi-box">
+                    <div class="vs-kpi-ico" style="background:rgba(37, 99, 235, 0.12); color:#2563EB;">
+                        <span class="material-symbols-outlined">location_on</span>
+                    </div>
+                    <div class="vs-kpi-txt">
+                        <h4 style="font-size:16px;">@(string.IsNullOrWhiteSpace(ev.Local) ? "Sede da ONG" : ev.Local)</h4>
+                        <p>Local de Realização</p>
+                    </div>
+                </div>
+
+                <div class="vs-kpi-box">
+                    <div class="vs-kpi-ico" style="background:rgba(245, 158, 11, 0.12); color:#D97706;">
+                        <span class="material-symbols-outlined">notes</span>
+                    </div>
+                    <div class="vs-kpi-txt">
+                        <h4 style="font-size:15px;">@(string.IsNullOrWhiteSpace(ev.Observacao) ? "Sem observações" : ev.Observacao)</h4>
+                        <p>Observações</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-topo">
+            <div>
+                <h3>Voluntários de Apoio (@voluntarios.Count())</h3>
+                <p style="margin:2px 0 0; font-size:12.5px; color:var(--text-2, #6B7280);">Equipe de voluntários registrados no sistema</p>
+            </div>
+            <a class="btn btn-primary" asp-controller="Voluntarios" asp-action="Criar">
+                <span class="material-symbols-outlined">person_add</span>
+                <span>Novo Voluntário</span>
+            </a>
+        </div>
+
+        <div style="overflow-x:auto;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Telefone</th>
+                        <th>E-mail</th>
+                        <th>Endereço</th>
+                        <th>CPF</th>
+                        <th style="text-align:right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in voluntarios)
+                    {
+                        <tr>
+                            <td>
+                                <span class="vs-avatar-sm">@(!string.IsNullOrEmpty(item.Nome) ? item.Nome[0].ToString().ToUpper() : "V")</span>
+                                <strong>@item.Nome</strong>
+                            </td>
+                            <td>@item.Telefone</td>
+                            <td>@item.Email</td>
+                            <td>@item.Endereco</td>
+                            <td>@item.Cpf</td>
+                            <td style="text-align:right;">
+                                <div class="vs-actions">
+                                    <a asp-controller="Voluntarios" asp-action="Editar" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-edit">
+                                        <span class="material-symbols-outlined">edit</span>Editar
+                                    </a>
+                                    <a asp-controller="Voluntarios" asp-action="Details" asp-route-id="@item.Id" class="vs-pill-btn vs-pill-view">
+                                        <span class="material-symbols-outlined">visibility</span>Detalhes
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>

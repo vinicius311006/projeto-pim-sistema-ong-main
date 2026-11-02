@@ -1,83 +1,104 @@
+/* ==========================================================================
+   VESTINDO SONHOS — DESIGN SYSTEM PARA TRANSAÇÕES E MOVIMENTAÇÕES
+   ========================================================================== */
+
 .container-transacao {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  min-height: 100vh; 
-  width: 100%;
-
-  background-color: var(--color-4);
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 20px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: calc(100vh - 60px);
+    background: transparent;
 }
 
-/* Botão de voltar */
 .container-transacao .btn-back {
-  align-self: flex-start;
-  margin: 20px 0 0 30px;
+    align-self: flex-start;
+    margin: 0;
 }
 
 .container-transacao .btn-back a {
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-  color: var(--color-1);
-  font-weight: 500;
-  font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: var(--color-5, #FFFFFF);
+    border: 1px solid var(--color-6, #E5E7EB);
+    color: var(--text-1, #374151);
+    font-weight: 600;
+    font-size: 13.5px;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
 }
 
-
-.form-card {
-  width: 60%;
+.container-transacao .btn-back a:hover {
+    border-color: #7C6FE0;
+    color: #7C6FE0;
+    transform: translateX(-2px);
 }
 
-
-.form-card h1 {
-  color: var(--color-1);
-}
-
-
-.form-context {
-  display: flex;
-  flex-direction: column;
-  padding: 20px 50px;
-  gap: 10px;
-
-  background-color: var(--color-5);
-  box-shadow: 5px 5px 10px rgba(0,0,0,0.212);
-  border-radius: 20px;
-}
-
-.form-group {
-  padding-bottom: 5px;
-}
-
-.form-group label {
-  font-weight: 600;
-}
-
-.form-group .btn {
-  border: none;
-  font-size: 15px;
-  width: 100px;
-}
-
-
-@media (max-width: 500px) {
-
-  .container-transacao {
-    min-height: 100vh;
-  }
-
-  .form-card {
+.container-transacao .form-card {
     width: 100%;
-    margin-top: 50px;
-    padding: 0 10px;
-  }
+    background: var(--color-5, #FFFFFF);
+    border: 1px solid var(--color-6, #E5E7EB);
+    border-radius: 18px;
+    padding: 28px 32px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
 
-  .form-context {
-    padding: 20px;
-  }
+.container-transacao .form-card h1 {
+    margin: 0 0 20px 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-1, #1E1B4B);
+    letter-spacing: -0.4px;
+}
 
-  .container-transacao .btn-back {
-    margin: 20px;
-  }
+.container-transacao .form-context {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.container-transacao .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.container-transacao .form-group label {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-1, #374151);
+}
+
+.container-transacao .form-group .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 140px;
+    padding: 11px 24px;
+    background: linear-gradient(135deg, #7C6FE0 0%, #6354D4 100%);
+    color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(124, 111, 224, 0.28);
+}
+
+@media (max-width: 640px) {
+    .container-transacao {
+        padding: 16px 12px 32px;
+    }
+
+    .container-transacao .form-card {
+        padding: 20px 18px;
+    }
 }
