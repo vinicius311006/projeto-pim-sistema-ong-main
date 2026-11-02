@@ -19,6 +19,10 @@
     var benSituacaoJson = JsonSerializer.Serialize(Model.BeneficiariosPorSituacao, jsonOptions);
     var movCatFinJson = JsonSerializer.Serialize(Model.MovimentacoesPorCategoriaFinanceira, jsonOptions);
     var necessidadesJson = JsonSerializer.Serialize(Model.NecessidadesComunidade, jsonOptions);
+
+    // Colaboradores não têm acesso ao módulo financeiro
+    var isAdmin = User.IsInRole("Administrador");
+    var kpiCol = isAdmin ? "col-xl-3" : "col-xl-4";
 }
 
 <div id="dashboardWrapper" class="vs-dashboard-wrapper py-4 px-3 px-lg-4">
@@ -26,7 +30,7 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
             <h1 class="vs-dash-title m-0">Visão Geral — ONG Vestindo Sonhos</h1>
-            <p class="vs-dash-subtitle m-0">Monitoramento consolidado de beneficiários, voluntariado, estoque e fluxo financeiro</p>
+            <p class="vs-dash-subtitle m-0">Monitoramento consolidado de beneficiários, voluntariado, estoque@(isAdmin ? " e fluxo financeiro" : "")</p>
         </div>
 
         <div class="d-flex flex-wrap align-items-center gap-2">
@@ -51,7 +55,7 @@
     <!-- 1. CARDS DE INDICADORES (KPIs NO TOPO) -->
     <div class="row g-3 mb-4">
         <!-- KPI 1: Beneficiários -->
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-12 col-sm-6 @kpiCol">
             <a asp-controller="Beneficiarios" asp-action="Index" class="text-decoration-none">
                 <div class="vs-kpi-card h-100">
                     <div class="d-flex justify-content-between align-items-start">
@@ -75,7 +79,7 @@
         </div>
 
         <!-- KPI 2: Voluntários Ativos -->
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-12 col-sm-6 @kpiCol">
             <a asp-controller="Voluntarios" asp-action="Index" class="text-decoration-none">
                 <div class="vs-kpi-card h-100">
                     <div class="d-flex justify-content-between align-items-start">
@@ -98,8 +102,10 @@
             </a>
         </div>
 
+        @if (isAdmin)
+        {
         <!-- KPI 3: Saldo Financeiro & Doações -->
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-12 col-sm-6 @kpiCol">
             <a asp-controller="Financeiro" asp-action="Financeiro" class="text-decoration-none">
                 <div class="vs-kpi-card h-100">
                     <div class="d-flex justify-content-between align-items-start">
@@ -121,9 +127,10 @@
                 </div>
             </a>
         </div>
+        }
 
         <!-- KPI 4: Inventário / Estoque -->
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-12 col-sm-6 @kpiCol">
             <a asp-controller="Inventario" asp-action="Index" class="text-decoration-none">
                 <div class="vs-kpi-card h-100">
                     <div class="d-flex justify-content-between align-items-start">
@@ -147,8 +154,10 @@
         </div>
     </div>
 
-    <!-- 2. LINHA PRINCIPAL DE GRÁFICOS (EVOLUÇÃO FINANCEIRA + DISTRIBUIÇÃO EM ROSCA) -->
-    <div class="row g-3 mb-4">
+    <!-- 2. GRÁFICOS (FINANCEIROS SOMENTE PARA ADMINISTRADOR) + DISTRIBUIÇÃO E DEMANDAS -->
+    <div class="row gx-3 gy-4 mb-4">
+        @if (isAdmin)
+        {
         <!-- Gráfico 1: Evolução de Entradas, Doações e Saídas -->
         <div class="col-12 col-lg-8">
             <div class="vs-chart-card h-100 d-flex flex-column">
@@ -193,9 +202,10 @@
                 </div>
             </div>
         </div>
+        }
 
         <!-- Gráfico 2: Rosca / Pizza (Inventário por Categoria ou Beneficiários) -->
-        <div class="col-12 col-lg-4">
+        <div class="col-12 @(isAdmin ? "col-lg-4" : "col-lg-6")">
             <div class="vs-chart-card h-100 d-flex flex-column">
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                     <div>
@@ -217,10 +227,9 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- 3. SEGUNDA LINHA DE GRÁFICOS (BARRAS HORIZONTAIS ESTILO BI) -->
-    <div class="row g-3 mb-4">
+        @if (isAdmin)
+        {
         <!-- Gráfico 3: Movimentações por Categoria Financeira -->
         <div class="col-12 col-lg-6">
             <div class="vs-chart-card h-100">
@@ -236,6 +245,7 @@
                 </div>
             </div>
         </div>
+        }
 
         <!-- Gráfico 4: Necessidades Mais Frequentes dos Beneficiários -->
         <div class="col-12 col-lg-6">
@@ -269,6 +279,8 @@
 
     <!-- 4. TABELAS DE ACESSO RÁPIDO (TRANSAÇÕES RECENTES + PRÓXIMOS EVENTOS) -->
     <div class="row g-3">
+        @if (isAdmin)
+        {
         <!-- Tabela 1: Últimas Transações Financeiras -->
         <div class="col-12 col-xl-7">
             <div class="vs-table-card h-100">
@@ -349,9 +361,10 @@
                 </div>
             </div>
         </div>
+        }
 
         <!-- Tabela 2: Próximos Eventos e Campanhas -->
-        <div class="col-12 col-xl-5">
+        <div class="col-12 @(isAdmin ? "col-xl-5" : "")">
             <div class="vs-table-card h-100">
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                     <div>
@@ -737,6 +750,7 @@
             // =================================================================
             // 1. GRÁFICO DE EVOLUÇÃO FINANCEIRA (BARRAS / LINHA)
             // =================================================================
+            if (document.getElementById('chartEvolucaoFinanceira')) {
             const ctxEvolucao = document.getElementById('chartEvolucaoFinanceira').getContext('2d');
             let chartEvolucao = null;
 
@@ -834,6 +848,7 @@
                 document.getElementById('btnChartBar').classList.remove('active');
                 renderizarGraficoEvolucao('line');
             });
+            }
 
             // =================================================================
             // 2. GRÁFICO DE ROSCA (INVENTÁRIO POR CATEGORIA / BENEFICIÁRIOS)
@@ -912,6 +927,7 @@
             // =================================================================
             // 3. GRÁFICO DE BARRAS HORIZONTAIS: CATEGORIAS FINANCEIRAS
             // =================================================================
+            if (document.getElementById('chartCategoriasFinanceiras')) {
             const ctxCatFin = document.getElementById('chartCategoriasFinanceiras').getContext('2d');
             new Chart(ctxCatFin, {
                 type: 'bar',
@@ -952,6 +968,7 @@
                     }
                 }
             });
+            }
 
             // =================================================================
             // 4. GRÁFICO DE BARRAS HORIZONTAIS: NECESSIDADES DA COMUNIDADE

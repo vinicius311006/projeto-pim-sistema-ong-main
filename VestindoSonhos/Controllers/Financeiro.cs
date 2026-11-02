@@ -133,6 +133,7 @@ namespace VestindoSonhos.Controllers
         public async Task<IActionResult> Dashboard()
         {
             var contexto = await ConstruirDashboardViewModelAsync();
+            OcultarDadosFinanceirosSeNaoAdmin(contexto);
             return View(contexto);
         }
 
@@ -142,7 +143,32 @@ namespace VestindoSonhos.Controllers
         public async Task<IActionResult> DadosDashboardJson()
         {
             var contexto = await ConstruirDashboardViewModelAsync();
+            OcultarDadosFinanceirosSeNaoAdmin(contexto);
             return Json(contexto);
+        }
+
+        /// <summary>
+        /// Colaboradores não têm acesso ao módulo financeiro: zera todos os dados
+        /// financeiros do dashboard no servidor para que não sejam enviados ao navegador.
+        /// </summary>
+        private void OcultarDadosFinanceirosSeNaoAdmin(DashboardViewModel vm)
+        {
+            if (User.IsInRole("Administrador")) return;
+
+            vm.SaldoAtual = 0;
+            vm.TotalEntradas = 0;
+            vm.TotalSaidas = 0;
+            vm.TotalDoacoes = 0;
+            vm.DoacoesMesAtual = 0;
+            vm.EntradasMesAtual = 0;
+            vm.SaidasMesAtual = 0;
+            vm.MesesLabels = new();
+            vm.EntradasPorMes = new();
+            vm.SaidasPorMes = new();
+            vm.DoacoesPorMes = new();
+            vm.MovimentacoesPorCategoriaFinanceira = new();
+            vm.UltimasTransacoes = new();
+            vm.Carteiras = new();
         }
 
         private async Task<DashboardViewModel> ConstruirDashboardViewModelAsync()
