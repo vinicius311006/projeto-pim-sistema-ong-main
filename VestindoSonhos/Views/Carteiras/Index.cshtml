@@ -1,16 +1,18 @@
-﻿@model IEnumerable<VestindoSonhos.Models.Carteira>
+@model IEnumerable<VestindoSonhos.Models.Carteira>
 <link rel="stylesheet" href="~/css/financeiro.css" />
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Carteiras e Categorias Financeiras";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var categorias = ViewBag.Categorias as IEnumerable<VestindoSonhos.Models.Categoria> ?? Enumerable.Empty<VestindoSonhos.Models.Categoria>();
 }
 
-<h1>Index</h1>
-<div class="card-topo">
-<p>
-    <a class="btn-transferencia" asp-area="" asp-controller="Carteiras" asp-action="Criar"><i class="material-symbols-outlined">add</i><span>Nova Carteira</span></a>
-</p>
+<h1>Carteiras &amp; Categorias Financeiras</h1>
+<div class="card-topo" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+    <h3 style="margin:0;">Carteiras &amp; Contas</h3>
+    <div style="display:flex; gap:10px;">
+        <a class="btn-transferencia" asp-area="" asp-controller="Carteiras" asp-action="Criar"><i class="material-symbols-outlined">add</i><span>Nova Carteira</span></a>
+    </div>
 </div>
 <table class="table">
     <thead>
@@ -37,6 +39,37 @@
                     <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span></a>
                     <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span></a>
                     <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span></a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<hr style="margin: 32px 0 20px 0;" />
+
+<div class="card-topo" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+    <h3 style="margin:0;">Categorias Financeiras (Sincronizadas com App Mobile e /mobile)</h3>
+    <div style="display:flex; gap:10px;">
+        <a class="btn-transferencia" asp-area="" asp-controller="Categoria" asp-action="Criar"><i class="material-symbols-outlined">add</i><span>Nova Categoria</span></a>
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nome da Categoria</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var cat in categorias) {
+        <tr>
+            <td>
+                <strong>@cat.Nome</strong>
+            </td>
+            <td>
+                <a asp-controller="Categoria" asp-action="Editar" asp-route-id="@cat.Id" title="Renomear Categoria"><span class="material-symbols-outlined">edit</span></a>
+                <a asp-controller="Categoria" asp-action="Details" asp-route-id="@cat.Id" title="Detalhes"><span class="material-symbols-outlined">search</span></a>
+                <a asp-controller="Categoria" asp-action="Apagar" asp-route-id="@cat.Id" title="Excluir Categoria"><span class="material-symbols-outlined">delete</span></a>
             </td>
         </tr>
 }

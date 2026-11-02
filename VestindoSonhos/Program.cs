@@ -122,6 +122,9 @@ using (var scope = app.Services.CreateScope())
     try { db.Database.ExecuteSqlRaw("ALTER TABLE Dependente ADD COLUMN observacao VARCHAR(255) NULL;"); } catch { }
     try { db.Database.ExecuteSqlRaw("ALTER TABLE Produto MODIFY COLUMN descricao VARCHAR(255) NULL DEFAULT '';"); } catch { }
     try { db.Database.ExecuteSqlRaw("ALTER TABLE Produto MODIFY COLUMN cor VARCHAR(15) NULL DEFAULT '';"); } catch { }
+    try { db.Database.ExecuteSqlRaw("ALTER TABLE Categoria MODIFY COLUMN nome VARCHAR(60) NOT NULL;"); } catch { }
+    try { db.Database.ExecuteSqlRaw("ALTER TABLE TiposAtivo MODIFY COLUMN categoria VARCHAR(60) NOT NULL;"); } catch { }
+    try { db.Database.ExecuteSqlRaw("ALTER TABLE Carteira MODIFY COLUMN nome VARCHAR(60) NOT NULL;"); } catch { }
     try { db.Database.ExecuteSqlRaw("UPDATE TiposAtivo SET categoria = 'Calçados' WHERE id = 2 OR categoria LIKE 'Cal%ados';"); } catch { }
     try { db.Database.ExecuteSqlRaw("UPDATE Categoria SET nome = 'Doação' WHERE id = 1 OR nome LIKE 'Doa%o';"); } catch { }
     try { db.Database.ExecuteSqlRaw("UPDATE Carteira SET nome = 'Caixa Físico (Sede)' WHERE id = 2;"); } catch { }

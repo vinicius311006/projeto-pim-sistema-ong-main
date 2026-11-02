@@ -132,10 +132,16 @@ namespace VestindoSonhos.Controllers.Api
                 return NotFound(new { mensagem = "Categoria não encontrada." });
             }
 
-            var emUso = await _context.Produto.AnyAsync(p => p.Categoria == id);
-            if (emUso)
+            var produtosVinculados = await _context.Produto.Where(p => p.Categoria == id).ToListAsync();
+            if (produtosVinculados.Any())
             {
-                return BadRequest(new { mensagem = "Não é possível excluir uma categoria que possui produtos vinculados." });
+                var outraCat = await _context.TiposAtivo.AsNoTracking().FirstOrDefaultAsync(c => c.Id != id);
+                foreach (var p in produtosVinculados)
+                {
+                    p.Categoria = outraCat?.Id;
+                }
+                _context.Produto.UpdateRange(produtosVinculados);
+                await _context.SaveChangesAsync();
             }
 
             _context.TiposAtivo.Remove(cat);

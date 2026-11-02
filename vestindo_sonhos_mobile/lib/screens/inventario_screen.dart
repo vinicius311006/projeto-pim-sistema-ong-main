@@ -1134,12 +1134,46 @@ class _InventarioScreenState extends State<InventarioScreen> {
                                   icon: const Icon(Icons.delete_outline, size: 20, color: Color(0xFFE25555)),
                                   tooltip: 'Excluir Categoria',
                                   onPressed: () async {
+                                    final confirmar = await showDialog<bool>(
+                                      context: context,
+                                      builder: (cCtx) => AlertDialog(
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                        title: const Row(
+                                          children: [
+                                            Icon(Icons.warning_amber_rounded, color: Color(0xFFE25555)),
+                                            SizedBox(width: 8),
+                                            Text('Excluir Categoria'),
+                                          ],
+                                        ),
+                                        content: Text('Deseja excluir a categoria "${cat.nome}"?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(cCtx, false),
+                                            child: const Text('Cancelar'),
+                                          ),
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE25555)),
+                                            onPressed: () => Navigator.pop(cCtx, true),
+                                            child: const Text('Excluir', style: TextStyle(color: Colors.white)),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirmar != true) return;
                                     try {
                                       final token = await _apiService.getToken();
                                       if (token == null) return;
                                       await _apiService.excluirCategoriaInventario(token, cat.id);
                                       await _carregarInventario();
                                       setDialogState(() {});
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Categoria excluída com sucesso!'),
+                                            backgroundColor: Color(0xFF2E9E5B),
+                                          ),
+                                        );
+                                      }
                                     } catch (e) {
                                       if (mounted) {
                                         ScaffoldMessenger.of(context).showSnackBar(

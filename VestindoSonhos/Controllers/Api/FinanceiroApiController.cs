@@ -148,6 +148,38 @@ namespace VestindoSonhos.Controllers.Api
             return Ok(new { mensagem = "Categoria financeira atualizada com sucesso!" });
         }
 
+        [HttpDelete("categorias/{id:int}")]
+        public async Task<IActionResult> ExcluirCategoria(int id)
+        {
+            var cat = await _context.Categoria.FindAsync(id);
+            if (cat == null)
+            {
+                return NotFound(new { mensagem = "Categoria financeira não encontrada." });
+            }
+
+            var transacoesVinculadas = await _context.Transacao.Where(t => t.Categoria == id).ToListAsync();
+            if (transacoesVinculadas.Any())
+            {
+                var outraCategoria = await _context.Categoria.AsNoTracking().FirstOrDefaultAsync(c => c.Id != id);
+                if (outraCategoria == null)
+                {
+                    return BadRequest(new { mensagem = "Não é possível excluir a única categoria financeira existente pois há lançamentos vinculados." });
+                }
+
+                foreach (var t in transacoesVinculadas)
+                {
+                    t.Categoria = outraCategoria.Id;
+                }
+                _context.Transacao.UpdateRange(transacoesVinculadas);
+                await _context.SaveChangesAsync();
+            }
+
+            _context.Categoria.Remove(cat);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensagem = "Categoria financeira excluída com sucesso!" });
+        }
+
         [HttpPost("transacao")]
         public async Task<IActionResult> CriarTransacao([FromBody] CriarTransacaoFinanceiraDto dto)
         {

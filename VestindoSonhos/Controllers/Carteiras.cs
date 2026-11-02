@@ -23,6 +23,7 @@ namespace VestindoSonhos.Controllers
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Index()
         {
+            ViewBag.Categorias = await _context.Categoria.OrderBy(c => c.Nome).ToListAsync();
             return View(await _context.Carteira.ToListAsync());
         }
 

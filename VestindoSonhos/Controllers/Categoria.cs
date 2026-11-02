@@ -164,13 +164,24 @@ namespace VestindoSonhos.Controllers
                 var categoria = await _context.Categoria.FindAsync(id);
                 if (categoria != null)
                 {
+                    var vinculadas = await _context.Transacao.Where(t => t.Categoria == id).ToListAsync();
+                    if (vinculadas.Any())
+                    {
+                        var outra = await _context.Categoria.AsNoTracking().FirstOrDefaultAsync(c => c.Id != id);
+                        if (outra != null)
+                        {
+                            foreach (var t in vinculadas) t.Categoria = outra.Id;
+                            _context.Transacao.UpdateRange(vinculadas);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
                     _context.Categoria.Remove(categoria);
                     await _context.SaveChangesAsync();
                 }
             }
             catch (DbUpdateException)
             {
-                Console.WriteLine("Categoria vinculada a transações existentes.");
+                TempData["Erro"] = "Não foi possível excluir esta categoria pois ela possui registros vinculados.";
             }
             return RedirectToAction(nameof(Index));
         }

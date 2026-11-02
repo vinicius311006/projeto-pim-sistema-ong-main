@@ -764,6 +764,24 @@ class ApiService {
     }
   }
 
+  Future<void> excluirCategoriaFinanceira(String token, int id) async {
+    final base = await getBaseUrl();
+    final url = Uri.parse('$base/financeiro/categorias/$id');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    ).timeout(const Duration(seconds: 15));
+
+    if (response.statusCode != 200) {
+      final msg = _extrairMensagemErro(response.body, 'Falha ao excluir categoria financeira');
+      throw Exception(msg);
+    }
+  }
+
   Future<void> excluirTransacaoFinanceira(String token, int id) async {
     final base = await getBaseUrl();
     final url = Uri.parse('$base/financeiro/transacao/$id');
