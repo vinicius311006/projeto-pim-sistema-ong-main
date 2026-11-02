@@ -6,10 +6,10 @@ services:
   db:
     image: mysql:8.0
     container_name: vestindosonhos-mysql
-    restart: unless-stopped
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --performance-schema=OFF --innodb-buffer-pool-size=64M --max-connections=50
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: VESTINDOSONHOSDB
     ports:
       - "3306:3306"
@@ -17,7 +17,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./ScriptVestindoSonhos_MySQL.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -34,7 +34,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
-      - ConnectionStrings__DefaultConnection=${DEFAULT_CONNECTION_STRING}
+      - ConnectionStrings__DefaultConnection=${DEFAULT_CONNECTION_STRING:-server=db;port=3306;database=VESTINDOSONHOSDB;user=root;password=root;CharSet=utf8mb4;}
     depends_on:
       db:
         condition: service_healthy

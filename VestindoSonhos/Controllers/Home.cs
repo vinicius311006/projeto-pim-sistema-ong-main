@@ -18,6 +18,7 @@ namespace VestindoSonhos.Controllers
             return RedirectToAction("Dashboard", "Financeiro");
         }
 
+        [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

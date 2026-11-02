@@ -74,7 +74,7 @@ namespace VestindoSonhos.Controllers.Api
             var passwordHasher = new PasswordHasher<Usuario>();
 
             // Suporte à migração gradual de senhas legadas que ainda não utilizam hash PBKDF2
-            if (!usuario.Senha.StartsWith("$"))
+            if (!usuario.Senha.StartsWith("$") && !usuario.Senha.StartsWith("AQAAAA"))
             {
                 if (usuario.Senha == request.Senha)
                 {
@@ -82,9 +82,21 @@ namespace VestindoSonhos.Controllers.Api
                     await _context.SaveChangesAsync();
                     _logger.LogInformation("Senha do usuário {Email} atualizada com hash seguro com sucesso.", usuario.Email);
                 }
+                else
+                {
+                    return Unauthorized(new { mensagem = "E-mail ou senha inválidos." });
+                }
             }
 
-            var verificationResult = passwordHasher.VerifyHashedPassword(usuario, usuario.Senha, request.Senha);
+            PasswordVerificationResult verificationResult;
+            try
+            {
+                verificationResult = passwordHasher.VerifyHashedPassword(usuario, usuario.Senha, request.Senha);
+            }
+            catch
+            {
+                verificationResult = usuario.Senha == request.Senha ? PasswordVerificationResult.Success : PasswordVerificationResult.Failed;
+            }
             if (verificationResult == PasswordVerificationResult.Failed)
             {
                 _logger.LogWarning("Falha na autenticação para o e-mail: {Email}", usuario.Email);

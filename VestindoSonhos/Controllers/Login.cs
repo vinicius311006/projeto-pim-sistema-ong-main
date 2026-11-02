@@ -51,16 +51,29 @@ namespace VestindoSonhos.Controllers
             }
 
             // Temporario migração de senha explícitas
-            if (!usuario.Senha.StartsWith("$"))
+            if (!usuario.Senha.StartsWith("$") && !usuario.Senha.StartsWith("AQAAAA"))
             {
                 if (usuario.Senha == model.Senha)
                 {
                     usuario.Senha = passwordHasher.HashPassword(usuario, model.Senha);
                     await _context.SaveChangesAsync();
                 }
+                else
+                {
+                    ModelState.AddModelError(nameof(model.Senha), "Email ou senha inválidos.");
+                    return View(model);
+                }
             }
             // Temp ^
-            var result = passwordHasher.VerifyHashedPassword(usuario, usuario.Senha, model.Senha);
+            PasswordVerificationResult result;
+            try
+            {
+                result = passwordHasher.VerifyHashedPassword(usuario, usuario.Senha, model.Senha);
+            }
+            catch
+            {
+                result = usuario.Senha == model.Senha ? PasswordVerificationResult.Success : PasswordVerificationResult.Failed;
+            }
             if (result == PasswordVerificationResult.Failed)
             {
                 ModelState.AddModelError(nameof(model.Senha), "Email ou senha inválidos.");

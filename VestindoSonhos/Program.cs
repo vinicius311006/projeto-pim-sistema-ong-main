@@ -13,9 +13,17 @@ builder.WebHost.UseUrls("http://0.0.0.0:5000");
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrWhiteSpace(connectionString))
 {
-    connectionString = builder.Configuration.GetConnectionString("ConnectionStrings")
-        ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
-        ?? "Server=localhost;Port=3306;Database=VESTINDOSONHOSDB;";
+    connectionString = builder.Configuration.GetConnectionString("ConnectionStrings");
+}
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+}
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    var inContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+    var dbHost = inContainer ? "db" : "localhost";
+    connectionString = $"Server={dbHost};Port=3306;Database=VESTINDOSONHOSDB;Uid=root;Pwd=root;CharSet=utf8mb4;";
 }
 
 builder.Services.AddDbContext<VestindosonhosdbContext>(options =>
