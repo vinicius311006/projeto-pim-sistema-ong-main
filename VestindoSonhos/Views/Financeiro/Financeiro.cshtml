@@ -582,7 +582,7 @@
                                     </span>
                                 </td>
                                 <td>@item_transacao.Usuario</td>
-                                <td>@item_transacao.Hora.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@(item_transacao.Hora?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
                                 <td class="@(isEntrada ? "vs-valor-entrada" : "vs-valor-saida")">
                                     @(isEntrada ? "+" : "-") R$ @item_transacao.Valor.ToString("N2", ptBr)
                                 </td>
@@ -670,7 +670,7 @@
                                     </span>
                                 </td>
                                 <td>@item_transacao.Usuario</td>
-                                <td>@item_transacao.Hora.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@(item_transacao.Hora?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
                                 <td class="vs-valor-entrada">
                                     + R$ @item_transacao.Valor.ToString("N2", ptBr)
                                 </td>

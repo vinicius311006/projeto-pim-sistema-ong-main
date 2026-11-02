@@ -61,7 +61,7 @@
                                 @item.Usuario
                             </td>
                             <td data-label="Hora">
-                                @item.Hora.ToString("dd/MM/yyyy HH:mm")
+                                @(item.Hora?.ToString("dd/MM/yyyy HH:mm") ?? "-")
                             </td>
                             <td data-label="Valor" style="font-weight:700; color:@(isEntrada ? "#059669" : "#DC2626");">
                                 @(isEntrada ? "+" : "-") R$ @item.Valor.ToString("N2", ptBr)
