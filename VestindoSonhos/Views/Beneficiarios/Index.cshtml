@@ -6,8 +6,10 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var lista = Model ?? Enumerable.Empty<VestindoSonhos.Models.Beneficiario>();
     var total = lista.Count();
-    var vulneraveis = lista.Count(b => !string.IsNullOrEmpty(b.Situacao) && (b.Situacao.ToLower().Contains("vulner") || b.Situacao.ToLower().Contains("crit") || b.Situacao.ToLower().Contains("crít") || b.Situacao.ToLower().Contains("baixa") || b.Situacao.ToLower().Contains("desempreg")));
-    var acompanhados = total - vulneraveis;
+    var aguardando = lista.Count(b => !string.IsNullOrEmpty(b.Situacao) && (b.Situacao.ToLower().Contains("aguard") || b.Situacao.ToLower().Contains("vulner") || b.Situacao.ToLower().Contains("crit") || b.Situacao.ToLower().Contains("crít")));
+    var bloqueados = lista.Count(b => !string.IsNullOrEmpty(b.Situacao) && (b.Situacao.ToLower().Contains("bloque") || b.Situacao.ToLower().Contains("inativ")));
+    var acompanhados = total - aguardando - bloqueados;
+    if (acompanhados < 0) acompanhados = 0;
 }
 
 <link rel="stylesheet" href="~/css/tabela.css" />
@@ -43,11 +45,11 @@
 
         <div class="vs-kpi-box">
             <div class="vs-kpi-ico" style="background:rgba(245, 158, 11, 0.12); color:#D97706;">
-                <span class="material-symbols-outlined">priority_high</span>
+                <span class="material-symbols-outlined">hourglass_top</span>
             </div>
             <div class="vs-kpi-txt">
-                <h4>@vulneraveis</h4>
-                <p>Atenção Prioritária / Vulnerabilidade</p>
+                <h4>@aguardando</h4>
+                <p>Aguardando Doação / Atenção</p>
             </div>
         </div>
 
@@ -100,8 +102,39 @@
                         @foreach (var item in lista)
                         {
                             var inicial = !string.IsNullOrEmpty(item.Nome) ? item.Nome[0].ToString().ToUpper() : "B";
-                            var sit = item.Situacao ?? "Regular";
-                            var isPrioridade = sit.ToLower().Contains("vulner") || sit.ToLower().Contains("crit") || sit.ToLower().Contains("crít") || sit.ToLower().Contains("baixa") || sit.ToLower().Contains("desempreg");
+                            var sit = string.IsNullOrWhiteSpace(item.Situacao) ? "Ok" : item.Situacao.Trim();
+                            var sitLower = sit.ToLower();
+
+                            string badgeBg;
+                            string badgeColor;
+                            string badgeBorder;
+                            string badgeIcon;
+                            string sitDisplay;
+
+                            if (sitLower.Contains("aguard") || sitLower.Contains("vulner") || sitLower.Contains("crit") || sitLower.Contains("crít"))
+                            {
+                                badgeBg = "rgba(245, 158, 11, 0.12)";
+                                badgeColor = "#D97706";
+                                badgeBorder = "rgba(245, 158, 11, 0.35)";
+                                badgeIcon = "hourglass_top";
+                                sitDisplay = sitLower.Contains("aguard") ? "Aguardando" : sit;
+                            }
+                            else if (sitLower.Contains("bloque") || sitLower.Contains("inativ"))
+                            {
+                                badgeBg = "rgba(239, 68, 68, 0.12)";
+                                badgeColor = "#DC2626";
+                                badgeBorder = "rgba(239, 68, 68, 0.35)";
+                                badgeIcon = "cancel";
+                                sitDisplay = "Bloqueado";
+                            }
+                            else
+                            {
+                                badgeBg = "rgba(46, 158, 91, 0.12)";
+                                badgeColor = "#059669";
+                                badgeBorder = "rgba(46, 158, 91, 0.3)";
+                                badgeIcon = "check_circle";
+                                sitDisplay = "Ok";
+                            }
                             <tr>
                                 <td>
                                     <span class="vs-avatar-sm">@inicial</span>
@@ -110,9 +143,9 @@
                                 <td>@(string.IsNullOrWhiteSpace(item.Telefone) ? "-" : item.Telefone)</td>
                                 <td>@(string.IsNullOrWhiteSpace(item.Endereco) ? "-" : item.Endereco)</td>
                                 <td>
-                                    <span style="display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; background:@(isPrioridade ? "#FEF3C7" : "#ECFDF5"); color:@(isPrioridade ? "#B45309" : "#059669"); border:1px solid @(isPrioridade ? "#FDE68A" : "#A7F3D0");">
-                                        <span class="material-symbols-outlined" style="font-size:14px;">@(isPrioridade ? "warning" : "check_circle")</span>
-                                        @sit
+                                    <span style="display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; background:@badgeBg; color:@badgeColor; border:1px solid @badgeBorder;">
+                                        <span class="material-symbols-outlined" style="font-size:14px;">@badgeIcon</span>
+                                        @sitDisplay
                                     </span>
                                 </td>
                                 <td style="color:var(--text-2, #6B7280);">@(string.IsNullOrWhiteSpace(item.Observacao) ? "-" : item.Observacao)</td>

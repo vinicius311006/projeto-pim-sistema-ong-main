@@ -54,16 +54,32 @@ namespace VestindoSonhos.Controllers
             return View(contexto);
         }
 
-        public void CarregarDropdowns()
+        public void CarregarDropdowns(string? selecionado = null)
         {
-            ViewBag.Situacao = new SelectList(new[] { "Ok", "Aguardando Doacao", "Bloqueado" });
+            if (!string.IsNullOrEmpty(selecionado) && selecionado.StartsWith("Aguardando", StringComparison.OrdinalIgnoreCase))
+            {
+                selecionado = "Aguardando";
+            }
+            else if (!string.IsNullOrEmpty(selecionado) && selecionado.StartsWith("Bloque", StringComparison.OrdinalIgnoreCase))
+            {
+                selecionado = "Bloqueado";
+            }
+
+            var opcoes = new[]
+            {
+                new { Valor = "Ok", Texto = "Ok" },
+                new { Valor = "Aguardando", Texto = "Aguardando" },
+                new { Valor = "Bloqueado", Texto = "Bloqueado" }
+            };
+
+            ViewBag.Situacao = new SelectList(opcoes, "Valor", "Texto", selecionado ?? "Ok");
         }
 
         // GET: Beneficiarios/Criar
         [Authorize(Roles = "Colaborador,Administrador")]
         public IActionResult Criar()
         {
-            CarregarDropdowns();
+            CarregarDropdowns("Ok");
             return View();
         }
 
@@ -97,8 +113,21 @@ namespace VestindoSonhos.Controllers
                 beneficiario.Observacao = beneficiario.Observacao.Substring(0, 255);
             }
 
-            List<string> situacoes = new List<string> { "Ok", "Aguardando Doacao", "Bloqueado" };
-            if (!string.IsNullOrEmpty(beneficiario.Situacao) && !situacoes.Contains(beneficiario.Situacao))
+            if (string.IsNullOrWhiteSpace(beneficiario.Situacao))
+            {
+                beneficiario.Situacao = "Ok";
+            }
+            else if (beneficiario.Situacao.StartsWith("Aguardando", StringComparison.OrdinalIgnoreCase))
+            {
+                beneficiario.Situacao = "Aguardando";
+            }
+            else if (beneficiario.Situacao.StartsWith("Bloque", StringComparison.OrdinalIgnoreCase))
+            {
+                beneficiario.Situacao = "Bloqueado";
+            }
+
+            List<string> situacoes = new List<string> { "Ok", "Aguardando", "Bloqueado", "Aguardando Doacao", "Aguardando Doação" };
+            if (!situacoes.Contains(beneficiario.Situacao))
             {
                 ModelState.AddModelError(nameof(beneficiario.Situacao), "Situação inválida.");
             }
@@ -109,7 +138,7 @@ namespace VestindoSonhos.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            CarregarDropdowns();
+            CarregarDropdowns(beneficiario.Situacao);
             return View(beneficiario);
         }
 
@@ -127,7 +156,17 @@ namespace VestindoSonhos.Controllers
             {
                 return NotFound();
             }
-            CarregarDropdowns();
+
+            if (beneficiario.Situacao != null && beneficiario.Situacao.StartsWith("Aguardando", StringComparison.OrdinalIgnoreCase))
+            {
+                beneficiario.Situacao = "Aguardando";
+            }
+            else if (beneficiario.Situacao != null && beneficiario.Situacao.StartsWith("Bloque", StringComparison.OrdinalIgnoreCase))
+            {
+                beneficiario.Situacao = "Bloqueado";
+            }
+
+            CarregarDropdowns(beneficiario.Situacao);
             return View(beneficiario);
         }
 
@@ -166,6 +205,25 @@ namespace VestindoSonhos.Controllers
                 beneficiario.Observacao = beneficiario.Observacao.Substring(0, 255);
             }
 
+            if (string.IsNullOrWhiteSpace(beneficiario.Situacao))
+            {
+                beneficiario.Situacao = "Ok";
+            }
+            else if (beneficiario.Situacao.StartsWith("Aguardando", StringComparison.OrdinalIgnoreCase))
+            {
+                beneficiario.Situacao = "Aguardando";
+            }
+            else if (beneficiario.Situacao.StartsWith("Bloque", StringComparison.OrdinalIgnoreCase))
+            {
+                beneficiario.Situacao = "Bloqueado";
+            }
+
+            List<string> situacoes = new List<string> { "Ok", "Aguardando", "Bloqueado", "Aguardando Doacao", "Aguardando Doação" };
+            if (!situacoes.Contains(beneficiario.Situacao))
+            {
+                ModelState.AddModelError(nameof(beneficiario.Situacao), "Situação inválida.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -186,7 +244,7 @@ namespace VestindoSonhos.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            CarregarDropdowns();
+            CarregarDropdowns(beneficiario.Situacao);
             return View(beneficiario);
         }
 

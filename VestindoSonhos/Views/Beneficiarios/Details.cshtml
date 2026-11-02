@@ -46,9 +46,47 @@
                     </div>
                     <div>
                         <h2 style="margin:0; font-size:21px; font-weight:800; color:var(--text-1, #111827);">@ben.Nome</h2>
-                        <p style="margin:4px 0 0; font-size:13.5px; color:var(--text-2, #6B7280);">
-                            Situação: <strong style="color:#7C6FE0;">@(string.IsNullOrWhiteSpace(ben.Situacao) ? "Regular" : ben.Situacao)</strong>
-                        </p>
+                        @{
+                            var sitDet = string.IsNullOrWhiteSpace(ben.Situacao) ? "Ok" : ben.Situacao.Trim();
+                            var sitDetLower = sitDet.ToLower();
+                            string badgeBgDet;
+                            string badgeColorDet;
+                            string badgeBorderDet;
+                            string badgeIconDet;
+                            string sitDisplayDet;
+
+                            if (sitDetLower.Contains("aguard") || sitDetLower.Contains("vulner") || sitDetLower.Contains("crit") || sitDetLower.Contains("crít"))
+                            {
+                                badgeBgDet = "rgba(245, 158, 11, 0.12)";
+                                badgeColorDet = "#D97706";
+                                badgeBorderDet = "rgba(245, 158, 11, 0.35)";
+                                badgeIconDet = "hourglass_top";
+                                sitDisplayDet = sitDetLower.Contains("aguard") ? "Aguardando" : sitDet;
+                            }
+                            else if (sitDetLower.Contains("bloque") || sitDetLower.Contains("inativ"))
+                            {
+                                badgeBgDet = "rgba(239, 68, 68, 0.12)";
+                                badgeColorDet = "#DC2626";
+                                badgeBorderDet = "rgba(239, 68, 68, 0.35)";
+                                badgeIconDet = "cancel";
+                                sitDisplayDet = "Bloqueado";
+                            }
+                            else
+                            {
+                                badgeBgDet = "rgba(46, 158, 91, 0.12)";
+                                badgeColorDet = "#059669";
+                                badgeBorderDet = "rgba(46, 158, 91, 0.3)";
+                                badgeIconDet = "check_circle";
+                                sitDisplayDet = "Ok";
+                            }
+                        }
+                        <div style="margin-top:6px; display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:13px; color:var(--text-2, #6B7280);">Situação Social:</span>
+                            <span style="display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600; background:@badgeBgDet; color:@badgeColorDet; border:1px solid @badgeBorderDet;">
+                                <span class="material-symbols-outlined" style="font-size:14px;">@badgeIconDet</span>
+                                @sitDisplayDet
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div class="vs-actions">

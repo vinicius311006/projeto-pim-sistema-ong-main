@@ -31,7 +31,7 @@ namespace VestindoSonhos.Controllers.Api
                     Nome = b.Nome,
                     Telefone = b.Telefone,
                     Endereco = b.Endereco,
-                    Situacao = b.Situacao ?? "Ok",
+                    Situacao = NormalizarSituacao(b.Situacao),
                     Observacao = b.Observacao,
                     TotalDependentes = b.Dependente.Count
                 })
@@ -59,7 +59,7 @@ namespace VestindoSonhos.Controllers.Api
                 Nome = b.Nome,
                 Telefone = b.Telefone,
                 Endereco = b.Endereco,
-                Situacao = b.Situacao ?? "Ok",
+                Situacao = NormalizarSituacao(b.Situacao),
                 Observacao = b.Observacao,
                 TotalDependentes = b.Dependente.Count
             });
@@ -85,7 +85,7 @@ namespace VestindoSonhos.Controllers.Api
             var observacao = dto.Observacao?.Trim();
             if (observacao != null && observacao.Length > 255) observacao = observacao.Substring(0, 255);
 
-            var situacao = string.IsNullOrWhiteSpace(dto.Situacao) ? "Ok" : dto.Situacao.Trim();
+            var situacao = NormalizarSituacao(dto.Situacao);
             if (situacao.Length > 20) situacao = situacao.Substring(0, 20);
 
             var beneficiario = new Beneficiario
@@ -138,7 +138,7 @@ namespace VestindoSonhos.Controllers.Api
             var observacao = dto.Observacao?.Trim();
             if (observacao != null && observacao.Length > 255) observacao = observacao.Substring(0, 255);
 
-            var situacao = string.IsNullOrWhiteSpace(dto.Situacao) ? "Ok" : dto.Situacao.Trim();
+            var situacao = NormalizarSituacao(dto.Situacao);
             if (situacao.Length > 20) situacao = situacao.Substring(0, 20);
 
             b.Nome = nome;
@@ -187,6 +187,16 @@ namespace VestindoSonhos.Controllers.Api
             {
                 return StatusCode(500, new { mensagem = $"Erro ao excluir beneficiário: {ex.Message}" });
             }
+        }
+
+        private static string NormalizarSituacao(string? situacao)
+        {
+            if (string.IsNullOrWhiteSpace(situacao)) return "Ok";
+            var s = situacao.Trim();
+            if (s.StartsWith("Aguard", StringComparison.OrdinalIgnoreCase)) return "Aguardando";
+            if (s.StartsWith("Bloque", StringComparison.OrdinalIgnoreCase)) return "Bloqueado";
+            if (s.Equals("Ok", StringComparison.OrdinalIgnoreCase) || s.Equals("Ativo", StringComparison.OrdinalIgnoreCase) || s.Equals("Regular", StringComparison.OrdinalIgnoreCase)) return "Ok";
+            return s;
         }
     }
 }

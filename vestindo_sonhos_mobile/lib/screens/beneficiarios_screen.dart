@@ -396,7 +396,13 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
 
     // Normaliza situacao para dropdown
     if (!['Ok', 'Aguardando', 'Bloqueado'].contains(situacao)) {
-      situacao = 'Ok';
+      if (situacao.toLowerCase().contains('aguard')) {
+        situacao = 'Aguardando';
+      } else if (situacao.toLowerCase().contains('bloq')) {
+        situacao = 'Bloqueado';
+      } else {
+        situacao = 'Ok';
+      }
     }
 
     await showDialog(
