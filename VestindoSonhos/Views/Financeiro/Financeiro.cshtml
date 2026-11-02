@@ -1,175 +1,707 @@
 @model VestindoSonhos.ViewModels.HomeFinanceiraViewModel
 @using System.Linq
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-<link rel="stylesheet" href="~/css/financeiro.css" />
+@using System.Globalization
 
 @{
-    ViewData["Title"] = "Financeiro";
+    ViewData["Title"] = "Gestão Financeira";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var ptBr = new CultureInfo("pt-BR");
+    var carteiras = Model?.lista_carteiras ?? new List<VestindoSonhos.Models.Carteira>();
+    var transacoes = Model?.lista_transacoes ?? new List<VestindoSonhos.ViewModels.TransacaoFinanceiraViewModel>();
+    var doacoes = Model?.lista_doacoes ?? new List<VestindoSonhos.ViewModels.TransacaoFinanceiraViewModel>();
+    var categorias = ViewBag.Categorias as IEnumerable<VestindoSonhos.Models.Categoria> ?? Enumerable.Empty<VestindoSonhos.Models.Categoria>();
+
+    var saldoTotal = carteiras.Sum(c => c.Saldo);
+    var totalDoacoes = doacoes.Sum(d => d.Valor);
 }
 
+<style>
+    .vs-fin-page {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px 24px 40px;
+    }
 
-<h1>Financeiro</h1>
-<div class="container-formulario">
+    .vs-fin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
 
+    .vs-fin-title h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--text-1, #1E1B4B);
+        letter-spacing: -0.4px;
+        text-align: left;
+    }
 
-<!-- -----------------------------------Tabelas da Esquerda ---------------------------------------------------->
-<div>
-    <div class="card-saldo">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Saldo</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var carteira in Model.lista_carteiras)
-            {
-                <tr>
-                    <td>
-                        @carteira.Nome
-                    </td>
-                    <td class="valor">
-                        @carteira.Saldo
-                    </td>
-                </tr> 
-                } 
-        </tbody>
-    </table>
-    <a class="btn-abrir" asp-area="" asp-controller="Carteiras" asp-action="Index"><span class="material-symbols-outlined">open_in_full</span></a>
+    .vs-fin-title p {
+        margin: 4px 0 0;
+        font-size: 13.5px;
+        color: var(--text-2, #6B7280);
+    }
+
+    .vs-fin-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .vs-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+    .vs-btn .material-symbols-outlined {
+        font-size: 19px;
+    }
+
+    .vs-btn-primary {
+        background: linear-gradient(135deg, #7C6FE0 0%, #6354D4 100%);
+        color: #FFFFFF !important;
+        box-shadow: 0 4px 12px rgba(124, 111, 224, 0.28);
+    }
+
+    .vs-btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(124, 111, 224, 0.38);
+        color: #FFFFFF !important;
+    }
+
+    .vs-btn-secondary {
+        background: var(--color-5, #FFFFFF);
+        color: var(--text-1, #374151) !important;
+        border-color: var(--color-6, #E5E7EB);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .vs-btn-secondary:hover {
+        border-color: #7C6FE0;
+        color: #7C6FE0 !important;
+        transform: translateY(-1px);
+    }
+
+    .vs-btn-success {
+        background: #ECFDF5;
+        color: #059669 !important;
+        border-color: #A7F3D0;
+    }
+
+    .vs-btn-success:hover {
+        background: #D1FAE5;
+        color: #047857 !important;
+    }
+
+    /* Grid de Carteiras e KPIs */
+    .vs-wallets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .vs-wallet-card {
+        background: var(--color-5, #FFFFFF);
+        border: 1px solid var(--color-6, #E5E7EB);
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .vs-wallet-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .vs-wallet-card.highlight {
+        background: linear-gradient(135deg, #6354D4 0%, #4C3FB8 100%);
+        border: none;
+        color: #FFFFFF;
+        box-shadow: 0 8px 24px rgba(99, 84, 212, 0.28);
+    }
+
+    .vs-wallet-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .vs-wallet-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(124, 111, 224, 0.12);
+        color: #7C6FE0;
+    }
+
+    .vs-wallet-card.highlight .vs-wallet-icon {
+        background: rgba(255, 255, 255, 0.18);
+        color: #FFFFFF;
+    }
+
+    .vs-wallet-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-2, #6B7280);
+        margin: 0;
+    }
+
+    .vs-wallet-card.highlight .vs-wallet-label {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .vs-wallet-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--text-1, #111827);
+        margin: 2px 0 0;
+        letter-spacing: -0.5px;
+    }
+
+    .vs-wallet-card.highlight .vs-wallet-value {
+        color: #FFFFFF;
+    }
+
+    .vs-wallet-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        color: var(--text-2, #6B7280);
+        padding-top: 8px;
+        border-top: 1px solid var(--color-6, #F3F4F6);
+    }
+
+    .vs-wallet-card.highlight .vs-wallet-footer {
+        color: rgba(255, 255, 255, 0.8);
+        border-top-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Barra de Categorias Sincronizadas */
+    .vs-cat-bar {
+        background: var(--color-5, #FFFFFF);
+        border: 1px solid var(--color-6, #E5E7EB);
+        border-radius: 14px;
+        padding: 14px 20px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .vs-cat-chips {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .vs-cat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12.5px;
+        font-weight: 600;
+        background: rgba(124, 111, 224, 0.1);
+        color: #6354D4;
+        border: 1px solid rgba(124, 111, 224, 0.22);
+        text-decoration: none;
+        transition: all 0.15s;
+    }
+
+    .vs-cat-chip:hover {
+        background: #7C6FE0;
+        color: #FFFFFF;
+    }
+
+    /* Seções de Tabelas */
+    .vs-section-card {
+        background: var(--color-5, #FFFFFF);
+        border: 1px solid var(--color-6, #E5E7EB);
+        border-radius: 16px;
+        padding: 22px 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .vs-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--color-6, #F3F4F6);
+    }
+
+    .vs-section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .vs-section-title h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-1, #1F2937);
+    }
+
+    .vs-section-title p {
+        margin: 2px 0 0;
+        font-size: 12.5px;
+        color: var(--text-2, #6B7280);
+    }
+
+    /* Tabela Moderna */
+    .vs-table-wrap {
+        overflow-x: auto;
+    }
+
+    .vs-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .vs-table thead th {
+        background: rgba(124, 111, 224, 0.06);
+        color: var(--text-2, #4B5563);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--color-6, #E5E7EB);
+    }
+
+    .vs-table tbody td {
+        padding: 14px 16px;
+        font-size: 13.5px;
+        color: var(--text-1, #1F2937);
+        border-bottom: 1px solid var(--color-6, #F3F4F6);
+        vertical-align: middle;
+    }
+
+    .vs-table tbody tr:hover {
+        background: rgba(124, 111, 224, 0.03);
+    }
+
+    .vs-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .vs-badge .material-symbols-outlined {
+        font-size: 15px;
+    }
+
+    .vs-badge-entrada {
+        background: #ECFDF5;
+        color: #059669;
+        border: 1px solid #A7F3D0;
+    }
+
+    .vs-badge-saida {
+        background: #FEF2F2;
+        color: #DC2626;
+        border: 1px solid #FECACA;
+    }
+
+    .vs-badge-cat {
+        background: #EDE9FE;
+        color: #6D28D9;
+        border: 1px solid #DDD6FE;
+    }
+
+    .vs-valor-entrada {
+        font-weight: 700;
+        color: #059669;
+    }
+
+    .vs-valor-saida {
+        font-weight: 700;
+        color: #DC2626;
+    }
+
+    /* Botões de Ação na Tabela */
+    .vs-row-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .vs-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s;
+    }
+
+    .vs-action-btn .material-symbols-outlined {
+        font-size: 16px;
+    }
+
+    .vs-action-edit {
+        background: #EEF2FF;
+        color: #4F46E5 !important;
+    }
+
+    .vs-action-edit:hover {
+        background: #E0E7FF;
+    }
+
+    .vs-action-del {
+        background: #FEE2E2;
+        color: #DC2626 !important;
+    }
+
+    .vs-action-del:hover {
+        background: #FECACA;
+    }
+
+    .vs-search-input {
+        padding: 8px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--color-6, #D1D5DB);
+        background: var(--color-5, #FFFFFF);
+        color: var(--text-1, #1F2937);
+        font-size: 13px;
+        min-width: 220px;
+        outline: none;
+    }
+
+    .vs-search-input:focus {
+        border-color: #7C6FE0;
+        box-shadow: 0 0 0 3px rgba(124, 111, 224, 0.15);
+    }
+
+    html.dark-mode .vs-cat-chip {
+        background: rgba(124, 111, 224, 0.2);
+        color: #C4B5FD;
+    }
+</style>
+
+<div class="vs-fin-page">
+    <!-- Cabeçalho Principal -->
+    <div class="vs-fin-header">
+        <div class="vs-fin-title">
+            <h1>Gestão Financeira &amp; Doações</h1>
+            <p>Controle consolidado de carteiras bancárias, fluxo de caixa, doações e categorias sincronizadas</p>
+        </div>
+        <div class="vs-fin-actions">
+            <a class="vs-btn vs-btn-secondary" asp-area="" asp-controller="Carteiras" asp-action="Index">
+                <span class="material-symbols-outlined">account_balance_wallet</span>
+                <span>Carteiras &amp; Contas</span>
+            </a>
+            <a class="vs-btn vs-btn-secondary" asp-area="" asp-controller="Categoria" asp-action="Index">
+                <span class="material-symbols-outlined">category</span>
+                <span>Categorias (@categorias.Count())</span>
+            </a>
+            <a class="vs-btn vs-btn-primary" asp-area="" asp-controller="Financeiro" asp-action="Criar">
+                <span class="material-symbols-outlined">add_circle</span>
+                <span>Nova Transação</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Cards de Saldo Total e Carteiras -->
+    <div class="vs-wallets-grid">
+        <div class="vs-wallet-card highlight">
+            <div class="vs-wallet-top">
+                <div>
+                    <p class="vs-wallet-label">Saldo Total Consolidado</p>
+                    <h3 class="vs-wallet-value">R$ @saldoTotal.ToString("N2", ptBr)</h3>
+                </div>
+                <div class="vs-wallet-icon">
+                    <span class="material-symbols-outlined">account_balance</span>
+                </div>
+            </div>
+            <div class="vs-wallet-footer">
+                <span>@carteiras.Count() carteira(s) ativa(s)</span>
+                <a asp-controller="Carteiras" asp-action="Index" style="color: #FFFFFF; font-weight: 600; text-decoration: underline;">Gerenciar</a>
+            </div>
+        </div>
+
+        @foreach (var carteira in carteiras)
+        {
+            var iconeCarteira = carteira.Nome.ToLower().Contains("banco") ? "account_balance"
+                : carteira.Nome.ToLower().Contains("reserva") ? "savings" : "payments";
+            <div class="vs-wallet-card">
+                <div class="vs-wallet-top">
+                    <div>
+                        <p class="vs-wallet-label">@carteira.Nome</p>
+                        <h3 class="vs-wallet-value" style="color: @(carteira.Saldo >= 0 ? "#059669" : "#DC2626");">
+                            R$ @carteira.Saldo.ToString("N2", ptBr)
+                        </h3>
+                    </div>
+                    <div class="vs-wallet-icon">
+                        <span class="material-symbols-outlined">@iconeCarteira</span>
+                    </div>
+                </div>
+                <div class="vs-wallet-footer">
+                    <span>Conta disponível</span>
+                    <div style="display:flex; gap:8px;">
+                        <a asp-controller="Carteiras" asp-action="Editar" asp-route-id="@carteira.Id" style="color:#7C6FE0; font-weight:600; text-decoration:none;">Editar</a>
+                        <a asp-controller="Carteiras" asp-action="Index" style="color:#6B7280; text-decoration:none;">Ver detalhes</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Barra Rápida de Categorias Financeiras -->
+    <div class="vs-cat-bar">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span style="font-size:13px; font-weight:700; color:var(--text-1, #374151); display:inline-flex; align-items:center; gap:6px;">
+                <span class="material-symbols-outlined" style="font-size:18px; color:#7C6FE0;">sell</span>
+                Categorias Ativas:
+            </span>
+            <div class="vs-cat-chips">
+                @foreach (var cat in categorias)
+                {
+                    <a class="vs-cat-chip" asp-controller="Categoria" asp-action="Editar" asp-route-id="@cat.Id" title="Clique para editar a categoria @cat.Nome">
+                        <span>@cat.Nome</span>
+                    </a>
+                }
+            </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+            <a class="vs-btn vs-btn-secondary" style="padding:6px 12px; font-size:12.5px;" asp-controller="Categoria" asp-action="Criar">
+                <span class="material-symbols-outlined" style="font-size:16px;">add</span>Nova Categoria
+            </a>
+            <a class="vs-btn vs-btn-secondary" style="padding:6px 12px; font-size:12.5px;" asp-controller="Categoria" asp-action="Index">
+                <span class="material-symbols-outlined" style="font-size:16px;">settings</span>Gerenciar Todas
+            </a>
+        </div>
+    </div>
+
+    <!-- Card 1: Extrato de Movimentações -->
+    <div class="vs-section-card">
+        <div class="vs-section-header">
+            <div class="vs-section-title">
+                <div class="vs-wallet-icon" style="width:40px; height:40px;">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                </div>
+                <div>
+                    <h2>Extrato de Movimentações</h2>
+                    <p>Últimos lançamentos de entradas e saídas operacionais das carteiras</p>
+                </div>
+            </div>
+            <div class="vs-fin-actions">
+                <input type="text" id="buscaExtrato" class="vs-search-input" placeholder="Filtrar extrato..." onkeyup="filtrarTabela('tabelaExtrato', this.value)" />
+                <a class="vs-btn vs-btn-secondary" asp-area="" asp-controller="Financeiro" asp-action="Resumo">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                    <span>Ver Extrato Completo</span>
+                </a>
+                <a class="vs-btn vs-btn-primary" asp-area="" asp-controller="Financeiro" asp-action="Criar">
+                    <span class="material-symbols-outlined">swap_horiz</span>
+                    <span>Novo Lançamento</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="vs-table-wrap">
+            <table class="vs-table" id="tabelaExtrato">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Observação / Descrição</th>
+                        <th>Categoria</th>
+                        <th>Responsável</th>
+                        <th>Data / Hora</th>
+                        <th>Valor (R$)</th>
+                        <th style="text-align:right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!transacoes.Any())
+                    {
+                        <tr>
+                            <td colspan="7" style="text-align:center; padding:32px; color:#9CA3AF;">
+                                Nenhuma movimentação financeira registrada até o momento.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item_transacao in transacoes)
+                        {
+                            var isEntrada = item_transacao.Razao != null && item_transacao.Razao.ToLower().Contains("entrada");
+                            <tr>
+                                <td>
+                                    <span class="vs-badge @(isEntrada ? "vs-badge-entrada" : "vs-badge-saida")">
+                                        <span class="material-symbols-outlined">@(isEntrada ? "south_west" : "north_east")</span>
+                                        @(isEntrada ? "Entrada" : "Saída")
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong>@(string.IsNullOrWhiteSpace(item_transacao.Observacao) ? "Lançamento financeiro" : item_transacao.Observacao)</strong>
+                                </td>
+                                <td>
+                                    <span class="vs-badge vs-badge-cat">
+                                        @(item_transacao.CategoriaNavigation?.Nome ?? "Geral")
+                                    </span>
+                                </td>
+                                <td>@item_transacao.Usuario</td>
+                                <td>@item_transacao.Hora.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="@(isEntrada ? "vs-valor-entrada" : "vs-valor-saida")">
+                                    @(isEntrada ? "+" : "-") R$ @item_transacao.Valor.ToString("N2", ptBr)
+                                </td>
+                                <td style="text-align:right;">
+                                    <div class="vs-row-actions">
+                                        <a class="vs-action-btn vs-action-edit" asp-action="Editar" asp-route-id="@item_transacao.Id" title="Editar Lançamento">
+                                            <span class="material-symbols-outlined">edit</span>Editar
+                                        </a>
+                                        <a class="vs-action-btn vs-action-del" asp-action="Apagar" asp-route-id="@item_transacao.Id" title="Excluir Lançamento">
+                                            <span class="material-symbols-outlined">delete</span>Excluir
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Card 2: Doações Recebidas -->
+    <div class="vs-section-card">
+        <div class="vs-section-header">
+            <div class="vs-section-title">
+                <div class="vs-wallet-icon" style="width:40px; height:40px; background:rgba(16, 185, 129, 0.12); color:#059669;">
+                    <span class="material-symbols-outlined">volunteer_activism</span>
+                </div>
+                <div>
+                    <h2>Doações Financeiras Recebidas</h2>
+                    <p>Total acumulado nos últimos registros: <strong style="color:#059669;">R$ @totalDoacoes.ToString("N2", ptBr)</strong></p>
+                </div>
+            </div>
+            <div class="vs-fin-actions">
+                <a class="vs-btn vs-btn-secondary" asp-area="" asp-controller="Financeiro" asp-action="Doacoes">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                    <span>Ver Todas as Doações</span>
+                </a>
+                <a class="vs-btn vs-btn-success" asp-area="" asp-controller="Financeiro" asp-action="Criar" asp-route-origem="Doacoes">
+                    <span class="material-symbols-outlined">favorite</span>
+                    <span>Nova Doação</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="vs-table-wrap">
+            <table class="vs-table" id="tabelaDoacoes">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Observação / Doador</th>
+                        <th>Categoria</th>
+                        <th>Registrado por</th>
+                        <th>Data / Hora</th>
+                        <th>Valor (R$)</th>
+                        <th style="text-align:right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!doacoes.Any())
+                    {
+                        <tr>
+                            <td colspan="7" style="text-align:center; padding:32px; color:#9CA3AF;">
+                                Nenhuma doação financeira registrada até o momento.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item_transacao in doacoes)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="vs-badge vs-badge-entrada">
+                                        <span class="material-symbols-outlined">volunteer_activism</span>
+                                        @item_transacao.Razao
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong>@(string.IsNullOrWhiteSpace(item_transacao.Observacao) ? "Doação recebida" : item_transacao.Observacao)</strong>
+                                </td>
+                                <td>
+                                    <span class="vs-badge vs-badge-cat">
+                                        @(item_transacao.CategoriaNavigation?.Nome ?? "Doação")
+                                    </span>
+                                </td>
+                                <td>@item_transacao.Usuario</td>
+                                <td>@item_transacao.Hora.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="vs-valor-entrada">
+                                    + R$ @item_transacao.Valor.ToString("N2", ptBr)
+                                </td>
+                                <td style="text-align:right;">
+                                    <div class="vs-row-actions">
+                                        <a class="vs-action-btn vs-action-edit" asp-action="Editar" asp-route-id="@item_transacao.Id" title="Editar Doação">
+                                            <span class="material-symbols-outlined">edit</span>Editar
+                                        </a>
+                                        <a class="vs-action-btn vs-action-del" asp-action="Apagar" asp-route-id="@item_transacao.Id" title="Excluir Doação">
+                                            <span class="material-symbols-outlined">delete</span>Excluir
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-
-<div class="card card-extrato">
-    <a class="btn-abrir" asp-area="" asp-controller="Financeiro" asp-action="Resumo"><h2>Extrato</h2></a>
-    
-    <div class="btn-group">
-        <a class="btn-abrir" asp-area="" asp-controller="Financeiro" asp-action="Resumo"><span class="material-symbols-outlined">open_in_full</span></a>
-    </div>
-
-        <a class="btn-transferencia" asp-area="" asp-controller="Financeiro" asp-action="Criar"><i class="material-symbols-outlined">swap_horiz</i><span>Nova Transação</span></a>
-        <a class="btn-transferencia" style="margin-left:8px;" asp-area="" asp-controller="Categoria" asp-action="Index"><i class="material-symbols-outlined">category</i><span>Categorias</span></a>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Razão</th>
-                <th>Observação</th>
-                <th>Usuário</th>
-                <th>Categoria</th>
-                <th>Data/Hora</th>
-                <th>Valor</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var item_transacao in Model.lista_transacoes){
-            <tr>
-                <td>
-                    @item_transacao.Razao
-                </td>
-                <td>
-                    @item_transacao.Observacao
-                </td>
-                <td>
-                    @item_transacao.Usuario
-                </td>
-                <td>
-                    @item_transacao.CategoriaNavigation.Nome
-                </td>
-                <td>
-                    @item_transacao.Hora
-                </td>
-                <td>
-                    @item_transacao.Valor
-                </td>
-                <td>
-                    <a asp-action="Editar" asp-route-id="@item_transacao.Id"><span class="material-symbols-outlined">edit</span></a>
-                    <a asp-action="Apagar" asp-route-id="@item_transacao.Id"><span class="material-symbols-outlined">delete</span></a>
-                </td>
-            </tr>
-            }
-        </tbody>
-    </table>
-    </div>
-</div>
-
-
-<!-- -----------------------------------Tabelas da Esquerda ---------------------------------------------------->
-<div>
-    <div class="card card-doacoes">
-    <a class="btn-abrir" asp-area="" asp-controller="Financeiro" asp-action="Doacoes"><h2>Doações</h2></a>
-
-    <div class="btn-group">
-        <a class="btn-abrir" asp-area="" asp-controller="Financeiro" asp-action="Doacoes"><span class="material-symbols-outlined">open_in_full</span></a>
-    </div>
-
-    <a class="btn-transferencia" asp-area="" asp-controller="Financeiro" asp-action="Criar"><i class="material-symbols-outlined">swap_horiz</i><span>Nova Doação</span></a>
-
-    <table>
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.lista_doacoes.First().Razao)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.lista_doacoes.First().Observacao)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.lista_doacoes.First().Usuario)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.lista_doacoes.First().Categoria)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.lista_doacoes.First().Hora)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.lista_doacoes.First().Valor)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var item_transacao in Model.lista_doacoes){
-            <tr>
-                <td>
-                    @item_transacao.Razao
-                </td>
-                <td>
-                    @item_transacao.Observacao
-                </td>
-                <td>
-                    @item_transacao.Usuario
-                </td>
-                <td>
-                    @item_transacao.CategoriaNavigation.Nome
-                </td>
-                <td>
-                    @item_transacao.Hora
-                </td>
-                <td>
-                    @item_transacao.Valor
-                </td>
-                <td>
-                    <a asp-action="Editar" asp-route-id="@item_transacao.Id"><span class="material-symbols-outlined">edit</span></a>
-                    <a asp-action="Apagar" asp-route-id="@item_transacao.Id"><span class="material-symbols-outlined">delete</span></a>
-                </td>
-            </tr>
-            }       
-        </tbody>
-    </table>
-    </div>
-    </div>
-</div>
-
-
-
-
-
-
-
-
-
-
+@section Scripts {
+    <script>
+        function filtrarTabela(idTabela, termo) {
+            var filtro = (termo || '').toLowerCase().trim();
+            var linhas = document.querySelectorAll('#' + idTabela + ' tbody tr');
+            linhas.forEach(function (linha) {
+                var texto = (linha.innerText || '').toLowerCase();
+                linha.style.display = texto.indexOf(filtro) !== -1 ? '' : 'none';
+            });
+        }
+    </script>
+}

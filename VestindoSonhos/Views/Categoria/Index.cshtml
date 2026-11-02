@@ -1,34 +1,322 @@
-﻿@model IEnumerable<VestindoSonhos.Models.Categoria>
-<link rel="stylesheet" href="~/css/financeiro.css" />
+@model IEnumerable<VestindoSonhos.Models.Categoria>
+@using System.Linq
 
 @{
+    ViewData["Title"] = "Categorias Financeiras";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var categorias = Model ?? Enumerable.Empty<VestindoSonhos.Models.Categoria>();
 }
 
-<p>
-    <a class="btn-transferencia" asp-area="" asp-controller="Categoria" asp-action="Criar"><i class="material-symbols-outlined">add</i><span>Nova Categoria</span></a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Nome)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nome)
-            </td>
-                <td>
-                    <a asp-action="Editar" asp-route-id="@item.Id"><span class="material-symbols-outlined">edit</span></a>
-                    <a asp-action="Details" asp-route-id="@item.Id"><span class="material-symbols-outlined">search</span></a>
-                    <a asp-action="Apagar" asp-route-id="@item.Id"><span class="material-symbols-outlined">delete</span></a>
-            </td>
-        </tr>
+<style>
+    .vs-cat-page {
+        max-width: 1150px;
+        margin: 0 auto;
+        padding: 20px 24px 40px;
+    }
+
+    .vs-cat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .vs-cat-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--text-1, #1E1B4B);
+        text-align: left;
+        letter-spacing: -0.4px;
+    }
+
+    .vs-cat-header p {
+        margin: 4px 0 0;
+        font-size: 13.5px;
+        color: var(--text-2, #6B7280);
+    }
+
+    .vs-cat-btns {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .vs-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    .vs-btn .material-symbols-outlined {
+        font-size: 19px;
+    }
+
+    .vs-btn-primary {
+        background: linear-gradient(135deg, #7C6FE0 0%, #6354D4 100%);
+        color: #FFFFFF !important;
+        box-shadow: 0 4px 12px rgba(124, 111, 224, 0.28);
+    }
+
+    .vs-btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(124, 111, 224, 0.38);
+    }
+
+    .vs-btn-outline {
+        background: var(--color-5, #FFFFFF);
+        color: var(--text-1, #374151) !important;
+        border-color: var(--color-6, #E5E7EB);
+    }
+
+    .vs-btn-outline:hover {
+        border-color: #7C6FE0;
+        color: #7C6FE0 !important;
+    }
+
+    .vs-cat-card {
+        background: var(--color-5, #FFFFFF);
+        border: 1px solid var(--color-6, #E5E7EB);
+        border-radius: 16px;
+        padding: 22px 24px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .vs-cat-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--color-6, #F3F4F6);
+    }
+
+    .vs-search-box {
+        position: relative;
+        flex: 1;
+        min-width: 240px;
+        max-width: 420px;
+    }
+
+    .vs-search-box .material-symbols-outlined {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9CA3AF;
+        font-size: 19px;
+    }
+
+    .vs-search-box input {
+        width: 100%;
+        padding: 9px 14px 9px 38px;
+        border-radius: 10px;
+        border: 1px solid var(--color-6, #D1D5DB);
+        background: var(--color-5, #FFFFFF);
+        color: var(--text-1, #1F2937);
+        font-size: 13.5px;
+        outline: none;
+    }
+
+    .vs-search-box input:focus {
+        border-color: #7C6FE0;
+        box-shadow: 0 0 0 3px rgba(124, 111, 224, 0.15);
+    }
+
+    .vs-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .vs-table thead th {
+        background: rgba(124, 111, 224, 0.06);
+        color: var(--text-2, #4B5563);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--color-6, #E5E7EB);
+    }
+
+    .vs-table tbody td {
+        padding: 14px 16px;
+        font-size: 14px;
+        color: var(--text-1, #1F2937);
+        border-bottom: 1px solid var(--color-6, #F3F4F6);
+        vertical-align: middle;
+    }
+
+    .vs-table tbody tr:hover {
+        background: rgba(124, 111, 224, 0.03);
+    }
+
+    .vs-cat-name {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 600;
+    }
+
+    .vs-cat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(124, 111, 224, 0.12);
+        color: #7C6FE0;
+    }
+
+    .vs-sync-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #ECFDF5;
+        color: #059669;
+        border: 1px solid #A7F3D0;
+    }
+
+    .vs-row-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .vs-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 11px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s;
+    }
+
+    .vs-action-btn .material-symbols-outlined {
+        font-size: 15px;
+    }
+
+    .vs-action-edit { background: #EEF2FF; color: #4F46E5 !important; }
+    .vs-action-edit:hover { background: #E0E7FF; }
+    .vs-action-view { background: #F3F4F6; color: #4B5563 !important; }
+    .vs-action-view:hover { background: #E5E7EB; }
+    .vs-action-del { background: #FEE2E2; color: #DC2626 !important; }
+    .vs-action-del:hover { background: #FECACA; }
+</style>
+
+<div class="vs-cat-page">
+    <div class="vs-cat-header">
+        <div>
+            <h1>Categorias Financeiras</h1>
+            <p>Classificação de receitas, despesas e doações sincronizadas entre o Portal Web, App Mobile e /mobile</p>
+        </div>
+        <div class="vs-cat-btns">
+            <a class="vs-btn vs-btn-outline" asp-controller="Financeiro" asp-action="Financeiro">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span>Voltar ao Financeiro</span>
+            </a>
+            <a class="vs-btn vs-btn-outline" asp-controller="Carteiras" asp-action="Index">
+                <span class="material-symbols-outlined">account_balance_wallet</span>
+                <span>Carteiras &amp; Contas</span>
+            </a>
+            <a class="vs-btn vs-btn-primary" asp-controller="Categoria" asp-action="Criar">
+                <span class="material-symbols-outlined">add_circle</span>
+                <span>Nova Categoria</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="vs-cat-card">
+        <div class="vs-cat-toolbar">
+            <div class="vs-search-box">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" id="buscaCategoria" placeholder="Pesquisar categoria financeira..." onkeyup="filtrarCategorias(this.value)" />
+            </div>
+            <div style="font-size:13px; color:var(--text-2, #6B7280); font-weight:600;">
+                Total: <strong style="color:#7C6FE0;">@categorias.Count()</strong> categoria(s) ativa(s)
+            </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+            <table class="vs-table" id="tabelaCategorias">
+                <thead>
+                    <tr>
+                        <th style="width:90px;">Código</th>
+                        <th>Nome da Categoria</th>
+                        <th>Sincronização</th>
+                        <th style="text-align:right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in categorias)
+                    {
+                        <tr>
+                            <td style="color:#6B7280; font-weight:600;">#@item.Id</td>
+                            <td>
+                                <div class="vs-cat-name">
+                                    <span class="vs-cat-icon">
+                                        <span class="material-symbols-outlined" style="font-size:18px;">label</span>
+                                    </span>
+                                    <span>@item.Nome</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="vs-sync-badge">
+                                    <span class="material-symbols-outlined" style="font-size:14px;">sync</span>
+                                    Web, APK &amp; /mobile
+                                </span>
+                            </td>
+                            <td style="text-align:right;">
+                                <div class="vs-row-actions">
+                                    <a class="vs-action-btn vs-action-edit" asp-action="Editar" asp-route-id="@item.Id" title="Renomear Categoria">
+                                        <span class="material-symbols-outlined">edit</span>Editar
+                                    </a>
+                                    <a class="vs-action-btn vs-action-view" asp-action="Details" asp-route-id="@item.Id" title="Ver Detalhes">
+                                        <span class="material-symbols-outlined">visibility</span>Detalhes
+                                    </a>
+                                    <a class="vs-action-btn vs-action-del" asp-action="Apagar" asp-route-id="@item.Id" title="Excluir Categoria">
+                                        <span class="material-symbols-outlined">delete</span>Excluir
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function filtrarCategorias(termo) {
+            var filtro = (termo || '').toLowerCase().trim();
+            var linhas = document.querySelectorAll('#tabelaCategorias tbody tr');
+            linhas.forEach(function (linha) {
+                var texto = (linha.innerText || '').toLowerCase();
+                linha.style.display = texto.indexOf(filtro) !== -1 ? '' : 'none';
+            });
+        }
+    </script>
 }
-    </tbody>
-</table>

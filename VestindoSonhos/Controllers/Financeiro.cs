@@ -72,6 +72,7 @@ namespace VestindoSonhos.Controllers
                                      CategoriaNavigation = t.CategoriaNavigation
                                  }).Take(15).ToList()
             };
+            ViewBag.Categorias = await _context.Categoria.OrderBy(c => c.Nome).ToListAsync();
             return View(resumo_financeiro);
         }
 
@@ -88,13 +89,15 @@ namespace VestindoSonhos.Controllers
                               orderby t.Hora descending
                               select new TransacaoFinanceiraViewModel
                               {
+                                  Id = t.Id,
                                   Valor = tf.Valor,
                                   UsuarioId = u.Id,
                                   Usuario = u.Nome,
                                   Razao = t.Razao.ToString(),
                                   Hora = t.Hora,
                                   Categoria = c.Id,
-                                  Observacao = t.Observacao
+                                  Observacao = t.Observacao,
+                                  CategoriaNavigation = c
                               }).ToList();
             return View(transacoes);
         }
@@ -112,13 +115,15 @@ namespace VestindoSonhos.Controllers
                               orderby t.Hora descending
                               select new TransacaoFinanceiraViewModel
                               {
+                                  Id = t.Id,
                                   Valor = tf.Valor,
                                   UsuarioId = u.Id,
                                   Usuario = u.Nome,
                                   Razao = t.Razao.ToString(),
                                   Hora = t.Hora,
                                   Categoria = c.Id,
-                                  Observacao = t.Observacao
+                                  Observacao = t.Observacao,
+                                  CategoriaNavigation = c
                               }).ToList();
             return View(transacoes);
         }
