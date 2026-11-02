@@ -101655,7 +101655,9 @@ l=i?null:a.e
 if(l==null)l="Ok"
 j.a=l
 j.b=!1
-if(!B.b.m(A.b(["Ok","Aguardando","Bloqueado"],t.s),l))j.a="Ok"
+if(!B.b.m(A.b(["Ok","Aguardando","Bloqueado"],t.s),l))if(B.c.m(l.toLowerCase(),"aguard"))j.a="Aguardando"
+else if(B.c.m(l.toLowerCase(),"bloq"))j.a="Bloqueado"
+else j.a="Ok"
 k=q.c
 k.toString
 s=2
