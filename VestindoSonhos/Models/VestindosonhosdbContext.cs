@@ -47,8 +47,11 @@ public partial class VestindosonhosdbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            var connStr = "Server=localhost;Port=3306;Database=VESTINDOSONHOSDB;User=root;Password=root;";
-            optionsBuilder.UseMySQL(connStr);
+            var connStr = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+            if (!string.IsNullOrWhiteSpace(connStr))
+            {
+                optionsBuilder.UseMySQL(connStr);
+            }
         }
     }
 

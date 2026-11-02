@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="VestindoSonhos\VestindoSonhos.csproj" />
+  <Project Path="VestindoSonhos.Tests\VestindoSonhos.Tests.csproj" />
+</Solution>
