@@ -130,6 +130,37 @@ using (var scope = app.Services.CreateScope())
     try { db.Database.ExecuteSqlRaw("UPDATE Carteira SET nome = 'Caixa Físico (Sede)' WHERE id = 2;"); } catch { }
     try { db.Database.ExecuteSqlRaw("UPDATE Eventos SET local = 'Ginásio Municipal', observacao = 'Arrecadação de casacos e cobertores' WHERE id = 1;"); } catch { }
     try { db.Database.ExecuteSqlRaw("UPDATE Eventos SET observacao = 'Venda comunitária e distribuição' WHERE id = 2;"); } catch { }
+
+    // Auto-reparo caso alguma transação tenha sido inflada pelo bug de parsing (ex: 1500 virando 150000)
+    try
+    {
+        var transacoesInfladas = db.TransacaoFinanceira.Where(t => t.Valor >= 100000m).ToList();
+        foreach (var ti in transacoesInfladas)
+        {
+            if (ti.Valor % 100 == 0)
+            {
+                decimal valorCorreto = ti.Valor / 100m;
+                decimal diferenca = ti.Valor - valorCorreto;
+                ti.Valor = valorCorreto;
+
+                var cart = db.Carteira.FirstOrDefault(c => c.Id == ti.Carteira);
+                if (cart != null)
+                {
+                    var trans = db.Transacao.FirstOrDefault(tr => tr.Id == ti.Id);
+                    if (trans?.Razao == "Entrada" || trans?.Razao == null)
+                    {
+                        cart.Saldo -= diferenca;
+                    }
+                    else
+                    {
+                        cart.Saldo += diferenca;
+                    }
+                }
+            }
+        }
+        db.SaveChanges();
+    }
+    catch { }
 }
 
 var cookiePolicyOptions = new CookiePolicyOptions

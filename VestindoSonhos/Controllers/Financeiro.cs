@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using VestindoSonhos.Models;
 using VestindoSonhos.ViewModels;
+using VestindoSonhos.Helpers;
 using System.Text.Json;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
@@ -518,10 +519,18 @@ namespace VestindoSonhos.Controllers
                     return View(tfViewModel);
                 }
 
-                tfViewModel.Valor = decimal.Parse(Request.Form["Valor"].ToString().Replace(".", ","));
+                if (Request.Form.ContainsKey("Valor"))
+                {
+                    tfViewModel.Valor = MoedaHelper.ConverterValorMonetario(Request.Form["Valor"].ToString());
+                }
+                else
+                {
+                    tfViewModel.Valor = MoedaHelper.ConverterValorMonetario(tfViewModel.Valor.ToString());
+                }
 
                 if (tfViewModel.Valor <= 0)
                 {
+                    ModelState.AddModelError(nameof(tfViewModel.Valor), "O valor da transação deve ser maior que zero.");
                     CarregarDropdowns();
                     return View(tfViewModel);
                 }
@@ -710,10 +719,18 @@ namespace VestindoSonhos.Controllers
                 var transacaoFinanceira = _context.TransacaoFinanceira.FirstOrDefault(tf => tf.Id == id);
                 var transacao = _context.Transacao.FirstOrDefault(t => t.Id == id);
 
-                tfViewModel.Valor = decimal.Parse(Request.Form["Valor"].ToString().Replace(".", ","));
+                if (Request.Form.ContainsKey("Valor"))
+                {
+                    tfViewModel.Valor = MoedaHelper.ConverterValorMonetario(Request.Form["Valor"].ToString());
+                }
+                else
+                {
+                    tfViewModel.Valor = MoedaHelper.ConverterValorMonetario(tfViewModel.Valor.ToString());
+                }
 
                 if (tfViewModel.Valor <= 0)
                 {
+                    ModelState.AddModelError(nameof(tfViewModel.Valor), "O valor da transação deve ser maior que zero.");
                     CarregarDropdowns();
                     return View(tfViewModel);
                 }
