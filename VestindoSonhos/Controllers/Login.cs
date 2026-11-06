@@ -259,76 +259,35 @@ namespace VestindoSonhos.Controllers
         [AllowAnonymous]
         public ActionResult RecuperarSenha()
         {
-            return View();
-        }
-
-        // POST: /RecuperarSenha
-        [AllowAnonymous]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> RecuperarSenha([Bind("Email,Cpf")] RecuperarSenhaViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var usuario = await _context.Usuario.FirstOrDefaultAsync(u => u.Email == model.Email);
-                if (usuario == null || usuario.Cpf != model.Cpf)
-                {
-                    TempData["Erro"] = "Usuário inválido.";
-                    return RedirectToAction(controllerName: "Home", actionName: "Index");
-                }
-                return RedirectToAction(actionName: "DefinirNovaSenha", model);
-            }
+            TempData["Erro"] = "A alteração e redefinição de senhas é realizada exclusivamente pelo Administrador do sistema.";
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: /Login/RecuperarSenha
-        [AllowAnonymous]
-        public ActionResult DefinirNovaSenha(RecuperarSenhaViewModel model)
-        {
-            return View();
-        }
-
         // POST: /RecuperarSenha
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> DefinirNovaSenha([Bind("Email,Cpf,SenhaNova,RepeteSenhaNova")] DefinirNovaSenhaViewModel model)
+        public ActionResult RecuperarSenha([Bind("Email,Cpf")] RecuperarSenhaViewModel model)
         {
-            if (model.SenhaNova != model.RepeteSenhaNova)
-            {
-                ModelState.AddModelError(nameof(model.SenhaNova), "As novas senhas não coincidem");
-                return View(model);
-            }
-            else if (model.SenhaNova.Length < 8)
-            {
-                ModelState.AddModelError(nameof(model.SenhaNova), "A senha é muito fraca, são necessários ao menos 8 caracteres.");
-                return View(model);
-            }
-            //FOREACH para DEBUG
-            foreach (var erro in ModelState)
-            {
-                foreach (var subErro in erro.Value.Errors)
-                {
-                    Console.WriteLine($"{erro.Key}: {subErro.ErrorMessage}");
-                }
-            }
-            if (ModelState.IsValid)
-            {
-                Console.WriteLine("|| Ok ||");
-                var passwordHasher = new PasswordHasher<Usuario>();
-                var usuario = await _context.Usuario.FirstOrDefaultAsync(u => u.Email == model.Email);
-                if (usuario == null || usuario.Cpf != model.Cpf)
-                {
-                    TempData["Erro"] = "Usuário inválido.";
-                    return RedirectToAction(controllerName: "Home", actionName: "Index");
-                }
-                var senhaCriptografada = passwordHasher.HashPassword(usuario, model.SenhaNova);
-                usuario.Senha = senhaCriptografada;
-                _context.Update(usuario);
-                await _context.SaveChangesAsync();
-                TempData["Sucesso"] = "Senha alterada com sucesso.";
-                return RedirectToAction(controllerName: "Home", actionName: "Index");
-            }
+            TempData["Erro"] = "A alteração e redefinição de senhas é realizada exclusivamente pelo Administrador do sistema.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: /Login/DefinirNovaSenha
+        [AllowAnonymous]
+        public ActionResult DefinirNovaSenha(RecuperarSenhaViewModel model)
+        {
+            TempData["Erro"] = "A alteração e redefinição de senhas é realizada exclusivamente pelo Administrador do sistema.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: /Login/DefinirNovaSenha
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DefinirNovaSenha([Bind("Email,Cpf,SenhaNova,RepeteSenhaNova")] DefinirNovaSenhaViewModel model)
+        {
+            TempData["Erro"] = "A alteração e redefinição de senhas é realizada exclusivamente pelo Administrador do sistema.";
             return RedirectToAction(nameof(Index));
         }
 
