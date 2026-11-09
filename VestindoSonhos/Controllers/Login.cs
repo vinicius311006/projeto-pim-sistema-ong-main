@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using VestindoSonhos.Models;
@@ -32,6 +33,7 @@ namespace VestindoSonhos.Controllers
         // POST: /Login
         [AllowAnonymous]
         [HttpPost]
+        [EnableRateLimiting("login-policy")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index([Bind("Email", "Senha")] LoginViewModel model)
         {

@@ -21,14 +21,14 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Categoria
-        [Authorize(Roles = "Administrador,Colaborador")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Categoria.ToListAsync());
         }
 
         // GET: Categoria/Details/5
-        [Authorize(Roles = "Administrador,Colaborador")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -48,7 +48,7 @@ namespace VestindoSonhos.Controllers
 
         // GET: Categoria/Criar
         [Authorize(Roles = "Administrador,Colaborador")]
-        public IActionResult Criar(string returnUrl)
+        public IActionResult Criar(string? returnUrl = null)
         {
             ViewBag.ReturnUrl = returnUrl;
             return View();
@@ -60,7 +60,7 @@ namespace VestindoSonhos.Controllers
         [Authorize(Roles = "Administrador,Colaborador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Criar([Bind("Id", "Nome")] Models.Categoria categoria, string returnUrl = null)
+        public async Task<IActionResult> Criar([Bind("Id", "Nome")] Models.Categoria categoria, string? returnUrl = null)
         {
             foreach (var state in ModelState)
             {
@@ -75,14 +75,29 @@ namespace VestindoSonhos.Controllers
                 _context.Add(categoria);
                 await _context.SaveChangesAsync();
 
-                return Redirect(returnUrl ?? "/Categoria/Index/");
+                bool urlLocalSegura = !string.IsNullOrWhiteSpace(returnUrl) &&
+                    (Url != null
+                        ? Url.IsLocalUrl(returnUrl)
+                        : (returnUrl.StartsWith("/") && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\")));
+
+                if (urlLocalSegura)
+                {
+                    return LocalRedirect(returnUrl!);
+                }
+
+                if (User?.IsInRole("Administrador") == true)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return RedirectToAction("Index", "Inventario");
             }
 
             return View(categoria);
         }
 
         // GET: Categoria/Edit/5
-        [Authorize(Roles = "Administrador,Colaborador")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Editar(int? id)
         {
             if (id == null)
@@ -101,7 +116,7 @@ namespace VestindoSonhos.Controllers
         // POST: Categoria/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Administrador,Colaborador")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Editar(int id, [Bind("Id,Nome")] Models.Categoria categoria)
@@ -135,7 +150,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // GET: Categoria/Apagar/5
-        [Authorize(Roles = "Administrador,Colaborador")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Apagar(int? id)
         {
             if (id == null)
@@ -154,7 +169,7 @@ namespace VestindoSonhos.Controllers
         }
 
         // POST: Categoria/Apagar/5
-        [Authorize(Roles = "Administrador,Colaborador")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost, ActionName("Apagar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApagarConfirmed(int id)

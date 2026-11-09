@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using VestindoSonhos.Helpers;
 using VestindoSonhos.Models;
 using VestindoSonhos.Models.DTOs;
 
@@ -17,7 +19,6 @@ namespace VestindoSonhos.Controllers.Api
     /// </summary>
     [ApiController]
     [Route("api/auth")]
-    [AllowAnonymous]
     public class AuthApiController : ControllerBase
     {
         private readonly VestindosonhosdbContext _context;
@@ -39,7 +40,9 @@ namespace VestindoSonhos.Controllers.Api
         /// </summary>
         /// <param name="request">Credenciais de acesso (Email e Senha)</param>
         /// <returns>Token JWT e dados do usuário autenticado</returns>
+        [AllowAnonymous]
         [HttpPost("login")]
+        [EnableRateLimiting("login-policy")]
         [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -108,11 +111,7 @@ namespace VestindoSonhos.Controllers.Api
                 .FirstOrDefaultAsync(v => v.Email == usuario.Email || (!string.IsNullOrEmpty(usuario.Cpf) && v.Cpf == usuario.Cpf));
 
             // 5. Configuração das credenciais e claims do token JWT
-            var jwtKey = _configuration["Jwt:Key"];
-            if (string.IsNullOrWhiteSpace(jwtKey))
-            {
-                jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? Convert.ToBase64String(Encoding.UTF8.GetBytes("VestindoSonhos_Default_Runtime_Signing_Key_2026"));
-            }
+            var jwtKey = JwtKeyHelper.ObterChaveJwt(_configuration);
             var jwtIssuer = _configuration["Jwt:Issuer"] ?? "VestindoSonhosAPI";
             var jwtAudience = _configuration["Jwt:Audience"] ?? "VestindoSonhosMobile";
             var expireHours = int.TryParse(_configuration["Jwt:ExpireHours"], out var hours) ? hours : 8;
@@ -142,6 +141,11 @@ namespace VestindoSonhos.Controllers.Api
                 new Claim("Cargo", cargoNome),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+
+            if (usuario.ExigirTrocaSenha)
+            {
+                claims.Add(new Claim("ExigeTrocaSenha", "true"));
+            }
 
             if (voluntario != null)
             {
@@ -181,14 +185,30 @@ namespace VestindoSonhos.Controllers.Api
         }
 
         /// <summary>
-        /// Endpoint para troca obrigatória de senha temporária/inicial via aplicativo móvel.
+        /// Endpoint autenticado para troca obrigatória de senha temporária/inicial via aplicativo móvel.
+        /// Protegido contra IDOR validando o UserId autenticado no token JWT.
         /// </summary>
+        [Authorize]
         [HttpPost("trocar-senha-obrigatoria")]
         public async Task<IActionResult> TrocarSenhaObrigatoria([FromBody] TrocarSenhaObrigatoriaApiRequestDto request)
         {
+            var userIdClaim = User?.FindFirst("UserId")?.Value
+                ?? User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out int authenticatedUserId))
+            {
+                return Unauthorized(new { mensagem = "Sessão inválida ou não autenticada." });
+            }
+
             if (request == null || string.IsNullOrWhiteSpace(request.NovaSenha) || request.NovaSenha.Length < 6)
             {
                 return BadRequest(new { mensagem = "A nova senha deve ter no mínimo 6 caracteres." });
+            }
+
+            if (request.UsuarioId > 0 && request.UsuarioId != authenticatedUserId)
+            {
+                _logger.LogWarning("Tentativa de IDOR na troca de senha: usuário {AuthId} tentou alterar senha do usuário {TargetId}.", authenticatedUserId, request.UsuarioId);
+                return StatusCode(StatusCodes.Status403Forbidden, new { mensagem = "Acesso negado: você só pode alterar a sua própria senha." });
             }
 
             if (request.NovaSenha == "123456" || request.NovaSenha.Equals("Ong@2026", StringComparison.OrdinalIgnoreCase))
@@ -196,10 +216,15 @@ namespace VestindoSonhos.Controllers.Api
                 return BadRequest(new { mensagem = "Por motivos de segurança, você não pode reutilizar a senha padrão inicial. Escolha uma nova senha pessoal." });
             }
 
-            var usuario = await _context.Usuario.FindAsync(request.UsuarioId);
+            var usuario = await _context.Usuario.FindAsync(authenticatedUserId);
             if (usuario == null)
             {
                 return NotFound(new { mensagem = "Usuário não encontrado." });
+            }
+
+            if (!usuario.ExigirTrocaSenha)
+            {
+                return BadRequest(new { mensagem = "Esta conta não possui pendência de troca obrigatória de senha." });
             }
 
             var passwordHasher = new PasswordHasher<Usuario>();

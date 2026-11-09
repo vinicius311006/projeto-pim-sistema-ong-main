@@ -1,9 +1,13 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
+using System.Threading.RateLimiting;
+using VestindoSonhos.Helpers;
 using VestindoSonhos.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,17 +41,65 @@ builder.Services.AddDbContext<VestindosonhosdbContext>(options =>
     {
         options.UseSqlServer(connectionString);
     }
-    options.EnableSensitiveDataLogging();
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+    }
 });
 
-// Configurações do JWT (lê de User Secrets ou Variáveis de Ambiente)
-var jwtKey = builder.Configuration["Jwt:Key"];
-if (string.IsNullOrWhiteSpace(jwtKey))
-{
-    jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? Convert.ToBase64String(Encoding.UTF8.GetBytes("VestindoSonhos_Default_Runtime_Signing_Key_2026"));
-}
+// Configurações do JWT (lê de User Secrets, Variáveis de Ambiente ou gera chave criptográfica efêmera segura)
+var jwtKey = JwtKeyHelper.ObterChaveJwt(builder.Configuration);
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "VestindoSonhosAPI";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "VestindoSonhosMobile";
+
+// Proteção contra Força Bruta e Negação de Serviço (Rate Limiting)
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // Limite global por IP: até 180 requisições por minuto
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "global",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 180,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    // Limite estrito para rotas de Login: até 10 tentativas por minuto por IP
+    options.AddPolicy("login-policy", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "login",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 10,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        if (context.HttpContext.Request.Path.StartsWithSegments("/api"))
+        {
+            context.HttpContext.Response.ContentType = "application/json";
+            await context.HttpContext.Response.WriteAsync(
+                "{\"mensagem\":\"Muitas tentativas realizadas em curto período. Aguarde 1 minuto antes de tentar novamente.\"}",
+                token);
+        }
+        else
+        {
+            context.HttpContext.Response.ContentType = "text/plain; charset=utf-8";
+            await context.HttpContext.Response.WriteAsync(
+                "Muitas tentativas realizadas em curto período. Por segurança, aguarde 1 minuto e tente novamente.",
+                token);
+        }
+    };
+});
 
 // Configuração de Autenticação Híbrida (Cookie para Web MVC + JWT Bearer para API REST)
 builder.Services.AddAuthentication(options =>
@@ -181,24 +233,48 @@ if (!app.Environment.IsDevelopment())
 
 // app.UseHttpsRedirection();
 app.UseRouting();
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Interceptador para forçar alteração de senha temporária
+// Interceptador para forçar alteração de senha temporária (Web e API)
 app.Use(async (context, next) =>
 {
     if (context.User.Identity?.IsAuthenticated == true && context.User.HasClaim(c => c.Type == "ExigeTrocaSenha" && c.Value == "true"))
     {
         var path = context.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
-        if (!path.StartsWith("/login/trocarsenhaobrigatoria") &&
-            !path.StartsWith("/login/logout") &&
-            !path.StartsWith("/css") &&
-            !path.StartsWith("/js") &&
-            !path.StartsWith("/lib") &&
-            !path.StartsWith("/img") &&
-            !path.StartsWith("/images") &&
-            !path.StartsWith("/mobile"))
+
+        if (path.StartsWith("/api"))
+        {
+            if (!path.StartsWith("/api/auth/trocar-senha-obrigatoria") &&
+                !path.StartsWith("/api/auth/login"))
+            {
+                var userIdStr = context.User.FindFirst("UserId")?.Value
+                    ?? context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (int.TryParse(userIdStr, out int userId))
+                {
+                    var db = context.RequestServices.GetRequiredService<VestindosonhosdbContext>();
+                    var usuario = await db.Usuario.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+                    if (usuario?.ExigirTrocaSenha == true)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        context.Response.ContentType = "application/json";
+                        await context.Response.WriteAsync("{\"mensagem\":\"Troca de senha temporária obrigatória antes de acessar os recursos do sistema.\"}");
+                        return;
+                    }
+                }
+            }
+        }
+        else if (!path.StartsWith("/login/trocarsenhaobrigatoria") &&
+                 !path.StartsWith("/login/logout") &&
+                 !path.StartsWith("/css") &&
+                 !path.StartsWith("/js") &&
+                 !path.StartsWith("/lib") &&
+                 !path.StartsWith("/img") &&
+                 !path.StartsWith("/images") &&
+                 !path.StartsWith("/mobile"))
         {
             context.Response.Redirect("/Login/TrocarSenhaObrigatoria");
             return;
