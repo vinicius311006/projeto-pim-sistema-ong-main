@@ -60,6 +60,16 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Id,Categoria")] Models.TiposAtivo tiposAtivo)
         {
+            tiposAtivo.Categoria = tiposAtivo.Categoria?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(tiposAtivo.Categoria))
+            {
+                ModelState.AddModelError(nameof(tiposAtivo.Categoria), "O nome da categoria de produto é obrigatório.");
+            }
+            else if (tiposAtivo.Categoria.Length > 60)
+            {
+                tiposAtivo.Categoria = tiposAtivo.Categoria.Substring(0, 60);
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(tiposAtivo);
@@ -97,6 +107,16 @@ namespace VestindoSonhos.Controllers
             if (id != tiposAtivo.Id)
             {
                 return NotFound();
+            }
+
+            tiposAtivo.Categoria = tiposAtivo.Categoria?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(tiposAtivo.Categoria))
+            {
+                ModelState.AddModelError(nameof(tiposAtivo.Categoria), "O nome da categoria de produto é obrigatório.");
+            }
+            else if (tiposAtivo.Categoria.Length > 60)
+            {
+                tiposAtivo.Categoria = tiposAtivo.Categoria.Substring(0, 60);
             }
 
             if (ModelState.IsValid)

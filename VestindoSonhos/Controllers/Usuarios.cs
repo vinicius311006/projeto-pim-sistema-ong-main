@@ -89,6 +89,15 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Nome,Cargo,DataNascimento,Telefone,Email,Endereco,Cpf,Senha,ExigirTrocaSenha")] UsuarioViewModel usuario)
         {
+            usuario.Nome = usuario.Nome?.Trim();
+            usuario.Email = usuario.Email?.Trim();
+            usuario.Endereco = usuario.Endereco?.Trim();
+
+            if (string.IsNullOrWhiteSpace(usuario.Nome))
+            {
+                ModelState.AddModelError(nameof(usuario.Nome), "O nome do usuário é obrigatório.");
+            }
+
             if (!string.IsNullOrEmpty(usuario.Telefone))
             {
                 usuario.Telefone = Regex.Replace(usuario.Telefone, @"\D", "");
@@ -100,6 +109,8 @@ namespace VestindoSonhos.Controllers
                 usuario.Cpf = Regex.Replace(usuario.Cpf, @"\D", "");
                 if (usuario.Cpf.Length > 11)
                     usuario.Cpf = usuario.Cpf.Substring(0, 11);
+                if (usuario.Cpf.Length != 11)
+                    ModelState.AddModelError(nameof(usuario.Cpf), "O CPF deve conter 11 dígitos numéricos.");
             }
             if (!string.IsNullOrEmpty(usuario.Nome) && usuario.Nome.Length > 50)
             {
@@ -208,6 +219,15 @@ namespace VestindoSonhos.Controllers
             if (id != usuario.Id)
             {
                 return NotFound();
+            }
+
+            usuario.Nome = usuario.Nome?.Trim();
+            usuario.Email = usuario.Email?.Trim();
+            usuario.Endereco = usuario.Endereco?.Trim();
+
+            if (string.IsNullOrWhiteSpace(usuario.Nome))
+            {
+                ModelState.AddModelError(nameof(usuario.Nome), "O nome do usuário é obrigatório.");
             }
 
             if (!string.IsNullOrEmpty(usuario.Telefone))

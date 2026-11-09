@@ -175,6 +175,15 @@ namespace VestindoSonhos.Controllers
         {
             if (voluntario == null) return;
 
+            voluntario.Nome = voluntario.Nome?.Trim();
+            voluntario.Endereco = voluntario.Endereco?.Trim();
+            voluntario.Email = voluntario.Email?.Trim();
+
+            if (string.IsNullOrWhiteSpace(voluntario.Nome))
+            {
+                ModelState.AddModelError(nameof(voluntario.Nome), "O nome do voluntário é obrigatório.");
+            }
+
             if (!string.IsNullOrEmpty(voluntario.Telefone))
             {
                 voluntario.Telefone = Regex.Replace(voluntario.Telefone, @"\D", "");
@@ -187,6 +196,8 @@ namespace VestindoSonhos.Controllers
                 voluntario.Cpf = Regex.Replace(voluntario.Cpf, @"\D", "");
                 if (voluntario.Cpf.Length > 11)
                     voluntario.Cpf = voluntario.Cpf.Substring(0, 11);
+                if (voluntario.Cpf.Length != 11)
+                    ModelState.AddModelError(nameof(voluntario.Cpf), "O CPF deve conter 11 dígitos numéricos.");
             }
 
             if (!string.IsNullOrEmpty(voluntario.Nome) && voluntario.Nome.Length > 60)

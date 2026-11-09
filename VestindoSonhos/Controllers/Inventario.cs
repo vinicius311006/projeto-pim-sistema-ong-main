@@ -293,6 +293,14 @@ namespace VestindoSonhos.Controllers
                     $"Quantidade: {p.Quantidade}");
             }
 
+            var produtosSelecionados = model.Produtos?.Where(p => p.Selecionado == true && p.Quantidade > 0).ToList();
+            if (produtosSelecionados == null || !produtosSelecionados.Any())
+            {
+                CarregarDropdowns();
+                ModelState.AddModelError("", "Por favor, selecione ao menos um produto na tabela e informe a quantidade.");
+                return View(model);
+            }
+
             if (ModelState.IsValid)
             {
 
@@ -305,14 +313,14 @@ namespace VestindoSonhos.Controllers
                 transacao.Razao = model.Razao;
                 if (!string.IsNullOrWhiteSpace(model.Observacao))
                 {
-                    transacao.Observacao = model.Observacao;
+                    var obs = model.Observacao.Trim();
+                    transacao.Observacao = obs.Length > 255 ? obs.Substring(0, 255) : obs;
                 }
                 transacao.Hora = DateTime.Now;
                 try
                 {
                     _context.Transacao.Update(transacao);
                     await _context.TransacaoInventario.Where(ti => ti.TransacaoId == id).ExecuteDeleteAsync();
-                    var produtosSelecionados = model.Produtos.Where(p => p.Selecionado == true && p.Quantidade > 0);
                     foreach (var produtoAdicionado in produtosSelecionados)
                     {
                         var transacaoInventario = new TransacaoInventario

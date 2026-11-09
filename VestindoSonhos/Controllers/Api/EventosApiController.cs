@@ -110,6 +110,11 @@ namespace VestindoSonhos.Controllers.Api
                 return BadRequest(new { mensagem = "O nome do evento é obrigatório." });
             }
 
+            if (dto.DataInicio.HasValue && dto.DataFim.HasValue && dto.DataFim < dto.DataInicio)
+            {
+                return BadRequest(new { mensagem = "A data de término não pode ser anterior à data de início." });
+            }
+
             var idUsuarioClaim = User.FindFirst("UserId")?.Value 
                 ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             int idUsuario = 1;
@@ -165,6 +170,11 @@ namespace VestindoSonhos.Controllers.Api
             if (string.IsNullOrWhiteSpace(dto.Nome))
             {
                 return BadRequest(new { mensagem = "O nome do evento é obrigatório." });
+            }
+
+            if (dto.DataInicio.HasValue && dto.DataFim.HasValue && dto.DataFim < dto.DataInicio)
+            {
+                return BadRequest(new { mensagem = "A data de término não pode ser anterior à data de início." });
             }
 
             var nome = dto.Nome.Trim();

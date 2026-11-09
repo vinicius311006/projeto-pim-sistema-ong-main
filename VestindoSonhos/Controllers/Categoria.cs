@@ -62,14 +62,16 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Id", "Nome")] Models.Categoria categoria, string? returnUrl = null)
         {
-            foreach (var state in ModelState)
+            categoria.Nome = categoria.Nome?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(categoria.Nome))
             {
-                Console.WriteLine($"Campo: {state.Key}");
-                foreach (var error in state.Value.Errors)
-                {
-                    Console.WriteLine($"Erro: {error.ErrorMessage}");
-                }
+                ModelState.AddModelError(nameof(categoria.Nome), "O nome da categoria é obrigatório.");
             }
+            else if (categoria.Nome.Length > 60)
+            {
+                categoria.Nome = categoria.Nome.Substring(0, 60);
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(categoria);
@@ -124,6 +126,16 @@ namespace VestindoSonhos.Controllers
             if (id != categoria.Id)
             {
                 return NotFound();
+            }
+
+            categoria.Nome = categoria.Nome?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(categoria.Nome))
+            {
+                ModelState.AddModelError(nameof(categoria.Nome), "O nome da categoria é obrigatório.");
+            }
+            else if (categoria.Nome.Length > 60)
+            {
+                categoria.Nome = categoria.Nome.Substring(0, 60);
             }
 
             if (ModelState.IsValid)

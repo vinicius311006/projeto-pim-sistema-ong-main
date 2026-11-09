@@ -183,9 +183,9 @@ namespace VestindoSonhos.Controllers.Api
         [HttpPost("transacao")]
         public async Task<IActionResult> CriarTransacao([FromBody] CriarTransacaoFinanceiraDto dto)
         {
-            if (dto.Valor <= 0)
+            if (dto.Valor <= 0 || dto.Valor > 99_999_999.99m)
             {
-                return BadRequest(new { mensagem = "O valor da transação deve ser positivo." });
+                return BadRequest(new { mensagem = "O valor da transação deve ser entre R$ 0,01 e R$ 99.999.999,99." });
             }
 
             var carteira = await _context.Carteira.FindAsync(dto.CarteiraId ?? 1);
@@ -254,9 +254,9 @@ namespace VestindoSonhos.Controllers.Api
         [HttpPut("transacao/{id:int}")]
         public async Task<IActionResult> EditarTransacao(int id, [FromBody] CriarTransacaoFinanceiraDto dto)
         {
-            if (dto.Valor <= 0)
+            if (dto.Valor <= 0 || dto.Valor > 99_999_999.99m)
             {
-                return BadRequest(new { mensagem = "O valor da transação deve ser positivo." });
+                return BadRequest(new { mensagem = "O valor da transação deve ser entre R$ 0,01 e R$ 99.999.999,99." });
             }
 
             var tf = await _context.TransacaoFinanceira.FindAsync(id);

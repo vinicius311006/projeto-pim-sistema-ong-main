@@ -64,6 +64,16 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Nome")] Cargo cargo)
         {
+            cargo.Nome = cargo.Nome?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(cargo.Nome))
+            {
+                ModelState.AddModelError(nameof(cargo.Nome), "O nome do cargo é obrigatório.");
+            }
+            else if (cargo.Nome.Length > 50)
+            {
+                cargo.Nome = cargo.Nome.Substring(0, 50);
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(cargo);
@@ -113,6 +123,16 @@ namespace VestindoSonhos.Controllers
             if (id != cargo.Id)
             {
                 return NotFound();
+            }
+
+            cargo.Nome = cargo.Nome?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(cargo.Nome))
+            {
+                ModelState.AddModelError(nameof(cargo.Nome), "O nome do cargo é obrigatório.");
+            }
+            else if (cargo.Nome.Length > 50)
+            {
+                cargo.Nome = cargo.Nome.Substring(0, 50);
             }
 
             if (ModelState.IsValid)

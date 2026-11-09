@@ -101,6 +101,16 @@ namespace VestindoSonhos.Controllers
         {
             if (model?.evento != null)
             {
+                model.evento.Nome = model.evento.Nome?.Trim();
+                model.evento.Local = model.evento.Local?.Trim();
+                model.evento.Observacao = model.evento.Observacao?.Trim();
+
+                if (string.IsNullOrWhiteSpace(model.evento.Nome))
+                    ModelState.AddModelError("evento.Nome", "O nome do evento é obrigatório.");
+
+                if (model.evento.data_inicio.HasValue && model.evento.data_fim.HasValue && model.evento.data_fim < model.evento.data_inicio)
+                    ModelState.AddModelError("evento.data_fim", "A data de término não pode ser anterior à data de início.");
+
                 if (!string.IsNullOrEmpty(model.evento.Nome) && model.evento.Nome.Length > 50)
                     model.evento.Nome = model.evento.Nome.Substring(0, 50);
                 if (!string.IsNullOrEmpty(model.evento.Local) && model.evento.Local.Length > 70)
@@ -216,6 +226,16 @@ namespace VestindoSonhos.Controllers
 
             if (model?.evento != null)
             {
+                model.evento.Nome = model.evento.Nome?.Trim();
+                model.evento.Local = model.evento.Local?.Trim();
+                model.evento.Observacao = model.evento.Observacao?.Trim();
+
+                if (string.IsNullOrWhiteSpace(model.evento.Nome))
+                    ModelState.AddModelError("evento.Nome", "O nome do evento é obrigatório.");
+
+                if (model.evento.data_inicio.HasValue && model.evento.data_fim.HasValue && model.evento.data_fim < model.evento.data_inicio)
+                    ModelState.AddModelError("evento.data_fim", "A data de término não pode ser anterior à data de início.");
+
                 if (!string.IsNullOrEmpty(model.evento.Nome) && model.evento.Nome.Length > 50)
                     model.evento.Nome = model.evento.Nome.Substring(0, 50);
                 if (!string.IsNullOrEmpty(model.evento.Local) && model.evento.Local.Length > 70)

@@ -534,6 +534,20 @@ namespace VestindoSonhos.Controllers
                     CarregarDropdowns();
                     return View(tfViewModel);
                 }
+
+                if (tfViewModel.Valor > 99_999_999.99m)
+                {
+                    ModelState.AddModelError(nameof(tfViewModel.Valor), "O valor excede o limite máximo permitido (R$ 99.999.999,99).");
+                    CarregarDropdowns();
+                    return View(tfViewModel);
+                }
+
+                if (!string.IsNullOrEmpty(tfViewModel.Observacao))
+                {
+                    tfViewModel.Observacao = tfViewModel.Observacao.Trim();
+                    if (tfViewModel.Observacao.Length > 255)
+                        tfViewModel.Observacao = tfViewModel.Observacao.Substring(0, 255);
+                }
                 
                 var categoriaId = tfViewModel.Categoria;
                 var categoriaEntity = _context.Categoria.FirstOrDefault(c => c.Id == categoriaId);
@@ -733,6 +747,20 @@ namespace VestindoSonhos.Controllers
                     ModelState.AddModelError(nameof(tfViewModel.Valor), "O valor da transação deve ser maior que zero.");
                     CarregarDropdowns();
                     return View(tfViewModel);
+                }
+
+                if (tfViewModel.Valor > 99_999_999.99m)
+                {
+                    ModelState.AddModelError(nameof(tfViewModel.Valor), "O valor excede o limite máximo permitido (R$ 99.999.999,99).");
+                    CarregarDropdowns();
+                    return View(tfViewModel);
+                }
+
+                if (!string.IsNullOrEmpty(tfViewModel.Observacao))
+                {
+                    tfViewModel.Observacao = tfViewModel.Observacao.Trim();
+                    if (tfViewModel.Observacao.Length > 255)
+                        tfViewModel.Observacao = tfViewModel.Observacao.Substring(0, 255);
                 }
 
                 var categoriaId = tfViewModel.Categoria;

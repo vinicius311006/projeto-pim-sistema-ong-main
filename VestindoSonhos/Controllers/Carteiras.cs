@@ -61,6 +61,16 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Id,Nome")] Carteira carteira)
         {
+            carteira.Nome = carteira.Nome?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(carteira.Nome))
+            {
+                ModelState.AddModelError(nameof(carteira.Nome), "O nome da carteira é obrigatório.");
+            }
+            else if (carteira.Nome.Length > 60)
+            {
+                carteira.Nome = carteira.Nome.Substring(0, 60);
+            }
+
             if (ModelState.IsValid)
             {
                 carteira.Saldo = 0;
@@ -105,6 +115,16 @@ namespace VestindoSonhos.Controllers
             if (carteiraDb == null)
             {
                 return NotFound();
+            }
+
+            carteira.Nome = carteira.Nome?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(carteira.Nome))
+            {
+                ModelState.AddModelError(nameof(carteira.Nome), "O nome da carteira é obrigatório.");
+            }
+            else if (carteira.Nome.Length > 60)
+            {
+                carteira.Nome = carteira.Nome.Substring(0, 60);
             }
 
             if (ModelState.IsValid)
