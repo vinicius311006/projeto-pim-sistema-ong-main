@@ -29,7 +29,10 @@
     <!-- CABEÇALHO DO DASHBOARD -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
-            <h1 class="vs-dash-title m-0">Visão Geral — ONG Vestindo Sonhos</h1>
+@{
+    var _dashCfg = VestindoSonhos.Helpers.ConfiguracaoSistemaHelper.ObterConfiguracoes();
+}
+            <h1 class="vs-dash-title m-0">Visão Geral — @_dashCfg.NomeOrganizacao</h1>
             <p class="vs-dash-subtitle m-0">Monitoramento consolidado de beneficiários, voluntariado, estoque@(isAdmin ? " e fluxo financeiro" : "")</p>
         </div>
 
@@ -120,7 +123,7 @@
                     <div class="d-flex align-items-center justify-content-between mt-3 pt-2 vs-kpi-footer">
                         <span class="vs-kpi-trend vs-trend-green" title="Total de Doações Recebidas">
                             <i class="material-symbols-outlined" style="font-size: 16px;">volunteer_activism</i>
-                            Doações: @Model.TotalDoacoes.ToString("C", ptBR)
+                            Doações: @Model.TotalDoacoes.ToString("C", ptBR) (Meta: @_dashCfg.MetaArrecadacaoMensal.ToString("C", ptBR))
                         </span>
                         <span class="vs-kpi-link">Financeiro &rarr;</span>
                     </div>

@@ -48,6 +48,12 @@ namespace VestindoSonhos.Controllers.Api
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
+            var cfg = ConfiguracaoSistemaHelper.ObterConfiguracoes();
+            if (!cfg.HabilitarApiMobile)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { mensagem = "O acesso via API Mobile está temporariamente desabilitado pelo administrador." });
+            }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

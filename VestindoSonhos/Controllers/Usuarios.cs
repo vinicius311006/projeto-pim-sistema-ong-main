@@ -75,7 +75,11 @@ namespace VestindoSonhos.Controllers
         public IActionResult Criar()
         {
             CarregarDropdowns();
-            return View();
+            var cfg = ConfiguracaoSistemaHelper.ObterConfiguracoes();
+            return View(new UsuarioViewModel
+            {
+                ExigirTrocaSenha = cfg.ExigirTrocaSenhaNovosUsuarios
+            });
         }
         private void CarregarDropdowns()
         {
