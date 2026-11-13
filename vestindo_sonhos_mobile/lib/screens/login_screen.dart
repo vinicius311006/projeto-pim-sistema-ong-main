@@ -238,6 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onFieldSubmitted: (_) => _fazerLogin(),
                     decoration: InputDecoration(
                       labelText: 'Senha',
+                      hintText: 'Digite sua senha',
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(

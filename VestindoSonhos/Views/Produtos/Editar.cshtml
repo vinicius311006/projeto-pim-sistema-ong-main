@@ -19,17 +19,17 @@
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label asp-for="Nome" class="control-label"></label>
-                <input asp-for="Nome" class="form-control" maxlength="60" />
+                <input asp-for="Nome" class="form-control" maxlength="60" placeholder="Nome do item (ex: Agasalho Infantil, Cesta Básica)" />
                 <span asp-validation-for="Nome" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Descricao" class="control-label">Descrição</label>
-                <input asp-for="Descricao" class="form-control" maxlength="255" />
+                <input asp-for="Descricao" class="form-control" maxlength="255" placeholder="Tamanho, modelo ou detalhes do item (ex: Tamanho M, Algodão)" />
                 <span asp-validation-for="Descricao" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Cor" class="control-label">Cor</label>
-                <input asp-for="Cor" class="form-control" maxlength="15" />
+                <input asp-for="Cor" class="form-control" maxlength="15" placeholder="Cor predominante (ex: Azul, Branco, Sortido)" />
                 <span asp-validation-for="Cor" class="text-danger"></span>
             </div>
             <div class="form-group">

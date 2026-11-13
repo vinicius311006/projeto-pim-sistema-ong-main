@@ -95,23 +95,23 @@
                             <div class="row g-3">
                                 <div class="col-12 col-md-7">
                                     <label class="form-label fw-semibold">Nome da Organização</label>
-                                    <input type="text" name="NomeOrganizacao" class="form-control" value="@cfg.NomeOrganizacao" required />
+                                    <input type="text" name="NomeOrganizacao" class="form-control" value="@cfg.NomeOrganizacao" placeholder="Ex: ONG Vestindo Sonhos" required />
                                 </div>
                                 <div class="col-12 col-md-5">
                                     <label class="form-label fw-semibold">CNPJ Institucional</label>
-                                    <input type="text" name="Cnpj" class="form-control" value="@cfg.Cnpj" />
+                                    <input type="text" name="Cnpj" class="form-control" value="@cfg.Cnpj" placeholder="Ex: 00.000.000/0001-00" />
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <label class="form-label fw-semibold">E-mail Oficial de Contato</label>
-                                    <input type="email" name="EmailInstitucional" class="form-control" value="@cfg.EmailInstitucional" />
+                                    <input type="email" name="EmailInstitucional" class="form-control" value="@cfg.EmailInstitucional" placeholder="Ex: contato@vestindosonhos.org" />
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <label class="form-label fw-semibold">Telefone / WhatsApp de Suporte</label>
-                                    <input type="text" name="TelefoneSuporte" class="form-control" value="@cfg.TelefoneSuporte" />
+                                    <input type="text" name="TelefoneSuporte" class="form-control" value="@cfg.TelefoneSuporte" placeholder="Ex: (16) 99999-9999" />
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label fw-semibold">Endereço da Sede</label>
-                                    <input type="text" name="EnderecoSede" class="form-control" value="@cfg.EnderecoSede" />
+                                    <input type="text" name="EnderecoSede" class="form-control" value="@cfg.EnderecoSede" placeholder="Rua, número, bairro e cidade da sede" />
                                 </div>
                             </div>
                         </div>
@@ -125,12 +125,12 @@
                             <div class="row g-3">
                                 <div class="col-12 col-md-6">
                                     <label class="form-label fw-semibold">Meta Mensal de Doações (R$)</label>
-                                    <input type="number" step="0.01" name="MetaArrecadacaoMensal" class="form-control" value="@cfg.MetaArrecadacaoMensal.ToString(CultureInfo.InvariantCulture)" />
+                                    <input type="number" step="0.01" name="MetaArrecadacaoMensal" class="form-control" value="@cfg.MetaArrecadacaoMensal.ToString(CultureInfo.InvariantCulture)" placeholder="Ex: 5000.00" />
                                     <small class="saas-muted">Referência para acompanhamento de arrecadação mensal no Dashboard.</small>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <label class="form-label fw-semibold">Alerta de Estoque Mínimo (Unidades)</label>
-                                    <input type="number" name="AlertaEstoqueMinimo" class="form-control" value="@cfg.AlertaEstoqueMinimo" />
+                                    <input type="number" name="AlertaEstoqueMinimo" class="form-control" value="@cfg.AlertaEstoqueMinimo" placeholder="Ex: 10" />
                                     <small class="saas-muted">Quantidade mínima recomendada por item no inventário.</small>
                                 </div>
                             </div>
@@ -404,7 +404,7 @@
                             <div class="row g-3 mt-1 pt-3 saas-border-top">
                                 <div class="col-12 col-md-6">
                                     <label class="form-label fw-semibold">Tempo Limite de Sessão Web (Minutos)</label>
-                                    <input type="number" name="TempoSessaoMinutos" class="form-control" value="@cfg.TempoSessaoMinutos" min="5" max="480" />
+                                    <input type="number" name="TempoSessaoMinutos" class="form-control" value="@cfg.TempoSessaoMinutos" min="5" max="480" placeholder="Ex: 60" />
                                 </div>
                             </div>
 

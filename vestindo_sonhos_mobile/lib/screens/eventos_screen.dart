@@ -411,6 +411,7 @@ class _EventosScreenState extends State<EventosScreen> {
                           controller: nomeCtrl,
                           decoration: const InputDecoration(
                             labelText: 'Nome do Evento *',
+                            hintText: 'Ex: Campanha do Agasalho',
                             prefixIcon: Icon(Icons.event_outlined),
                             border: OutlineInputBorder(),
                           ),
@@ -535,6 +536,7 @@ class _EventosScreenState extends State<EventosScreen> {
                           controller: localCtrl,
                           decoration: const InputDecoration(
                             labelText: 'Local do Evento',
+                            hintText: 'Ex: Sede da ONG - Praça Central, 100',
                             prefixIcon: Icon(Icons.location_on_outlined),
                             border: OutlineInputBorder(),
                           ),
@@ -547,6 +549,7 @@ class _EventosScreenState extends State<EventosScreen> {
                           maxLines: 3,
                           decoration: const InputDecoration(
                             labelText: 'Descrição / Informações',
+                            hintText: 'Detalhes da ação social ou orientações...',
                             prefixIcon: Icon(Icons.notes_outlined),
                             border: OutlineInputBorder(),
                           ),

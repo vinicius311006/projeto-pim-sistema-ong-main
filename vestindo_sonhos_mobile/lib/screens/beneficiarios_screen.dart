@@ -438,6 +438,7 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
                           controller: nomeCtrl,
                           decoration: const InputDecoration(
                             labelText: 'Nome Completo *',
+                            hintText: 'Ex: Maria Aparecida dos Santos',
                             prefixIcon: Icon(Icons.person_outline),
                             border: OutlineInputBorder(),
                           ),
@@ -466,6 +467,7 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
                           controller: endCtrl,
                           decoration: const InputDecoration(
                             labelText: 'Endereço',
+                            hintText: 'Ex: Rua das Acácias, 45 - Centro',
                             prefixIcon: Icon(Icons.location_on_outlined),
                             border: OutlineInputBorder(),
                           ),
@@ -497,6 +499,7 @@ class _BeneficiariosScreenState extends State<BeneficiariosScreen> {
                           maxLines: 3,
                           decoration: const InputDecoration(
                             labelText: 'Necessidades / Observações',
+                            hintText: 'Ex: #roupa #alimento #agasalho',
                             prefixIcon: Icon(Icons.notes_outlined),
                             border: OutlineInputBorder(),
                           ),

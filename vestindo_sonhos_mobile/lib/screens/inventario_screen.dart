@@ -674,6 +674,7 @@ class _InventarioScreenState extends State<InventarioScreen> {
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
                             labelText: 'Quantidade *',
+                            hintText: 'Ex: 10',
                             prefixIcon: Icon(Icons.format_list_numbered),
                             border: OutlineInputBorder(),
                           ),
@@ -694,6 +695,7 @@ class _InventarioScreenState extends State<InventarioScreen> {
                           maxLength: 255,
                           decoration: const InputDecoration(
                             labelText: 'Motivo / Observação (Opcional)',
+                            hintText: 'Ex: Doação recebida, Entrega para família...',
                             prefixIcon: Icon(Icons.notes_outlined),
                             border: OutlineInputBorder(),
                           ),

@@ -610,6 +610,7 @@ class _FinanceiroScreenState extends State<FinanceiroScreen> {
                           maxLength: 255,
                           decoration: const InputDecoration(
                             labelText: 'Descrição / Motivo (Opcional)',
+                            hintText: 'Ex: Doação via PIX, Compra de cestas básicas',
                             prefixIcon: Icon(Icons.notes_outlined),
                             border: OutlineInputBorder(),
                           ),

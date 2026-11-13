@@ -33,7 +33,7 @@
 			</div>
 			<div class="form-group">
 				<label asp-for="Observacao" class="control-label">Observação</label>
-				<textarea asp-for="Observacao" class="form-control" maxlength="255"></textarea>
+				<textarea asp-for="Observacao" class="form-control" maxlength="255" placeholder="Origem da doação, motivo da saída ou detalhes da movimentação..."></textarea>
 				<span asp-validation-for="Observacao" class="text-danger"></span>
 			</div>
 
@@ -101,7 +101,7 @@
 									</td>
 
 									<td>
-										<input style="max-width: 50px" type="number" name="Produtos[@i].Quantidade" min="1" disabled class="quantidade-input" />
+										<input style="max-width: 50px" type="number" name="Produtos[@i].Quantidade" min="1" placeholder="Qtd" disabled class="quantidade-input" />
 									</td>
 
 								</tr>

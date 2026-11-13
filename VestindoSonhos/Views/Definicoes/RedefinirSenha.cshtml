@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.ViewModels.RedefinicaoViewModel
+@model VestindoSonhos.ViewModels.RedefinicaoViewModel
 <link rel="stylesheet" href="~/css/formularios.css" />
 
 @{
@@ -20,15 +20,15 @@
             <input hidden asp-for="Id" class="form-control" />
             <div class="form-group">
                 <label asp-for="SenhaAtual" class="control-label">Senha atual</label>
-                <input type="password" asp-for="SenhaAtual" class="form-control" required />
+                <input type="password" asp-for="SenhaAtual" class="form-control" placeholder="Digite sua senha atual" required />
                 <span asp-validation-for="SenhaAtual" class="text-danger"></span>
                 <br />
                 <label asp-for="SenhaNova" class="control-label">Senha nova</label>
-                <input type="password" asp-for="SenhaNova" class="form-control" required />
+                <input type="password" asp-for="SenhaNova" class="form-control" placeholder="Mínimo de 8 caracteres" required />
                 <span asp-validation-for="SenhaNova" class="text-danger"></span>
                 <br />
-                <label asp-for="RepeteSenhaNova" class="control-label"></label>
-                <input type="password" asp-for="RepeteSenhaNova" class="form-control" required />
+                <label asp-for="RepeteSenhaNova" class="control-label">Confirmar nova senha</label>
+                <input type="password" asp-for="RepeteSenhaNova" class="form-control" placeholder="Repita a nova senha" required />
                 <span asp-validation-for="RepeteSenhaNova" class="text-danger"></span>
                 <br />
 

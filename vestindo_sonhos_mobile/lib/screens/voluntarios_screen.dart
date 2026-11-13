@@ -392,6 +392,7 @@ class _VoluntariosScreenState extends State<VoluntariosScreen> {
                           controller: nomeCtrl,
                           decoration: const InputDecoration(
                             labelText: 'Nome Completo *',
+                            hintText: 'Ex: Carlos Eduardo Oliveira',
                             prefixIcon: Icon(Icons.person_outline),
                             border: OutlineInputBorder(),
                           ),
@@ -409,6 +410,7 @@ class _VoluntariosScreenState extends State<VoluntariosScreen> {
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
                             labelText: 'CPF (somente números)',
+                            hintText: '11 dígitos (somente números)',
                             prefixIcon: Icon(Icons.badge_outlined),
                             border: OutlineInputBorder(),
                           ),
@@ -432,6 +434,7 @@ class _VoluntariosScreenState extends State<VoluntariosScreen> {
                           keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
                             labelText: 'E-mail',
+                            hintText: 'Ex: voluntario@email.com',
                             prefixIcon: Icon(Icons.email_outlined),
                             border: OutlineInputBorder(),
                           ),
@@ -442,6 +445,7 @@ class _VoluntariosScreenState extends State<VoluntariosScreen> {
                           controller: endCtrl,
                           decoration: const InputDecoration(
                             labelText: 'Endereço',
+                            hintText: 'Ex: Rua Sete de Setembro, 80 - Centro',
                             prefixIcon: Icon(Icons.location_on_outlined),
                             border: OutlineInputBorder(),
                           ),

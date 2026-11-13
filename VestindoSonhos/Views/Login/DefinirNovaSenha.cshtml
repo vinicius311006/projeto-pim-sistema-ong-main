@@ -1,4 +1,4 @@
-﻿@model VestindoSonhos.ViewModels.DefinirNovaSenhaViewModel
+@model VestindoSonhos.ViewModels.DefinirNovaSenhaViewModel
 <link rel="stylesheet" href="~/css/formularios.css" />
 
 @{
@@ -17,22 +17,22 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Email" class="control-label"></label>
-                <input type="email" asp-for="Email" class="form-control" required/>
+                <input type="email" asp-for="Email" class="form-control" placeholder="Digite seu e-mail cadastrado" required/>
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Cpf" class="control-label"></label>
-                <input asp-for="Cpf" class="form-control" required />
+                <input asp-for="Cpf" class="form-control" placeholder="11 dígitos (somente números)" required />
                 <span asp-validation-for="Cpf" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="SenhaNova" class="control-label">Digite a nova senha:</label>
-                <input type="password" asp-for="SenhaNova" class="form-control" required />
+                <input type="password" asp-for="SenhaNova" class="form-control" placeholder="Mínimo de 8 caracteres" required />
                 <span asp-validation-for="SenhaNova" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="RepeteSenhaNova" class="control-label">Repita a nova senha:</label>
-                <input type="password" asp-for="RepeteSenhaNova" class="form-control" required />
+                <input type="password" asp-for="RepeteSenhaNova" class="form-control" placeholder="Confirme a nova senha" required />
                 <span asp-validation-for="RepeteSenhaNova" class="text-danger"></span>
             </div>
             <div class="form-group">

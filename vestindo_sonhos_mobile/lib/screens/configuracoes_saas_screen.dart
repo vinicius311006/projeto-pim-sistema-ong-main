@@ -274,6 +274,7 @@ class _ConfiguracoesSaasScreenState extends State<ConfiguracoesSaasScreen> {
                                   controller: _nomeOrgCtrl,
                                   decoration: const InputDecoration(
                                     labelText: 'Nome da Organização *',
+                                    hintText: 'Ex: ONG Vestindo Sonhos',
                                     prefixIcon: Icon(Icons.volunteer_activism_outlined),
                                     border: OutlineInputBorder(),
                                   ),
@@ -284,6 +285,7 @@ class _ConfiguracoesSaasScreenState extends State<ConfiguracoesSaasScreen> {
                                   controller: _cnpjCtrl,
                                   decoration: const InputDecoration(
                                     labelText: 'CNPJ Institucional',
+                                    hintText: 'Ex: 00.000.000/0001-00',
                                     prefixIcon: Icon(Icons.badge_outlined),
                                     border: OutlineInputBorder(),
                                   ),
@@ -293,6 +295,7 @@ class _ConfiguracoesSaasScreenState extends State<ConfiguracoesSaasScreen> {
                                   controller: _emailCtrl,
                                   decoration: const InputDecoration(
                                     labelText: 'E-mail Institucional',
+                                    hintText: 'Ex: contato@vestindosonhos.org',
                                     prefixIcon: Icon(Icons.email_outlined),
                                     border: OutlineInputBorder(),
                                   ),
@@ -306,6 +309,7 @@ class _ConfiguracoesSaasScreenState extends State<ConfiguracoesSaasScreen> {
                                         keyboardType: TextInputType.number,
                                         decoration: const InputDecoration(
                                           labelText: 'Meta Mensal (R\$)',
+                                          hintText: 'Ex: 5000.00',
                                           prefixIcon: Icon(Icons.savings_outlined),
                                           border: OutlineInputBorder(),
                                         ),
@@ -318,6 +322,7 @@ class _ConfiguracoesSaasScreenState extends State<ConfiguracoesSaasScreen> {
                                         keyboardType: TextInputType.number,
                                         decoration: const InputDecoration(
                                           labelText: 'Estoque Mín. Alerta',
+                                          hintText: 'Ex: 10',
                                           prefixIcon: Icon(Icons.inventory_2_outlined),
                                           border: OutlineInputBorder(),
                                         ),

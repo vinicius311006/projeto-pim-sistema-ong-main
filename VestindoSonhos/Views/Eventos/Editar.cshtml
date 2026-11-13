@@ -19,34 +19,33 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input hidden asp-for="evento.Id" class="form-control" />
             <div class="form-group">
-                <label asp-for="evento.Nome" class="control-label"></label>
-                <input asp-for="evento.Nome" class="form-control" maxlength="50" />
+                <label asp-for="evento.Nome" class="control-label">Nome</label>
+                <input asp-for="evento.Nome" class="form-control" maxlength="50" placeholder="Nome da campanha ou evento (ex: Campanha do Agasalho)" />
                 <span asp-validation-for="evento.Nome" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="evento.data_inicio" class="control-label"></label>
+                <label asp-for="evento.data_inicio" class="control-label">Data de Início</label>
                 <input asp-for="evento.data_inicio" type="datetime-local" value="@Model.evento.data_inicio?.ToString("yyyy-MM-ddTHH:mm")" class="form-control" />
                 <span asp-validation-for="evento.data_inicio" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="evento.data_fim" class="control-label"></label>
+                <label asp-for="evento.data_fim" class="control-label">Data de Término</label>
                 <input asp-for="evento.data_fim" type="datetime-local" value="@Model.evento.data_fim?.ToString("yyyy-MM-ddTHH:mm")" class="form-control" />
                 <span asp-validation-for="evento.data_fim" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="evento.Local" class="control-label"></label>
-                <input asp-for="evento.Local" class="form-control" maxlength="70" />
+                <label asp-for="evento.Local" class="control-label">Local</label>
+                <input asp-for="evento.Local" class="form-control" maxlength="70" placeholder="Local de realização (ex: Sede da ONG - Praça Central, 100)" />
                 <span asp-validation-for="evento.Local" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="evento.Responsavel" class="control-label"></label>
+                <label asp-for="evento.Responsavel" class="control-label">Responsável</label>
                 <select asp-for="evento.Responsavel" class="form-control" asp-items="ViewBag.Responsavel"></select>
                 <span asp-validation-for="evento.Responsavel" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="evento.Observacao" class="control-label"></label>
-                <textarea type="text" asp-for="evento.Observacao" class="form-control" maxlength="255">
-                </textarea>
+                <label asp-for="evento.Observacao" class="control-label">Observação</label>
+                <textarea type="text" asp-for="evento.Observacao" class="form-control" maxlength="255" placeholder="Detalhes da ação social, público-alvo ou orientações aos voluntários..."></textarea>
                 <span asp-validation-for="evento.Observacao" class="text-danger"></span>
             </div>
             <table class="table">
