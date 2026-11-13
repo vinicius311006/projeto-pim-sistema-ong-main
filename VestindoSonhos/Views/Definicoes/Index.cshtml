@@ -3,8 +3,8 @@
     ViewData["Title"] = "Configurações do Sistema";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var ptBR = new CultureInfo("pt-BR");
-    var cfg = ViewBag.Config as VestindoSonhos.Controllers.Definicoes.SaasConfigModel
-              ?? new VestindoSonhos.Controllers.Definicoes.SaasConfigModel();
+    var cfg = ViewBag.Config as VestindoSonhos.Helpers.SaasConfigModel
+              ?? new VestindoSonhos.Helpers.SaasConfigModel();
     bool dbOnline = ViewBag.DbOnline ?? true;
 }
 
