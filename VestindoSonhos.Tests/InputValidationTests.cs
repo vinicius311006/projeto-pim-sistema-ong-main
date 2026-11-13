@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using VestindoSonhos.Controllers;
 using VestindoSonhos.Controllers.Api;
+using VestindoSonhos.Helpers;
 using VestindoSonhos.Models;
 using VestindoSonhos.Models.DTOs;
 using VestindoSonhos.ViewModels;
@@ -166,6 +167,49 @@ namespace VestindoSonhos.Tests
 
             await controller.Editar(10, vm);
             Assert.False(controller.ModelState.IsValid);
+        }
+
+        [Fact(DisplayName = "7. ValidadorUsuarioHelper deve validar dígitos verificadores do CPF (Módulo 11)")]
+        public void ValidadorUsuarioHelper_Cpf_DeveValidarDigitosVerificadores()
+        {
+            // CPFs matematicamente válidos (gerados pelo cálculo oficial módulo 11)
+            Assert.True(ValidadorUsuarioHelper.CpfEhValido("52998224725"));
+            Assert.True(ValidadorUsuarioHelper.CpfEhValido("529.982.247-25"));
+
+            // CPFs inválidos (sequências repetidas, dígito verificador incorreto ou incompleto)
+            Assert.False(ValidadorUsuarioHelper.CpfEhValido("11111111111"));
+            Assert.False(ValidadorUsuarioHelper.CpfEhValido("00000000000"));
+            Assert.False(ValidadorUsuarioHelper.CpfEhValido("52998224720")); // último dígito errado
+            Assert.False(ValidadorUsuarioHelper.CpfEhValido("12345678901"));
+            Assert.False(ValidadorUsuarioHelper.CpfEhValido("12345"));
+            Assert.False(ValidadorUsuarioHelper.CpfEhValido(""));
+        }
+
+        [Fact(DisplayName = "8. Usuarios Criar deve rejeitar CPF inválido, menor de 18 anos (ou nascido hoje) e telefone vazio/incompleto")]
+        public async Task UsuariosCriar_ComCpfInvalidoMenorDeIdadeOuTelefoneIncompleto_DeveRejeitarNoModelState()
+        {
+            using var context = DbContextTestHelper.CriarContextoEmMemoria();
+            var controller = new Usuarios(context);
+            DbContextTestHelper.ConfigurarUsuarioNoController(controller, "Administrador", 1);
+
+            var usuarioInvalido = new UsuarioViewModel
+            {
+                Nome = "Usuário Teste",
+                Cargo = 1,
+                DataNascimento = DateTime.Today, // Nascido hoje (< 18 anos)
+                Telefone = "16999",              // Telefone incompleto
+                Email = "teste@ong.org",
+                Endereco = "Rua Teste, 123",
+                Cpf = "11111111111",             // CPF inválido
+                Senha = "SenhaForte123"
+            };
+
+            await controller.Criar(usuarioInvalido);
+
+            Assert.False(controller.ModelState.IsValid);
+            Assert.True(controller.ModelState.ContainsKey(nameof(usuarioInvalido.Cpf)));
+            Assert.True(controller.ModelState.ContainsKey(nameof(usuarioInvalido.DataNascimento)));
+            Assert.True(controller.ModelState.ContainsKey(nameof(usuarioInvalido.Telefone)));
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using VestindoSonhos.Helpers;
 using VestindoSonhos.Models;
 using VestindoSonhos.ViewModels;
 
@@ -98,19 +99,41 @@ namespace VestindoSonhos.Controllers
                 ModelState.AddModelError(nameof(usuario.Nome), "O nome do usuário é obrigatório.");
             }
 
-            if (!string.IsNullOrEmpty(usuario.Telefone))
+            if (!ValidadorUsuarioHelper.EhMaiorDeIdade(usuario.DataNascimento))
+            {
+                ModelState.AddModelError(nameof(usuario.DataNascimento), "O usuário deve ter pelo menos 18 anos de idade (informe uma data de nascimento válida).");
+            }
+
+            if (string.IsNullOrWhiteSpace(usuario.Telefone))
+            {
+                ModelState.AddModelError(nameof(usuario.Telefone), "O telefone é obrigatório (informe o DDD + número).");
+            }
+            else
             {
                 usuario.Telefone = Regex.Replace(usuario.Telefone, @"\D", "");
                 if (usuario.Telefone.Length > 11)
                     usuario.Telefone = usuario.Telefone.Substring(0, 11);
+
+                if (!ValidadorUsuarioHelper.TelefoneEhValido(usuario.Telefone))
+                {
+                    ModelState.AddModelError(nameof(usuario.Telefone), "Informe um telefone válido completo com DDD (10 ou 11 dígitos).");
+                }
             }
-            if (!string.IsNullOrEmpty(usuario.Cpf))
+
+            if (string.IsNullOrWhiteSpace(usuario.Cpf))
+            {
+                ModelState.AddModelError(nameof(usuario.Cpf), "O CPF é obrigatório.");
+            }
+            else
             {
                 usuario.Cpf = Regex.Replace(usuario.Cpf, @"\D", "");
                 if (usuario.Cpf.Length > 11)
                     usuario.Cpf = usuario.Cpf.Substring(0, 11);
-                if (usuario.Cpf.Length != 11)
-                    ModelState.AddModelError(nameof(usuario.Cpf), "O CPF deve conter 11 dígitos numéricos.");
+
+                if (!ValidadorUsuarioHelper.CpfEhValido(usuario.Cpf))
+                {
+                    ModelState.AddModelError(nameof(usuario.Cpf), "CPF inválido. Verifique os dígitos informados.");
+                }
             }
             if (!string.IsNullOrEmpty(usuario.Nome) && usuario.Nome.Length > 50)
             {
@@ -230,11 +253,25 @@ namespace VestindoSonhos.Controllers
                 ModelState.AddModelError(nameof(usuario.Nome), "O nome do usuário é obrigatório.");
             }
 
-            if (!string.IsNullOrEmpty(usuario.Telefone))
+            if (!ValidadorUsuarioHelper.EhMaiorDeIdade(usuario.DataNascimento))
+            {
+                ModelState.AddModelError(nameof(usuario.DataNascimento), "O usuário deve ter pelo menos 18 anos de idade (informe uma data de nascimento válida).");
+            }
+
+            if (string.IsNullOrWhiteSpace(usuario.Telefone))
+            {
+                ModelState.AddModelError(nameof(usuario.Telefone), "O telefone é obrigatório (informe o DDD + número).");
+            }
+            else
             {
                 usuario.Telefone = Regex.Replace(usuario.Telefone, @"\D", "");
                 if (usuario.Telefone.Length > 11)
                     usuario.Telefone = usuario.Telefone.Substring(0, 11);
+
+                if (!ValidadorUsuarioHelper.TelefoneEhValido(usuario.Telefone))
+                {
+                    ModelState.AddModelError(nameof(usuario.Telefone), "Informe um telefone válido completo com DDD (10 ou 11 dígitos).");
+                }
             }
             if (!string.IsNullOrEmpty(usuario.Nome) && usuario.Nome.Length > 50)
             {
