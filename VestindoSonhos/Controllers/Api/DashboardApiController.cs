@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using VestindoSonhos.Helpers;
 using VestindoSonhos.Models;
 using VestindoSonhos.Models.DTOs;
 
@@ -13,26 +14,15 @@ namespace VestindoSonhos.Controllers.Api
     public class DashboardApiController : ControllerBase
     {
         private readonly VestindosonhosdbContext _context;
-        private static readonly string SettingsFilePath = Path.Combine(AppContext.BaseDirectory, "saas-settings.json");
 
         public DashboardApiController(VestindosonhosdbContext context)
         {
             _context = context;
         }
 
-        private Definicoes.SaasConfigModel CarregarConfiguracoes()
+        private SaasConfigModel CarregarConfiguracoes()
         {
-            try
-            {
-                if (System.IO.File.Exists(SettingsFilePath))
-                {
-                    var json = System.IO.File.ReadAllText(SettingsFilePath);
-                    var cfg = JsonSerializer.Deserialize<Definicoes.SaasConfigModel>(json);
-                    if (cfg != null) return cfg;
-                }
-            }
-            catch { }
-            return new Definicoes.SaasConfigModel();
+            return ConfiguracaoSistemaHelper.ObterConfiguracoes();
         }
 
         [HttpGet]
@@ -222,21 +212,20 @@ namespace VestindoSonhos.Controllers.Api
 
         [HttpGet("configuracoes")]
         [Authorize(Roles = "Administrador")]
-        public ActionResult<Definicoes.SaasConfigModel> ObterConfiguracoesSaas()
+        public ActionResult<SaasConfigModel> ObterConfiguracoesSaas()
         {
             return Ok(CarregarConfiguracoes());
         }
 
         [HttpPost("configuracoes")]
         [Authorize(Roles = "Administrador")]
-        public IActionResult SalvarConfiguracoesSaas([FromBody] Definicoes.SaasConfigModel model)
+        public IActionResult SalvarConfiguracoesSaas([FromBody] SaasConfigModel model)
         {
             if (model == null) return BadRequest(new { mensagem = "Dados inválidos." });
 
             try
             {
-                var json = JsonSerializer.Serialize(model, new JsonSerializerOptions { WriteIndented = true });
-                System.IO.File.WriteAllText(SettingsFilePath, json);
+                ConfiguracaoSistemaHelper.SalvarConfiguracoes(model);
                 return Ok(new { mensagem = "Configurações SaaS atualizadas com sucesso!", config = model });
             }
             catch (Exception ex)
