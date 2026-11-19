@@ -47,7 +47,11 @@
             </div>
             <div class="form-group">
                 <label asp-for="Razao" class="control-label"></label>
-                <input readonly asp-for="Razao" class="form-control" asp-items="Model.Razao"/>
+                <select asp-for="Razao" class="form-control" asp-items="ViewBag.Razao"></select>
+                <small id="avisoDoacaoRazao" class="form-text text-muted" style="display:none; color:#059669 !important; font-weight:600; margin-top:4px;">
+                    Doações financeiras recebidas são registradas automaticamente como Entrada.
+                </small>
+                <span asp-validation-for="Razao" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Salvar" class="btn btn-primary" />
@@ -55,4 +59,46 @@
         </form>
     </div>
 </div>
+
+<script>
+    (function () {
+        function normalizar(texto) {
+            return (texto || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+        }
+
+        function sincronizarRazaoPorCategoria() {
+            var selectCat = document.getElementById('Categoria');
+            var selectRazao = document.getElementById('Razao');
+            var aviso = document.getElementById('avisoDoacaoRazao');
+            if (!selectCat || !selectRazao) return;
+
+            var opcaoCat = selectCat.options[selectCat.selectedIndex];
+            var nomeCat = normalizar(opcaoCat ? opcaoCat.text : '');
+            var ehDoacao = selectCat.value === '1' || nomeCat === 'doacao';
+
+            for (var i = 0; i < selectRazao.options.length; i++) {
+                var opt = selectRazao.options[i];
+                var ehSaida = normalizar(opt.value || opt.text) === 'saida';
+                if (ehSaida) {
+                    opt.disabled = ehDoacao;
+                }
+                if (ehDoacao && normalizar(opt.value || opt.text) === 'entrada') {
+                    selectRazao.value = opt.value;
+                }
+            }
+
+            if (aviso) {
+                aviso.style.display = ehDoacao ? 'block' : 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var selectCat = document.getElementById('Categoria');
+            if (selectCat) {
+                selectCat.addEventListener('change', sincronizarRazaoPorCategoria);
+            }
+            sincronizarRazaoPorCategoria();
+        });
+    })();
+</script>
 

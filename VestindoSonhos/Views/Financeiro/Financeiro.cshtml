@@ -12,7 +12,10 @@
     var categorias = ViewBag.Categorias as IEnumerable<VestindoSonhos.Models.Categoria> ?? Enumerable.Empty<VestindoSonhos.Models.Categoria>();
 
     var saldoTotal = carteiras.Sum(c => c.Saldo);
-    var totalDoacoes = doacoes.Sum(d => d.Valor);
+    var totalDoacoes = doacoes.Sum(d =>
+        d.Razao != null && d.Razao.ToLower().Contains("saida") || (d.Razao != null && d.Razao.ToLower().Contains("saída"))
+            ? -d.Valor
+            : d.Valor);
 }
 
 <style>
@@ -654,11 +657,12 @@
                     {
                         @foreach (var item_transacao in doacoes)
                         {
+                            var isEntrada = item_transacao.Razao == null || item_transacao.Razao.ToLower().Contains("entrada");
                             <tr>
                                 <td>
-                                    <span class="vs-badge vs-badge-entrada">
+                                    <span class="vs-badge @(isEntrada ? "vs-badge-entrada" : "vs-badge-saida")">
                                         <span class="material-symbols-outlined">volunteer_activism</span>
-                                        @item_transacao.Razao
+                                        @(item_transacao.Razao ?? "Entrada")
                                     </span>
                                 </td>
                                 <td>
@@ -671,8 +675,8 @@
                                 </td>
                                 <td>@item_transacao.Usuario</td>
                                 <td>@(item_transacao.Hora?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
-                                <td class="vs-valor-entrada">
-                                    + R$ @item_transacao.Valor.ToString("N2", ptBr)
+                                <td class="@(isEntrada ? "vs-valor-entrada" : "vs-valor-saida")">
+                                    @(isEntrada ? "+" : "-") R$ @item_transacao.Valor.ToString("N2", ptBr)
                                 </td>
                                 <td style="text-align:right;">
                                     <div class="vs-row-actions">

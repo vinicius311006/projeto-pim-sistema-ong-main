@@ -209,7 +209,7 @@ namespace VestindoSonhos.Controllers.Api
             var categoria = await _context.Categoria.FindAsync(dto.CategoriaId ?? 1);
             int catId = categoria?.Id ?? 1;
 
-            var razao = (dto.Razao == "Saída" || dto.Razao == "Saida") ? "Saída" : "Entrada";
+            var razao = ResolverRazaoFinanceira(dto.Razao, catId, categoria);
 
             var obs = dto.Observacao?.Trim();
             if (obs != null && obs.Length > 255) obs = obs.Substring(0, 255);
@@ -292,7 +292,7 @@ namespace VestindoSonhos.Controllers.Api
                 t.Categoria = categoriaObj.Id;
             }
 
-            var razaoNova = (dto.Razao == "Saída" || dto.Razao == "Saida") ? "Saída" : "Entrada";
+            var razaoNova = ResolverRazaoFinanceira(dto.Razao, novaCategoriaId, categoriaObj);
             t.Razao = razaoNova;
 
             if (dto.Observacao != null)
@@ -364,6 +364,24 @@ namespace VestindoSonhos.Controllers.Api
             }
 
             return Ok(new { mensagem = "Transação excluída com sucesso." });
+        }
+
+        /// <summary>
+        /// Garante que lançamentos na categoria Doação sejam sempre registrados como Entrada.
+        /// </summary>
+        private static string ResolverRazaoFinanceira(string? razaoInformada, int catId, VestindoSonhos.Models.Categoria? categoria)
+        {
+            var nome = categoria?.Nome?.Trim();
+            bool ehDoacao = catId == 1
+                || string.Equals(nome, "Doação", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(nome, "Doacao", StringComparison.OrdinalIgnoreCase);
+
+            if (ehDoacao)
+            {
+                return "Entrada";
+            }
+
+            return (razaoInformada == "Saída" || razaoInformada == "Saida") ? "Saída" : "Entrada";
         }
     }
 }

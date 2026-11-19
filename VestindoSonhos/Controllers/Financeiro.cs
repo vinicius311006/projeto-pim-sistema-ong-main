@@ -477,7 +477,26 @@ namespace VestindoSonhos.Controllers
         {
             ViewBag.Origem = origem;
             CarregarDropdowns();
+            if (string.Equals(origem, "Doacoes", StringComparison.OrdinalIgnoreCase))
+            {
+                var catDoacao = _context.Categoria.FirstOrDefault(c => c.Id == 1 || c.Nome == "Doação" || c.Nome == "Doacao");
+                return View(new TransacaoFinanceiraViewModel
+                {
+                    Categoria = catDoacao?.Id ?? 1,
+                    Razao = "Entrada",
+                    Hora = DateTime.Now
+                });
+            }
             return View();
+        }
+
+        private static bool EhCategoriaDoacao(VestindoSonhos.Models.Categoria? cat)
+        {
+            if (cat == null) return false;
+            var nome = cat.Nome?.Trim();
+            return cat.Id == 1
+                || string.Equals(nome, "Doação", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(nome, "Doacao", StringComparison.OrdinalIgnoreCase);
         }
 
         private void CarregarDropdowns()
@@ -556,6 +575,11 @@ namespace VestindoSonhos.Controllers
                     ModelState.AddModelError(nameof(tfViewModel.Categoria), "Categoria inválida.");
                     CarregarDropdowns();
                     return View(tfViewModel);
+                }
+                if (EhCategoriaDoacao(categoriaEntity))
+                {
+                    tfViewModel.Razao = "Entrada";
+                    razaoEnum = Transacao.TipoTransacao.Entrada;
                 }
                 var idUsuarioClaim = User.FindFirst("UserId")?.Value 
                     ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -792,6 +816,10 @@ namespace VestindoSonhos.Controllers
                 }
 
                 string razaoNova = string.IsNullOrWhiteSpace(tfViewModel.Razao) ? razaoAntiga : tfViewModel.Razao;
+                if (EhCategoriaDoacao(categoriaEntity))
+                {
+                    razaoNova = "Entrada";
+                }
 
                 // Preparar updates no banco
                 transacao.Hora = tfViewModel.Hora;
