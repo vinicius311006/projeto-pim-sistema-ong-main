@@ -1,2 +1,25 @@
 <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+<script>
+    if (window.jQuery && jQuery.validator) {
+        jQuery.extend(jQuery.validator.messages, {
+            required: "Este campo é obrigatório.",
+            remote: "Por favor, corrija este campo.",
+            email: "Por favor, informe um endereço de e-mail válido.",
+            url: "Por favor, informe uma URL válida.",
+            date: "Por favor, informe uma data válida.",
+            dateISO: "Por favor, informe uma data válida (ISO).",
+            number: "Por favor, informe um número válido.",
+            digits: "Por favor, digite somente números.",
+            creditcard: "Por favor, informe um cartão de crédito válido.",
+            equalTo: "Por favor, digite o mesmo valor novamente.",
+            maxlength: jQuery.validator.format("Por favor, digite no máximo {0} caracteres."),
+            minlength: jQuery.validator.format("Por favor, digite no mínimo {0} caracteres."),
+            rangelength: jQuery.validator.format("Por favor, digite um valor entre {0} e {1} caracteres."),
+            range: jQuery.validator.format("Por favor, informe um valor entre {0} e {1}."),
+            max: jQuery.validator.format("Por favor, informe um valor menor ou igual a {0}."),
+            min: jQuery.validator.format("Por favor, informe um valor maior ou igual a {0}."),
+            step: jQuery.validator.format("Por favor, informe um múltiplo de {0}.")
+        });
+    }
+</script>

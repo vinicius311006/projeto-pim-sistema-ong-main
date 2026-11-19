@@ -154,14 +154,41 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Configuração Global de Cultura e Localização PT-BR
+var culturaPtBr = new System.Globalization.CultureInfo("pt-BR");
+System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culturaPtBr;
+System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culturaPtBr;
+
 // Add services to the container.
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new AuthorizeFilter());
+    options.Filters.Add<PtBrModelStateFilter>();
+    options.ModelMetadataDetailsProviders.Add(new PtBrMetadataProvider());
+
+    // Tradução global de todas as mensagens internas de Model Binding do ASP.NET Core para PT-BR
+    var mb = options.ModelBindingMessageProvider;
+    mb.SetValueMustNotBeNullAccessor(x => $"O campo '{PtBrMetadataProvider.ObterNomeCampoPtBr(x)}' é obrigatório.");
+    mb.SetAttemptedValueIsInvalidAccessor((x, y) => $"O valor '{x}' não é válido para o campo '{PtBrMetadataProvider.ObterNomeCampoPtBr(y)}'.");
+    mb.SetMissingBindRequiredValueAccessor(x => $"O valor para o campo '{PtBrMetadataProvider.ObterNomeCampoPtBr(x)}' não foi fornecido.");
+    mb.SetMissingKeyOrValueAccessor(() => "Este campo é obrigatório.");
+    mb.SetUnknownValueIsInvalidAccessor(x => $"O valor informado é inválido para o campo '{PtBrMetadataProvider.ObterNomeCampoPtBr(x)}'.");
+    mb.SetValueIsInvalidAccessor(x => $"O valor '{x}' é inválido.");
+    mb.SetValueMustBeANumberAccessor(x => $"O campo '{PtBrMetadataProvider.ObterNomeCampoPtBr(x)}' deve ser um número válido.");
+    mb.SetMissingRequestBodyRequiredValueAccessor(() => "O corpo da requisição não pode estar vazio.");
+    mb.SetNonPropertyAttemptedValueIsInvalidAccessor(x => $"O valor '{x}' não é válido.");
+    mb.SetNonPropertyUnknownValueIsInvalidAccessor(() => "O valor informado é inválido.");
+    mb.SetNonPropertyValueMustBeANumberAccessor(() => "O campo deve ser um número válido.");
 });
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
+
+var opcoesLocalizacao = new RequestLocalizationOptions()
+    .SetDefaultCulture("pt-BR")
+    .AddSupportedCultures("pt-BR")
+    .AddSupportedUICultures("pt-BR");
+app.UseRequestLocalization(opcoesLocalizacao);
 
 using (var scope = app.Services.CreateScope())
 {

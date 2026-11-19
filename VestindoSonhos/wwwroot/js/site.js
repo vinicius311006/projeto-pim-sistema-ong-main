@@ -72,4 +72,145 @@ document.addEventListener('DOMContentLoaded', function () {
     var legacyDark = localStorage.getItem('vs_dash_dark');
     var isDark = savedTheme === 'dark' || (!savedTheme && legacyDark === '1');
     window.applySystemTheme(isDark);
+
+    // =====================================================================
+    // LOCALIZAÇÃO GLOBAL PT-BR PARA VALIDAÇÕES E MENSAGENS DE FORMULÁRIOS
+    // =====================================================================
+    var mapaCamposPtBr = {
+        'nome': 'Nome',
+        'telefone': 'Telefone',
+        'endereco': 'Endereço',
+        'situacao': 'Situação Social',
+        'observacao': 'Observação',
+        'descricao': 'Descrição',
+        'razao': 'Razão',
+        'categoria': 'Categoria',
+        'carteira': 'Carteira',
+        'valor': 'Valor',
+        'hora': 'Data / Hora',
+        'cpf': 'CPF',
+        'email': 'E-mail',
+        'senha': 'Senha',
+        'senhaatual': 'Senha Atual',
+        'senhanova': 'Nova Senha',
+        'novasenha': 'Nova Senha',
+        'repetesenhanova': 'Confirmação de Senha',
+        'confirmarnovasenha': 'Confirmação de Senha',
+        'datanascimento': 'Data de Nascimento',
+        'anonascimento': 'Ano de Nascimento',
+        'idade': 'Idade',
+        'sexo': 'Sexo',
+        'parentesco': 'Parentesco',
+        'idresponsavel': 'Responsável Familiar',
+        'cargo': 'Cargo',
+        'usuario': 'Usuário',
+        'beneficiario': 'Beneficiário',
+        'cor': 'Cor',
+        'quantidade': 'Quantidade',
+        'local': 'Local',
+        'data_inicio': 'Data de Início',
+        'data_fim': 'Data de Término'
+    };
+
+    function obterNomeCampoAmigavel(nomeRaw) {
+        if (!nomeRaw) return 'informado';
+        var limpo = nomeRaw.trim().split('.').pop();
+        var chave = limpo.toLowerCase();
+        return mapaCamposPtBr[chave] || limpo;
+    }
+
+    function traduzirTextoValidacaoPtBr(texto) {
+        if (!texto) return texto;
+        var t = texto.trim();
+
+        var mReq = t.match(/^The\s+(.+?)\s+field\s+is\s+required\.?$/i);
+        if (mReq) {
+            return 'O campo ' + obterNomeCampoAmigavel(mReq[1]) + ' é obrigatório.';
+        }
+
+        var mInv = t.match(/^The\s+value\s+'(.*?)'\s+is\s+(?:not\s+valid|invalid)(?:\s+for\s+(.+?))?\.?$/i);
+        if (mInv) {
+            var val = mInv[1];
+            var campo = obterNomeCampoAmigavel(mInv[2]);
+            return val ? ("O valor '" + val + "' não é válido para o campo " + campo + ".") : ('O campo ' + campo + ' é obrigatório.');
+        }
+
+        var mNum = t.match(/^The\s+field\s+(.+?)\s+must\s+be\s+a\s+number\.?$/i);
+        if (mNum) {
+            return 'O campo ' + obterNomeCampoAmigavel(mNum[1]) + ' deve ser um número válido.';
+        }
+
+        var mEmail = t.match(/^The\s+(.+?)\s+field\s+is\s+not\s+a\s+valid\s+e-?mail\s+address\.?$/i);
+        if (mEmail) {
+            return 'Informe um endereço de e-mail válido no campo ' + obterNomeCampoAmigavel(mEmail[1]) + '.';
+        }
+
+        if (/^This field is required\.?$/i.test(t) || /^A value is required\.?$/i.test(t)) {
+            return 'Este campo é obrigatório.';
+        }
+
+        return texto;
+    }
+
+    // 1. Traduz atributos data-val-* gerados no HTML
+    document.querySelectorAll('[data-val="true"]').forEach(function (el) {
+        ['data-val-required', 'data-val-number', 'data-val-email', 'data-val-length', 'data-val-maxlength', 'data-val-minlength', 'data-val-range', 'data-val-regex', 'data-val-equalto'].forEach(function (attr) {
+            var val = el.getAttribute(attr);
+            if (val) {
+                var traduzido = traduzirTextoValidacaoPtBr(val);
+                if (traduzido !== val) {
+                    el.setAttribute(attr, traduzido);
+                }
+            }
+        });
+    });
+
+    // 2. Traduz mensagens de validação já renderizadas na tela
+    function traduzirSpansValidacao() {
+        document.querySelectorAll('.field-validation-error, .validation-summary-errors li, span.text-danger').forEach(function (el) {
+            if (el.childNodes.length === 1 && el.childNodes[0].nodeType === 3) {
+                var original = el.textContent;
+                var novo = traduzirTextoValidacaoPtBr(original);
+                if (novo !== original) {
+                    el.textContent = novo;
+                }
+            } else {
+                var txt = (el.innerText || el.textContent || '').trim();
+                var traduzido = traduzirTextoValidacaoPtBr(txt);
+                if (traduzido !== txt) {
+                    el.textContent = traduzido;
+                }
+            }
+        });
+    }
+    traduzirSpansValidacao();
+
+    // 3. Configura mensagens nativas HTML5 do navegador em PT-BR
+    document.querySelectorAll('input, select, textarea').forEach(function (campo) {
+        campo.addEventListener('invalid', function () {
+            campo.setCustomValidity('');
+            if (!campo.validity.valid) {
+                var nome = obterNomeCampoAmigavel(campo.getAttribute('name') || campo.id);
+                if (campo.validity.valueMissing) {
+                    campo.setCustomValidity('O campo ' + nome + ' é obrigatório.');
+                } else if (campo.validity.typeMismatch && campo.type === 'email') {
+                    campo.setCustomValidity('Por favor, informe um endereço de e-mail válido.');
+                } else if (campo.validity.tooShort) {
+                    campo.setCustomValidity('O campo ' + nome + ' deve ter no mínimo ' + campo.minLength + ' caracteres.');
+                } else if (campo.validity.tooLong) {
+                    campo.setCustomValidity('O campo ' + nome + ' deve ter no máximo ' + campo.maxLength + ' caracteres.');
+                } else if (campo.validity.rangeUnderflow || campo.validity.rangeOverflow) {
+                    campo.setCustomValidity('O valor informado para ' + nome + ' está fora do intervalo permitido.');
+                } else if (campo.validity.patternMismatch) {
+                    campo.setCustomValidity('O formato informado no campo ' + nome + ' é inválido.');
+                }
+            }
+        });
+        campo.addEventListener('input', function () {
+            campo.setCustomValidity('');
+        });
+        campo.addEventListener('change', function () {
+            campo.setCustomValidity('');
+        });
+    });
 });
