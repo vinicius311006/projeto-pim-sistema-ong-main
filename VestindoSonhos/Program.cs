@@ -159,7 +159,7 @@ var culturaPtBr = new System.Globalization.CultureInfo("pt-BR");
 System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culturaPtBr;
 System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culturaPtBr;
 
-// Add services to the container.
+// Adiciona os serviços ao contêiner de injeção de dependência.
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new AuthorizeFilter());
@@ -250,11 +250,11 @@ var cookiePolicyOptions = new CookiePolicyOptions
 
 app.UseCookiePolicy(cookiePolicyOptions);
 
-// Configure the HTTP request pipeline.
+// Configura o pipeline de requisições HTTP.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    // O valor padrão do HSTS é de 30 dias. Pode ser ajustado para cenários de produção (consulte https://aka.ms/aspnetcore-hsts).
     app.UseHsts();
 }
 

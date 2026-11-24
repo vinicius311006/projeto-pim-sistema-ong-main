@@ -1,11 +1,10 @@
 @{
     ViewData["Title"] = "Financeiro";
-    // Use the site's shared layout as the outer layout.
+    // Utiliza o layout compartilhado do sistema como layout principal.
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h1>Financeiro</h1>
 
-@* RenderBody is required because other views set `Layout = "Financeiro"` and
-   expect their content to be rendered inside this layout. *@
+@* RenderBody é necessário para renderizar o conteúdo interno das views que utilizam este layout. *@
 @RenderBody()

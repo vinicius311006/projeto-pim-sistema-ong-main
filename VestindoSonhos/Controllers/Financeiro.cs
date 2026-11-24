@@ -507,8 +507,8 @@ namespace VestindoSonhos.Controllers
         }
 
         // POST: Financeiro/Criar
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Para proteger contra ataques de overposting, habilite apenas as propriedades específicas que deseja vincular.
+        // Para mais detalhes, consulte http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -630,7 +630,7 @@ namespace VestindoSonhos.Controllers
             return View(tfViewModel);
         }
 
-        // GET: Financeiro/Editar/5
+        // GET: Financeiro/Editarar/5
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Editar(int? id)
         {
@@ -732,9 +732,9 @@ namespace VestindoSonhos.Controllers
             return _context.Transacao.Any(e => e.Id == id);
         }
 
-        // POST: Financeiro/Editar/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Financeiro/Editarar/5
+        // Para proteger contra ataques de overposting, habilite apenas as propriedades específicas que deseja vincular.
+        // Para mais detalhes, consulte http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]

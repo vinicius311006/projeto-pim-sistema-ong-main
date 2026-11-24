@@ -17,7 +17,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "1. Regra de Negócio RBAC: Colaborador NÃO deve receber saldos ou transações financeiras no Dashboard")]
         public async Task ObterDashboard_PerfilColaborador_DeveOcultarDadosFinanceiros()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             context.Carteira.Add(new Carteira { Id = 1, Nome = "Fundo Reserva", Saldo = 25000.00m });
             context.Categoria.Add(new Categoria { Id = 1, Nome = "Doação" });
@@ -29,10 +29,10 @@ namespace VestindoSonhos.Tests
             var controller = new DashboardApiController(context);
             DbContextTestHelper.ConfigurarUsuarioNoController(controller, cargo: "Colaborador");
 
-            // Act
+            // Ação
             var resultado = await controller.ObterDashboard();
 
-            // Assert
+            // Verificação
             var okResult = Assert.IsType<OkObjectResult>(resultado.Result);
             var dto = Assert.IsType<DashboardDto>(okResult.Value);
 
@@ -45,7 +45,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "2. Regra de Negócio RBAC: Administrador DEVE visualizar saldos e transações financeiras completas no Dashboard")]
         public async Task ObterDashboard_PerfilAdministrador_DeveExibirDadosFinanceirosCompletos()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             context.Carteira.Add(new Carteira { Id = 1, Nome = "Fundo Reserva", Saldo = 25000.00m });
             context.Categoria.Add(new Categoria { Id = 1, Nome = "Doação" });
@@ -56,10 +56,10 @@ namespace VestindoSonhos.Tests
             var controller = new DashboardApiController(context);
             DbContextTestHelper.ConfigurarUsuarioNoController(controller, cargo: "Administrador");
 
-            // Act
+            // Ação
             var resultado = await controller.ObterDashboard();
 
-            // Assert
+            // Verificação
             var okResult = Assert.IsType<OkObjectResult>(resultado.Result);
             var dto = Assert.IsType<DashboardDto>(okResult.Value);
 
@@ -71,15 +71,15 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "3. Dashboard sem beneficiários cadastrados deve retornar lista de demandas vazia (sem dados fictícios)")]
         public async Task ObterDashboard_SemBeneficiarios_NaoDeveGerarDemandasFicticias()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             var controller = new DashboardApiController(context);
             DbContextTestHelper.ConfigurarUsuarioNoController(controller, cargo: "Administrador");
 
-            // Act
+            // Ação
             var resultado = await controller.ObterDashboard();
 
-            // Assert
+            // Verificação
             var okResult = Assert.IsType<OkObjectResult>(resultado.Result);
             var dto = Assert.IsType<DashboardDto>(okResult.Value);
 
@@ -90,17 +90,17 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "4. Segurança: Criptografia PBKDF2 (PasswordHasher) deve validar senha correta e rejeitar incorreta")]
         public void PasswordHasher_DeveGerarHashSeguroEValidarCredenciais()
         {
-            // Arrange
+            // Preparação
             var hasher = new PasswordHasher<Usuario>();
             var usuario = new Usuario { Id = 1, Nome = "Admin Teste", Email = "admin@teste.org" };
             var senhaPura = "Ong@VestindoSonhos2026";
 
-            // Act
+            // Ação
             var hashGerado = hasher.HashPassword(usuario, senhaPura);
             var validacaoCorreta = hasher.VerifyHashedPassword(usuario, hashGerado, senhaPura);
             var validacaoIncorreta = hasher.VerifyHashedPassword(usuario, hashGerado, "SenhaErrada123");
 
-            // Assert
+            // Verificação
             Assert.NotEqual(senhaPura, hashGerado);
             Assert.Equal(PasswordVerificationResult.Success, validacaoCorreta);
             Assert.Equal(PasswordVerificationResult.Failed, validacaoIncorreta);

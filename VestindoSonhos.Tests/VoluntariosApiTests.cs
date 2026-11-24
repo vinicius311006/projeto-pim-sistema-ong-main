@@ -14,7 +14,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "1. Colaborador deve conseguir cadastrar um novo voluntário com higienização de CPF e Telefone")]
         public async Task CriarVoluntario_ComDadosValidos_DeveSalvarEHigienizarDigitos()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             var controller = new VoluntariosApiController(context);
             DbContextTestHelper.ConfigurarUsuarioNoController(controller, cargo: "Colaborador");
@@ -28,10 +28,10 @@ namespace VestindoSonhos.Tests
                 Endereco = "Rua das Flores, 120"
             };
 
-            // Act
+            // Ação
             var actionResult = await controller.Criar(novoVoluntario);
 
-            // Assert
+            // Verificação
             var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
             var dtoRetornado = Assert.IsType<VoluntariosApiController.VoluntarioDto>(okResult.Value);
 
@@ -46,7 +46,7 @@ namespace VestindoSonhos.Tests
         [InlineData("   ")]
         public async Task CriarVoluntario_SemNome_DeveRetornarBadRequest(string nomeInvalido)
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             var controller = new VoluntariosApiController(context);
             DbContextTestHelper.ConfigurarUsuarioNoController(controller, cargo: "Colaborador");
@@ -57,10 +57,10 @@ namespace VestindoSonhos.Tests
                 Telefone = "11999998888"
             };
 
-            // Act
+            // Ação
             var actionResult = await controller.Criar(dto);
 
-            // Assert
+            // Verificação
             Assert.IsType<BadRequestObjectResult>(actionResult.Result);
             Assert.Equal(0, context.Voluntario.Count());
         }
@@ -68,7 +68,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "3. Listagem de voluntários deve retornar todos ordenados alfabeticamente")]
         public async Task ObterTodos_DeveRetornarListaOrdenadaPorNome()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             context.Voluntario.AddRange(
                 new Voluntario { Nome = "Carlos Eduardo", Cpf = "11122233344", Telefone = "11911112222", Endereco = "Centro", Email = "carlos@ong.org" },
@@ -79,10 +79,10 @@ namespace VestindoSonhos.Tests
             var controller = new VoluntariosApiController(context);
             DbContextTestHelper.ConfigurarUsuarioNoController(controller, cargo: "Colaborador");
 
-            // Act
+            // Ação
             var actionResult = await controller.ObterTodos();
 
-            // Assert
+            // Verificação
             var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
             var lista = Assert.IsAssignableFrom<IEnumerable<VoluntariosApiController.VoluntarioDto>>(okResult.Value).ToList();
 
@@ -94,7 +94,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "4. Edição de voluntário existente deve atualizar os dados no banco")]
         public async Task EditarVoluntario_Existente_DeveAtualizarRegistro()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             var vol = new Voluntario { Nome = "João Antigo", Cpf = "12312312399", Telefone = "11900001111", Endereco = "Rua A", Email = "joao@ong.org" };
             context.Voluntario.Add(vol);
@@ -112,10 +112,10 @@ namespace VestindoSonhos.Tests
                 Email = "joaopedro@ong.org"
             };
 
-            // Act
+            // Ação
             var resultado = await controller.Editar(vol.Id, dtoAtualizado);
 
-            // Assert
+            // Verificação
             Assert.IsType<OkObjectResult>(resultado);
             var volBanco = await context.Voluntario.FindAsync(vol.Id);
             Assert.NotNull(volBanco);
@@ -126,7 +126,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "5. Exclusão de voluntário deve remover vínculos em eventos e excluir o registro")]
         public async Task ExcluirVoluntario_ComEventosAtribuidos_DeveRemoverEmCascata()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             var vol = new Voluntario { Nome = "Lucas Mendes", Cpf = "99988877766", Telefone = "11955556666", Endereco = "Av. Brasil", Email = "lucas@ong.org" };
             context.Voluntario.Add(vol);
@@ -138,10 +138,10 @@ namespace VestindoSonhos.Tests
             var controller = new VoluntariosApiController(context);
             DbContextTestHelper.ConfigurarUsuarioNoController(controller, cargo: "Administrador");
 
-            // Act
+            // Ação
             var resultado = await controller.Excluir(vol.Id);
 
-            // Assert
+            // Verificação
             Assert.IsType<OkObjectResult>(resultado);
             Assert.Equal(0, context.Voluntario.Count());
             Assert.Equal(0, context.VoluntarioAtribuido.Count());

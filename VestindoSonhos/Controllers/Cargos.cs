@@ -26,7 +26,7 @@ namespace VestindoSonhos.Controllers
             return View(await _context.Cargo.ToListAsync());
         }
 
-        // GET: Cargos/Details/5
+        // GET: Cargos/Detalhes/5
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Details(int? id)
         {
@@ -45,7 +45,7 @@ namespace VestindoSonhos.Controllers
             return View(cargo);
         }
 
-        // GET: Cargos/Create
+        // GET: Cargos/Criar
         [Authorize(Roles = "Administrador")]
         public IActionResult Create()
         {
@@ -58,7 +58,7 @@ namespace VestindoSonhos.Controllers
             return View("Create");
         }
 
-        // POST: Cargos/Create
+        // POST: Cargos/Criar
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -91,7 +91,7 @@ namespace VestindoSonhos.Controllers
             return await Create(cargo);
         }
 
-        // GET: Cargos/Edit/5
+        // GET: Cargos/Editar/5
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -114,7 +114,7 @@ namespace VestindoSonhos.Controllers
             return await Edit(id);
         }
 
-        // POST: Cargos/Edit/5
+        // POST: Cargos/Editar/5
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -166,7 +166,7 @@ namespace VestindoSonhos.Controllers
             return await Edit(id, cargo);
         }
 
-        // GET: Cargos/Delete/5
+        // GET: Cargos/Apagar/5
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -191,7 +191,7 @@ namespace VestindoSonhos.Controllers
             return await Delete(id);
         }
 
-        // POST: Cargos/Delete/5
+        // POST: Cargos/Apagar/5
         [Authorize(Roles = "Administrador")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

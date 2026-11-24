@@ -27,7 +27,7 @@ namespace VestindoSonhos.Controllers
             return View(await _context.Carteira.ToListAsync());
         }
 
-        // GET: Carteiras/Details/5
+        // GET: Carteiras/Detalhes/5
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Details(int? id)
         {
@@ -54,8 +54,8 @@ namespace VestindoSonhos.Controllers
         }
 
         // POST: Carteiras/Criar
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Para proteger contra ataques de overposting, habilite apenas as propriedades específicas que deseja vincular.
+        // Para mais detalhes, consulte http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -81,7 +81,7 @@ namespace VestindoSonhos.Controllers
             return View(carteira);
         }
 
-        // GET: Carteiras/Edit/5
+        // GET: Carteiras/Editar/5
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Editar(int? id)
         {
@@ -98,9 +98,9 @@ namespace VestindoSonhos.Controllers
             return View(carteira);
         }
 
-        // POST: Carteiras/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Carteiras/Editar/5
+        // Para proteger contra ataques de overposting, habilite apenas as propriedades específicas que deseja vincular.
+        // Para mais detalhes, consulte http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -152,7 +152,7 @@ namespace VestindoSonhos.Controllers
             return View(carteira);
         }
 
-        // GET: Carteiras/Delete/5
+        // GET: Carteiras/Apagar/5
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Apagar(int? id)
         {
@@ -171,7 +171,7 @@ namespace VestindoSonhos.Controllers
             return View(carteira);
         }
 
-        // POST: Carteiras/Delete/5
+        // POST: Carteiras/Apagar/5
         [Authorize(Roles = "Administrador")]
         [HttpPost, ActionName("Apagar")]
         [ValidateAntiForgeryToken]

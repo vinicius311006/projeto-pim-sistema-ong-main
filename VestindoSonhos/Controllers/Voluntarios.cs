@@ -27,7 +27,7 @@ namespace VestindoSonhos.Controllers
             return View(await _context.Voluntario.ToListAsync());
         }
 
-        // GET: Voluntarios/Details/5
+        // GET: Voluntarios/Detalhes/5
         [Authorize(Roles = "Administrador,Colaborador")]
         public async Task<IActionResult> Details(int? id)
         {
@@ -54,8 +54,8 @@ namespace VestindoSonhos.Controllers
         }
 
         // POST: Voluntarios/Criar
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Para proteger contra ataques de overposting, habilite apenas as propriedades específicas que deseja vincular.
+        // Para mais detalhes, consulte http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "Administrador,Colaborador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -72,7 +72,7 @@ namespace VestindoSonhos.Controllers
             return View(voluntario);
         }
 
-        // GET: Voluntarios/Editar/5
+        // GET: Voluntarios/Editarar/5
         [Authorize(Roles = "Administrador,Colaborador")]
         public async Task<IActionResult> Editar(int? id)
         {
@@ -89,9 +89,9 @@ namespace VestindoSonhos.Controllers
             return View(voluntario);
         }
 
-        // POST: Voluntarios/Editar/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Voluntarios/Editarar/5
+        // Para proteger contra ataques de overposting, habilite apenas as propriedades específicas que deseja vincular.
+        // Para mais detalhes, consulte http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "Administrador,Colaborador")]
         [HttpPost]
         [ValidateAntiForgeryToken]

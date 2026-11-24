@@ -50,7 +50,7 @@ namespace VestindoSonhos.Controllers
         }
 
 
-        // GET: Usuarios/Details/5
+        // GET: Usuarios/Detalhes/5
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Details(int? id)
         {
@@ -87,8 +87,8 @@ namespace VestindoSonhos.Controllers
         }
 
         // POST: Usuarios/Criar
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Para proteger contra ataques de overposting, habilite apenas as propriedades específicas que deseja vincular.
+        // Para mais detalhes, consulte http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -208,7 +208,7 @@ namespace VestindoSonhos.Controllers
             return View(usuario);
         }
 
-        // GET: Usuarios/Edit/5
+        // GET: Usuarios/Editar/5
         [Authorize(Roles = "Administrador")]
         public IActionResult Editar(int? id)
         {
@@ -237,7 +237,7 @@ namespace VestindoSonhos.Controllers
             return View(usuario);
         }
 
-        // POST: Usuarios/Edit/5
+        // POST: Usuarios/Editar/5
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -388,7 +388,7 @@ namespace VestindoSonhos.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Usuarios/Delete/5
+        // GET: Usuarios/Apagar/5
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Apagar(int? id)
         {
@@ -408,7 +408,7 @@ namespace VestindoSonhos.Controllers
             return View(usuario);
         }
 
-        // POST: Usuarios/Delete/5
+        // POST: Usuarios/Apagar/5
         [Authorize(Roles = "Administrador")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

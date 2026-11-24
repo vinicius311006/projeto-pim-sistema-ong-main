@@ -15,7 +15,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "1. Lançamento de Entrada (Doação) deve somar corretamente ao saldo da carteira")]
         public async Task CriarTransacao_Entrada_DeveAumentarSaldoDaCarteira()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             context.Carteira.Add(new Carteira { Id = 1, Nome = "Caixa Principal", Saldo = 1000.00m });
             context.Categoria.Add(new Categoria { Id = 1, Nome = "Doação" });
@@ -33,10 +33,10 @@ namespace VestindoSonhos.Tests
                 Observacao = "Doação PIX Campanha de Inverno"
             };
 
-            // Act
+            // Ação
             var resultado = await controller.CriarTransacao(dto);
 
-            // Assert
+            // Verificação
             Assert.IsType<OkObjectResult>(resultado);
             var carteiraAtualizada = await context.Carteira.FindAsync(1);
             Assert.Equal(1250.50m, carteiraAtualizada!.Saldo);
@@ -46,7 +46,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "2. Lançamento de Saída (Despesa) deve subtrair corretamente do saldo da carteira")]
         public async Task CriarTransacao_Saida_DeveDiminuirSaldoDaCarteira()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             context.Carteira.Add(new Carteira { Id = 1, Nome = "Caixa Principal", Saldo = 1000.00m });
             context.Categoria.Add(new Categoria { Id = 2, Nome = "Logística" });
@@ -64,10 +64,10 @@ namespace VestindoSonhos.Tests
                 Observacao = "Transporte de doações"
             };
 
-            // Act
+            // Ação
             var resultado = await controller.CriarTransacao(dto);
 
-            // Assert
+            // Verificação
             Assert.IsType<OkObjectResult>(resultado);
             var carteiraAtualizada = await context.Carteira.FindAsync(1);
             Assert.Equal(700.00m, carteiraAtualizada!.Saldo);
@@ -78,7 +78,7 @@ namespace VestindoSonhos.Tests
         [InlineData(-50.00)]
         public async Task CriarTransacao_ValorInvalido_DeveRetornarBadRequest(decimal valorInvalido)
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             var controller = new FinanceiroApiController(context);
             DbContextTestHelper.ConfigurarUsuarioNoController(controller, cargo: "Administrador");
@@ -90,17 +90,17 @@ namespace VestindoSonhos.Tests
                 Valor = valorInvalido
             };
 
-            // Act
+            // Ação
             var resultado = await controller.CriarTransacao(dto);
 
-            // Assert
+            // Verificação
             Assert.IsType<BadRequestObjectResult>(resultado);
         }
 
         [Fact(DisplayName = "4. Exclusão de transação de Entrada deve estornar (subtrair) o valor do saldo da carteira")]
         public async Task ExcluirTransacao_Entrada_DeveEstornarSaldoDaCarteira()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             var carteira = new Carteira { Id = 1, Nome = "Conta Corrente ONG", Saldo = 1500.00m };
             var transacao = new Transacao { Id = 10, Usuario = 1, Categoria = 1, Razao = "Entrada", Hora = DateTime.Now };
@@ -114,10 +114,10 @@ namespace VestindoSonhos.Tests
             var controller = new FinanceiroApiController(context);
             DbContextTestHelper.ConfigurarUsuarioNoController(controller, cargo: "Administrador");
 
-            // Act
+            // Ação
             var resultado = await controller.ExcluirTransacao(10);
 
-            // Assert
+            // Verificação
             Assert.IsType<OkObjectResult>(resultado);
             var carteiraBanco = await context.Carteira.FindAsync(1);
             Assert.Equal(1000.00m, carteiraBanco!.Saldo); // 1500 - 500 estornado = 1000
@@ -127,7 +127,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "5. Exclusão de transação no Portal Web (FinanceiroController) também deve estornar o saldo da carteira")]
         public async Task ConfirmarExclusaoWeb_DeveEstornarSaldoDaCarteira()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             var carteira = new Carteira { Id = 1, Nome = "Caixa Principal Web", Saldo = 800.00m };
             var transacao = new Transacao { Id = 20, Usuario = 1, Categoria = 1, Razao = "Saída", Hora = DateTime.Now };
@@ -141,10 +141,10 @@ namespace VestindoSonhos.Tests
             var webController = new VestindoSonhos.Controllers.FinanceiroController(context);
             DbContextTestHelper.ConfigurarUsuarioNoController(webController, cargo: "Administrador");
 
-            // Act
+            // Ação
             var resultado = await webController.ConfirmarExclusão(20);
 
-            // Assert
+            // Verificação
             Assert.IsType<RedirectToActionResult>(resultado);
             var carteiraBanco = await context.Carteira.FindAsync(1);
             Assert.Equal(1000.00m, carteiraBanco!.Saldo); // 800 + 200 (Saída estornada) = 1000
@@ -154,7 +154,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "6. Alteração de categoria de produto no Inventário via API Mobile deve atualizar vínculo corretamente")]
         public async Task EditarProduto_AlterarCategoria_DeveAtualizarCategoriaNoBanco()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             context.TiposAtivo.AddRange(
                 new TiposAtivo { Id = 1, Categoria = "Roupas" },
@@ -167,7 +167,7 @@ namespace VestindoSonhos.Tests
             var invController = new InventarioApiController(context);
             DbContextTestHelper.ConfigurarUsuarioNoController(invController, cargo: "Colaborador");
 
-            // Act
+            // Ação
             var resultado = await invController.EditarProduto(5, new CriarProdutoDto
             {
                 Nome = "Tênis Esportivo",
@@ -176,7 +176,7 @@ namespace VestindoSonhos.Tests
                 CategoriaId = 2
             });
 
-            // Assert
+            // Verificação
             Assert.IsType<OkObjectResult>(resultado);
             var prodAtualizado = await context.Produto.FindAsync(5);
             Assert.Equal(2, prodAtualizado!.Categoria);

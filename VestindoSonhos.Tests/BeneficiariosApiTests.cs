@@ -15,7 +15,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "1. Cadastro de beneficiário válido deve persistir no banco com situação padrão 'Ok'")]
         public async Task CriarBeneficiario_Valido_DeveRetornarCreatedAtAction()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             var controller = new BeneficiariosApiController(context);
             DbContextTestHelper.ConfigurarUsuarioNoController(controller, cargo: "Colaborador");
@@ -29,10 +29,10 @@ namespace VestindoSonhos.Tests
                 Observacao = "#Agasalho #Calçados"
             };
 
-            // Act
+            // Ação
             var resultado = await controller.Criar(dto);
 
-            // Assert
+            // Verificação
             var createdResult = Assert.IsType<CreatedAtActionResult>(resultado.Result);
             var beneficiarioCriado = Assert.IsType<BeneficiarioDto>(createdResult.Value);
 
@@ -45,7 +45,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "2. Cadastro de beneficiário sem nome deve ser rejeitado com BadRequest")]
         public async Task CriarBeneficiario_SemNome_DeveRetornarBadRequest()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             var controller = new BeneficiariosApiController(context);
 
@@ -55,10 +55,10 @@ namespace VestindoSonhos.Tests
                 Telefone = "11999990000"
             };
 
-            // Act
+            // Ação
             var resultado = await controller.Criar(dto);
 
-            // Assert
+            // Verificação
             Assert.IsType<BadRequestObjectResult>(resultado.Result);
             Assert.Equal(0, context.Beneficiario.Count());
         }
@@ -66,7 +66,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "3. Listagem de beneficiários deve contabilizar corretamente o número de dependentes")]
         public async Task ObterTodos_ComDependentesVinculados_DeveContarDependentesCorretamente()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             var ben = new Beneficiario
             {
@@ -86,10 +86,10 @@ namespace VestindoSonhos.Tests
 
             var controller = new BeneficiariosApiController(context);
 
-            // Act
+            // Ação
             var resultado = await controller.ObterTodos();
 
-            // Assert
+            // Verificação
             var okResult = Assert.IsType<OkObjectResult>(resultado.Result);
             var lista = Assert.IsAssignableFrom<IEnumerable<BeneficiarioDto>>(okResult.Value).ToList();
 
@@ -100,7 +100,7 @@ namespace VestindoSonhos.Tests
         [Fact(DisplayName = "4. Exclusão de beneficiário deve excluir também seus dependentes vinculados")]
         public async Task ExcluirBeneficiario_ComDependentes_DeveRemoverDependentesEmCascata()
         {
-            // Arrange
+            // Preparação
             using var context = DbContextTestHelper.CriarContextoEmMemoria();
             var ben = new Beneficiario
             {
@@ -117,10 +117,10 @@ namespace VestindoSonhos.Tests
 
             var controller = new BeneficiariosApiController(context);
 
-            // Act
+            // Ação
             var resultado = await controller.Excluir(ben.Id);
 
-            // Assert
+            // Verificação
             Assert.IsType<OkObjectResult>(resultado);
             Assert.Equal(0, context.Beneficiario.Count());
             Assert.Equal(0, context.Dependente.Count());
