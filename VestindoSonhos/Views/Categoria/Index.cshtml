@@ -84,6 +84,19 @@
         color: #7C6FE0 !important;
     }
 
+    .vs-btn-danger {
+        background: #FEE2E2;
+        color: #DC2626 !important;
+        border-color: #FECACA;
+        cursor: pointer;
+    }
+
+    .vs-btn-danger:hover {
+        background: #FECACA;
+        color: #B91C1C !important;
+        transform: translateY(-1px);
+    }
+
     .vs-cat-card {
         background: var(--color-5, #FFFFFF);
         border: 1px solid var(--color-6, #E5E7EB);
@@ -240,6 +253,16 @@
                 <span class="material-symbols-outlined">account_balance_wallet</span>
                 <span>Carteiras &amp; Contas</span>
             </a>
+            @if (categorias.Any())
+            {
+                <form asp-controller="Categoria" asp-action="ApagarTodas" method="post" style="display:inline; margin:0;" onsubmit="return confirm('Tem certeza que deseja excluir TODAS as categorias financeiras? Os lançamentos existentes não serão perdidos e ficarão Sem Categoria.');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="vs-btn vs-btn-danger">
+                        <span class="material-symbols-outlined">delete_sweep</span>
+                        <span>Excluir Todas</span>
+                    </button>
+                </form>
+            }
             <a class="vs-btn vs-btn-primary" asp-controller="Categoria" asp-action="Criar">
                 <span class="material-symbols-outlined">add_circle</span>
                 <span>Nova Categoria</span>
@@ -269,6 +292,14 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @if (!categorias.Any())
+                    {
+                        <tr>
+                            <td colspan="4" style="text-align:center; padding:32px; color:#9CA3AF;">
+                                Nenhuma categoria financeira cadastrada no momento. Clique em <strong>Nova Categoria</strong> para adicionar quando desejar.
+                            </td>
+                        </tr>
+                    }
                     @foreach (var item in categorias)
                     {
                         <tr>

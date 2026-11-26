@@ -181,5 +181,79 @@ namespace VestindoSonhos.Tests
             var prodAtualizado = await context.Produto.FindAsync(5);
             Assert.Equal(2, prodAtualizado!.Categoria);
         }
+
+        [Fact(DisplayName = "7. Exclusão da última categoria financeira no Portal Web deve desvincular transações para Sem Categoria sem erro")]
+        public async Task ApagarUltimaCategoriaWeb_ComTransacoesVinculadas_DeveDesvincularESucesso()
+        {
+            // Preparação
+            using var context = DbContextTestHelper.CriarContextoEmMemoria();
+            context.Categoria.Add(new Categoria { Id = 12, Nome = "1" });
+            context.Transacao.Add(new Transacao { Id = 30, Usuario = 1, Categoria = 12, Razao = "Entrada", Hora = DateTime.Now });
+            await context.SaveChangesAsync();
+
+            var catController = new VestindoSonhos.Controllers.Categoria(context);
+            DbContextTestHelper.ConfigurarUsuarioNoController(catController, cargo: "Administrador");
+
+            // Ação
+            var resultado = await catController.ApagarConfirmed(12);
+
+            // Verificação
+            Assert.IsType<RedirectToActionResult>(resultado);
+            Assert.Equal(0, context.Categoria.Count());
+            var transacaoBanco = await context.Transacao.FindAsync(30);
+            Assert.NotNull(transacaoBanco);
+            Assert.Null(transacaoBanco!.Categoria);
+        }
+
+        [Fact(DisplayName = "8. Exclusão de todas as categorias financeiras (ApagarTodas Web e ExcluirCategoria API) deve zerar categorias e permitir novos lançamentos")]
+        public async Task ExcluirTodasCategorias_WebEApi_DevePermitirZeroCategoriasENovosLancamentos()
+        {
+            // Preparação
+            using var context = DbContextTestHelper.CriarContextoEmMemoria();
+            context.Carteira.Add(new Carteira { Id = 1, Nome = "Caixa Principal", Saldo = 500.00m });
+            context.Categoria.AddRange(
+                new Categoria { Id = 1, Nome = "Doação" },
+                new Categoria { Id = 2, Nome = "Eventos" }
+            );
+            context.Transacao.AddRange(
+                new Transacao { Id = 40, Usuario = 1, Categoria = 1, Razao = "Entrada", Hora = DateTime.Now },
+                new Transacao { Id = 41, Usuario = 1, Categoria = 2, Razao = "Saída", Hora = DateTime.Now }
+            );
+            await context.SaveChangesAsync();
+
+            var catController = new VestindoSonhos.Controllers.Categoria(context);
+            DbContextTestHelper.ConfigurarUsuarioNoController(catController, cargo: "Administrador");
+
+            // Ação 1: ApagarTodas no Portal Web
+            var resTodas = await catController.ApagarTodas();
+            Assert.IsType<RedirectToActionResult>(resTodas);
+            Assert.Equal(0, context.Categoria.Count());
+            Assert.All(context.Transacao, t => Assert.Null(t.Categoria));
+
+            // Ação 2: Criar nova categoria única e excluí-la via API
+            var apiController = new FinanceiroApiController(context);
+            DbContextTestHelper.ConfigurarUsuarioNoController(apiController, cargo: "Administrador");
+
+            context.Categoria.Add(new Categoria { Id = 99, Nome = "Única" });
+            context.Transacao.First().Categoria = 99;
+            await context.SaveChangesAsync();
+
+            var resDeleteApi = await apiController.ExcluirCategoria(99);
+            Assert.IsType<OkObjectResult>(resDeleteApi);
+            Assert.Equal(0, context.Categoria.Count());
+            Assert.Null(context.Transacao.First().Categoria);
+
+            // Ação 3: Criar transação financeira mesmo com 0 categorias cadastradas
+            var resCriarSemCat = await apiController.CriarTransacao(new CriarTransacaoFinanceiraDto
+            {
+                CarteiraId = 1,
+                CategoriaId = null,
+                Razao = "Entrada",
+                Valor = 100.00m,
+                Observacao = "Lançamento sem categoria"
+            });
+            Assert.IsType<OkObjectResult>(resCriarSemCat);
+            Assert.Equal(600.00m, (await context.Carteira.FindAsync(1))!.Saldo);
+        }
     }
 }

@@ -382,10 +382,22 @@
                     <h2>Categorias Financeiras</h2>
                     <p>Sincronizadas em tempo real com o App Mobile e /mobile</p>
                 </div>
-                <a class="vs-btn vs-btn-outline" style="padding:7px 13px; font-size:12.5px;" asp-controller="Categoria" asp-action="Criar">
-                    <span class="material-symbols-outlined" style="font-size:17px;">add</span>
-                    <span>Nova Categoria</span>
-                </a>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    @if (categorias.Any())
+                    {
+                        <form asp-controller="Categoria" asp-action="ApagarTodas" asp-route-returnUrl="/Carteiras" method="post" style="display:inline; margin:0;" onsubmit="return confirm('Tem certeza que deseja excluir TODAS as categorias financeiras? Os lançamentos existentes ficarão Sem Categoria.');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="vs-btn" style="padding:7px 13px; font-size:12.5px; background:#FEE2E2; color:#DC2626 !important; border-color:#FECACA; cursor:pointer;">
+                                <span class="material-symbols-outlined" style="font-size:17px;">delete_sweep</span>
+                                <span>Excluir Todas</span>
+                            </button>
+                        </form>
+                    }
+                    <a class="vs-btn vs-btn-outline" style="padding:7px 13px; font-size:12.5px;" asp-controller="Categoria" asp-action="Criar">
+                        <span class="material-symbols-outlined" style="font-size:17px;">add</span>
+                        <span>Nova Categoria</span>
+                    </a>
+                </div>
             </div>
 
             <div style="overflow-x:auto;">
@@ -397,6 +409,14 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if (!categorias.Any())
+                        {
+                            <tr>
+                                <td colspan="2" style="text-align:center; padding:26px; color:#9CA3AF;">
+                                    Nenhuma categoria financeira ativa no momento.
+                                </td>
+                            </tr>
+                        }
                         @foreach (var cat in categorias)
                         {
                             <tr>

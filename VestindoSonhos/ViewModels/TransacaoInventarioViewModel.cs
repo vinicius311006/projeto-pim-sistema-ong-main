@@ -26,7 +26,7 @@ namespace VestindoSonhos.ViewModels
 
         public string? Observacao { get; set; }
 
-        public int Categoria { get; set; }
+        public int? Categoria { get; set; }
 
         public int? Beneficiario { get; set; }
 
@@ -34,13 +34,13 @@ namespace VestindoSonhos.ViewModels
 
 
         [ForeignKey("Beneficiario")]
-        public virtual Beneficiario BeneficiarioNavigation { get; set; } = null!;
+        public virtual Beneficiario? BeneficiarioNavigation { get; set; }
 
         public List<ItemTransacao> listaItensAtribuidos { get; set; } = new();
 
-        public virtual Categoria CategoriaNavigation { get; set; } = null!;
+        public virtual Categoria? CategoriaNavigation { get; set; }
 
-        public virtual Produto ProdutoNavigation { get; set; } = null!;
+        public virtual Produto? ProdutoNavigation { get; set; }
 
         public virtual TransacaoFinanceira? TransacaoFinanceira { get; set; }
 

@@ -107,7 +107,7 @@ public partial class VestindosonhosdbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Nome)
-                .HasMaxLength(15)
+                .HasMaxLength(60)
                 .HasColumnName("nome");
         });
 
@@ -217,7 +217,7 @@ public partial class VestindosonhosdbContext : DbContext
 
             entity.HasOne(d => d.CategoriaNavigation).WithMany(p => p.Transacao)
                 .HasForeignKey(d => d.Categoria)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK_Transacao_Categoria");
 
             entity.HasOne(d => d.UsuarioNavigation).WithMany(p => p.Transacao)

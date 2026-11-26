@@ -55,7 +55,7 @@
                                 <strong>@(string.IsNullOrWhiteSpace(item.Observacao) ? "Lançamento financeiro" : item.Observacao)</strong>
                             </td>
                             <td data-label="Categoria">
-                                @(item.CategoriaNavigation?.Nome ?? "Geral")
+                                @(item.CategoriaNavigation?.Nome ?? "Sem Categoria")
                             </td>
                             <td data-label="Usuário">
                                 @item.Usuario

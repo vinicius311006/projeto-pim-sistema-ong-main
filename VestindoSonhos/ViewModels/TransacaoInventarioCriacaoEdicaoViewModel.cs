@@ -27,7 +27,7 @@ namespace VestindoSonhos.ViewModels
             public string? NomeCategoriaProduto { get; set; }
         }
         public int IdTransacao { get; set; }
-        public int CategoriaTransacao { get; set; }
+        public int? CategoriaTransacao { get; set; }
 
         public string? NomeCategoriaTransacao { get; set; }
 

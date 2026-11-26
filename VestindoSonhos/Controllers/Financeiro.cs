@@ -38,39 +38,43 @@ namespace VestindoSonhos.Controllers
                                    }).ToList(),
                 lista_transacoes = (from tf in _context.TransacaoFinanceira
                                     join t in _context.Transacao on tf.Id equals t.Id
-                                    join u in _context.Usuario on t.Usuario equals u.Id
-                                    join c in _context.Categoria on t.Categoria equals c.Id
-                                    where c.Id != 1
+                                    join u in _context.Usuario on t.Usuario equals u.Id into uGroup
+                                    from u in uGroup.DefaultIfEmpty()
+                                    join c in _context.Categoria on t.Categoria equals c.Id into catGroup
+                                    from c in catGroup.DefaultIfEmpty()
+                                    where c == null || (c.Id != 1 && c.Nome != "Doação" && c.Nome != "Doacao")
                                     orderby t.Hora descending
                                     select new TransacaoFinanceiraViewModel
                                     {
                                         Id = t.Id,
                                         Valor = tf.Valor,
-                                        UsuarioId = u.Id,
-                                        Usuario = u.Nome,
-                                        Razao = t.Razao.ToString(),
+                                        UsuarioId = u != null ? u.Id : t.Usuario,
+                                        Usuario = u != null ? u.Nome : "Sistema",
+                                        Razao = t.Razao ?? "Entrada",
                                         Hora = t.Hora,
-                                        Categoria = c.Id,
+                                        Categoria = c != null ? (int?)c.Id : null,
                                         Observacao = t.Observacao,
-                                        CategoriaNavigation = t.CategoriaNavigation
+                                        CategoriaNavigation = c
                                     }).Take(15).ToList(),
                 lista_doacoes = (from tf in _context.TransacaoFinanceira
                                  join t in _context.Transacao on tf.Id equals t.Id
-                                 join u in _context.Usuario on t.Usuario equals u.Id
-                                 join c in _context.Categoria on t.Categoria equals c.Id
-                                 where t.Categoria == 1
+                                 join u in _context.Usuario on t.Usuario equals u.Id into uGroup
+                                 from u in uGroup.DefaultIfEmpty()
+                                 join c in _context.Categoria on t.Categoria equals c.Id into catGroup
+                                 from c in catGroup.DefaultIfEmpty()
+                                 where c != null && (c.Id == 1 || c.Nome == "Doação" || c.Nome == "Doacao")
                                  orderby t.Hora descending
                                  select new TransacaoFinanceiraViewModel
                                  {
                                      Id = t.Id,
                                      Valor = tf.Valor,
-                                     UsuarioId = u.Id,
-                                     Usuario = u.Nome,
-                                     Razao = t.Razao.ToString(),
+                                     UsuarioId = u != null ? u.Id : t.Usuario,
+                                     Usuario = u != null ? u.Nome : "Sistema",
+                                     Razao = t.Razao ?? "Entrada",
                                      Hora = t.Hora,
                                      Categoria = c.Id,
                                      Observacao = t.Observacao,
-                                     CategoriaNavigation = t.CategoriaNavigation
+                                     CategoriaNavigation = c
                                  }).Take(15).ToList()
             };
             ViewBag.Categorias = await _context.Categoria.OrderBy(c => c.Nome).ToListAsync();
@@ -84,19 +88,21 @@ namespace VestindoSonhos.Controllers
 
             var transacoes = (from tf in _context.TransacaoFinanceira
                               join t in _context.Transacao on tf.Id equals t.Id
-                              join u in _context.Usuario on t.Usuario equals u.Id
-                              join c in _context.Categoria on t.Categoria equals c.Id
-                              where c.Id != 1
+                              join u in _context.Usuario on t.Usuario equals u.Id into uGroup
+                              from u in uGroup.DefaultIfEmpty()
+                              join c in _context.Categoria on t.Categoria equals c.Id into catGroup
+                              from c in catGroup.DefaultIfEmpty()
+                              where c == null || (c.Id != 1 && c.Nome != "Doação" && c.Nome != "Doacao")
                               orderby t.Hora descending
                               select new TransacaoFinanceiraViewModel
                               {
                                   Id = t.Id,
                                   Valor = tf.Valor,
-                                  UsuarioId = u.Id,
-                                  Usuario = u.Nome,
-                                  Razao = t.Razao.ToString(),
+                                  UsuarioId = u != null ? u.Id : t.Usuario,
+                                  Usuario = u != null ? u.Nome : "Sistema",
+                                  Razao = t.Razao ?? "Entrada",
                                   Hora = t.Hora,
-                                  Categoria = c.Id,
+                                  Categoria = c != null ? (int?)c.Id : null,
                                   Observacao = t.Observacao,
                                   CategoriaNavigation = c
                               }).ToList();
@@ -110,17 +116,19 @@ namespace VestindoSonhos.Controllers
 
             var transacoes = (from tf in _context.TransacaoFinanceira
                               join t in _context.Transacao on tf.Id equals t.Id
-                              join u in _context.Usuario on t.Usuario equals u.Id
-                              join c in _context.Categoria on t.Categoria equals c.Id
-                              where t.Categoria == 1
+                              join u in _context.Usuario on t.Usuario equals u.Id into uGroup
+                              from u in uGroup.DefaultIfEmpty()
+                              join c in _context.Categoria on t.Categoria equals c.Id into catGroup
+                              from c in catGroup.DefaultIfEmpty()
+                              where c != null && (c.Id == 1 || c.Nome == "Doação" || c.Nome == "Doacao")
                               orderby t.Hora descending
                               select new TransacaoFinanceiraViewModel
                               {
                                   Id = t.Id,
                                   Valor = tf.Valor,
-                                  UsuarioId = u.Id,
-                                  Usuario = u.Nome,
-                                  Razao = t.Razao.ToString(),
+                                  UsuarioId = u != null ? u.Id : t.Usuario,
+                                  Usuario = u != null ? u.Nome : "Sistema",
+                                  Razao = t.Razao ?? "Entrada",
                                   Hora = t.Hora,
                                   Categoria = c.Id,
                                   Observacao = t.Observacao,
@@ -403,6 +411,20 @@ namespace VestindoSonhos.Controllers
                         QuantidadeOperacoes = itensCat.Count
                     };
                 })
+                .ToList();
+
+            var itensSemCategoria = transacoesFin.Where(t => t.Categoria.Equals("Geral", StringComparison.OrdinalIgnoreCase) || t.Categoria.Equals("Sem Categoria", StringComparison.OrdinalIgnoreCase)).ToList();
+            if (itensSemCategoria.Any())
+            {
+                movPorCategoria.Add(new DashboardViewModel.CategoriaValorItem
+                {
+                    Categoria = "Sem Categoria",
+                    Valor = itensSemCategoria.Sum(x => x.Valor),
+                    QuantidadeOperacoes = itensSemCategoria.Count
+                });
+            }
+
+            movPorCategoria = movPorCategoria
                 .OrderByDescending(x => x.Valor)
                 .ThenByDescending(x => x.QuantidadeOperacoes)
                 .ToList();
@@ -482,7 +504,7 @@ namespace VestindoSonhos.Controllers
                 var catDoacao = _context.Categoria.FirstOrDefault(c => c.Id == 1 || c.Nome == "Doação" || c.Nome == "Doacao");
                 return View(new TransacaoFinanceiraViewModel
                 {
-                    Categoria = catDoacao?.Id ?? 1,
+                    Categoria = catDoacao?.Id,
                     Razao = "Entrada",
                     Hora = DateTime.Now
                 });
@@ -568,13 +590,16 @@ namespace VestindoSonhos.Controllers
                         tfViewModel.Observacao = tfViewModel.Observacao.Substring(0, 255);
                 }
                 
-                var categoriaId = tfViewModel.Categoria;
-                var categoriaEntity = _context.Categoria.FirstOrDefault(c => c.Id == categoriaId);
-                if (categoriaEntity == null)
+                VestindoSonhos.Models.Categoria? categoriaEntity = null;
+                if (tfViewModel.Categoria.HasValue && tfViewModel.Categoria.Value > 0)
                 {
-                    ModelState.AddModelError(nameof(tfViewModel.Categoria), "Categoria inválida.");
-                    CarregarDropdowns();
-                    return View(tfViewModel);
+                    categoriaEntity = _context.Categoria.FirstOrDefault(c => c.Id == tfViewModel.Categoria.Value);
+                    if (categoriaEntity == null)
+                    {
+                        ModelState.AddModelError(nameof(tfViewModel.Categoria), "Categoria inválida.");
+                        CarregarDropdowns();
+                        return View(tfViewModel);
+                    }
                 }
                 if (EhCategoriaDoacao(categoriaEntity))
                 {
@@ -594,7 +619,7 @@ namespace VestindoSonhos.Controllers
                     Hora = tfViewModel.Hora,
                     Observacao = tfViewModel.Observacao,
                     Razao = tfViewModel.Razao,
-                    Categoria = categoriaEntity.Id,
+                    Categoria = categoriaEntity?.Id,
                     Usuario = idUsuario
                 };
 
@@ -641,18 +666,20 @@ namespace VestindoSonhos.Controllers
             Console.WriteLine("Editando");
             var transacao = (from tf in _context.TransacaoFinanceira
                              join t in _context.Transacao on tf.Id equals t.Id
-                             join u in _context.Usuario on t.Usuario equals u.Id
-                             join c in _context.Categoria on t.Categoria equals c.Id
+                             join u in _context.Usuario on t.Usuario equals u.Id into uGroup
+                             from u in uGroup.DefaultIfEmpty()
+                             join c in _context.Categoria on t.Categoria equals c.Id into catGroup
+                             from c in catGroup.DefaultIfEmpty()
                              join cart in _context.Carteira on tf.Carteira equals cart.Id
                              where tf.Id == id
                              select new TransacaoFinanceiraEditViewModel
                              {
                                  Valor = tf.Valor,
-                                 UsuarioId = u.Id,
-                                 Usuario = u.Nome,
-                                 Razao = t.Razao.ToString(),
+                                 UsuarioId = u != null ? u.Id : t.Usuario,
+                                 Usuario = u != null ? u.Nome : "Sistema",
+                                 Razao = t.Razao ?? "Entrada",
                                  Hora = t.Hora,
-                                 Categoria = c.Id,
+                                 Categoria = c != null ? (int?)c.Id : null,
                                  Observacao = t.Observacao,
                                  Carteira = cart.Id,
 
@@ -787,13 +814,16 @@ namespace VestindoSonhos.Controllers
                         tfViewModel.Observacao = tfViewModel.Observacao.Substring(0, 255);
                 }
 
-                var categoriaId = tfViewModel.Categoria;
-                var categoriaEntity = _context.Categoria.FirstOrDefault(c => c.Id == categoriaId);
-                if (categoriaEntity == null)
+                VestindoSonhos.Models.Categoria? categoriaEntity = null;
+                if (tfViewModel.Categoria.HasValue && tfViewModel.Categoria.Value > 0)
                 {
-                    ModelState.AddModelError(nameof(tfViewModel.Categoria), "Categoria inválida.");
-                    CarregarDropdowns();
-                    return View(tfViewModel);
+                    categoriaEntity = _context.Categoria.FirstOrDefault(c => c.Id == tfViewModel.Categoria.Value);
+                    if (categoriaEntity == null)
+                    {
+                        ModelState.AddModelError(nameof(tfViewModel.Categoria), "Categoria inválida.");
+                        CarregarDropdowns();
+                        return View(tfViewModel);
+                    }
                 }
 
                 // Reverter efeito anterior na carteira antiga antes de aplicar o novo
@@ -824,7 +854,7 @@ namespace VestindoSonhos.Controllers
                 // Preparar updates no banco
                 transacao.Hora = tfViewModel.Hora;
                 transacao.Observacao = tfViewModel.Observacao;
-                transacao.Categoria = categoriaEntity.Id;
+                transacao.Categoria = categoriaEntity?.Id;
                 transacao.Usuario = tfViewModel.UsuarioId;
                 transacao.Razao = razaoNova;
 
@@ -853,7 +883,7 @@ namespace VestindoSonhos.Controllers
                 
                 return RedirectToAction(nameof(Financeiro));
             }
-            //ViewData["Usuario"] = new SelectList(_context.Usuario, "Id", "Nome", tfViewModel.Usuario);
+            CarregarDropdowns();
             return View(tfViewModel);
         }
     }

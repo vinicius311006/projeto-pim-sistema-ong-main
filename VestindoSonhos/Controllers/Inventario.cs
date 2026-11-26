@@ -52,6 +52,10 @@ namespace VestindoSonhos.Controllers
 
             var transacao_inventario = await _context.TransacaoInventario.Include(ti => ti.BeneficiarioNavigation).Include(ti => ti.ProdutoNavigation).FirstOrDefaultAsync(ti => ti.TransacaoId == id);
             var transacao = await _context.Transacao.Include(t => t.CategoriaNavigation).Include(t => t.UsuarioNavigation).FirstOrDefaultAsync(t => t.Id == id);
+            if (transacao == null)
+            {
+                return NotFound();
+            }
             var itens = await (from ti in _context.TransacaoInventario
                                join p in _context.Produto on ti.ProdutoId equals p.Id
                                where ti.TransacaoId == id
@@ -72,9 +76,9 @@ namespace VestindoSonhos.Controllers
                 CategoriaNavigation = transacao.CategoriaNavigation,
                 Hora = transacao.Hora,
                 Observacao = transacao.Observacao,
-                Razao = transacao.Razao.ToString(),
-                Beneficiario = transacao_inventario.Beneficiario,
-                BeneficiarioNavigation = transacao_inventario.BeneficiarioNavigation,
+                Razao = transacao.Razao ?? "Entrada",
+                Beneficiario = transacao_inventario?.Beneficiario,
+                BeneficiarioNavigation = transacao_inventario?.BeneficiarioNavigation,
                 listaItensAtribuidos = itens
             };
 
@@ -178,11 +182,15 @@ namespace VestindoSonhos.Controllers
                     idUsuario = parsedId;
                 }
 
+                int? categoriaValidaId = (model.CategoriaTransacao.HasValue && model.CategoriaTransacao.Value > 0 && await _context.Categoria.AnyAsync(c => c.Id == model.CategoriaTransacao.Value))
+                    ? model.CategoriaTransacao.Value
+                    : null;
+
                 var transacao = new Transacao
                 {
                     Usuario = idUsuario,
                     Hora = DateTime.Now,
-                    Categoria = model.CategoriaTransacao,
+                    Categoria = categoriaValidaId,
                     Observacao = model.Observacao,
                     Razao = model.Razao
                 };
@@ -238,7 +246,7 @@ namespace VestindoSonhos.Controllers
                 CategoriaTransacao = transacao.Categoria,
                 Razao = transacao.Razao,
                 Observacao = transacao.Observacao,
-                NomeCategoriaTransacao = transacao.CategoriaNavigation.Nome,
+                NomeCategoriaTransacao = transacao.CategoriaNavigation?.Nome ?? "Sem Categoria",
                 Produtos = await (from p in _context.Produto
                                   join ta in _context.TiposAtivo on p.Categoria equals ta.Id into taGroup
                                   from ta in taGroup.DefaultIfEmpty()
@@ -309,7 +317,9 @@ namespace VestindoSonhos.Controllers
                 {
                     return NotFound();
                 }
-                transacao.Categoria = model.CategoriaTransacao;
+                transacao.Categoria = (model.CategoriaTransacao.HasValue && model.CategoriaTransacao.Value > 0 && await _context.Categoria.AnyAsync(c => c.Id == model.CategoriaTransacao.Value))
+                    ? model.CategoriaTransacao.Value
+                    : null;
                 transacao.Razao = model.Razao;
                 if (!string.IsNullOrWhiteSpace(model.Observacao))
                 {
@@ -340,6 +350,7 @@ namespace VestindoSonhos.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            CarregarDropdowns();
             return View(model);
         }
 

@@ -178,7 +178,7 @@ namespace VestindoSonhos.Controllers.Api
             }
 
             var categoriaPadrao = await _context.Categoria.FirstOrDefaultAsync();
-            int catId = categoriaPadrao?.Id ?? 1;
+            int? catId = categoriaPadrao?.Id;
 
             var obs = dto.Observacao?.Trim();
             if (obs != null && obs.Length > 255) obs = obs.Substring(0, 255);

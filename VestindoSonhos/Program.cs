@@ -204,8 +204,12 @@ using (var scope = app.Services.CreateScope())
     try { db.Database.ExecuteSqlRaw("ALTER TABLE Categoria MODIFY COLUMN nome VARCHAR(60) NOT NULL;"); } catch { }
     try { db.Database.ExecuteSqlRaw("ALTER TABLE TiposAtivo MODIFY COLUMN categoria VARCHAR(60) NOT NULL;"); } catch { }
     try { db.Database.ExecuteSqlRaw("ALTER TABLE Carteira MODIFY COLUMN nome VARCHAR(60) NOT NULL;"); } catch { }
+    try { db.Database.ExecuteSqlRaw("ALTER TABLE Transacao DROP FOREIGN KEY FK_Transacao_Categoria;"); } catch { }
+    try { db.Database.ExecuteSqlRaw("ALTER TABLE Transacao MODIFY COLUMN categoria INT NULL;"); } catch { }
+    try { db.Database.ExecuteSqlRaw("UPDATE Transacao SET categoria = NULL WHERE categoria IS NOT NULL AND categoria NOT IN (SELECT id FROM Categoria);"); } catch { }
+    try { db.Database.ExecuteSqlRaw("ALTER TABLE Transacao ADD CONSTRAINT FK_Transacao_Categoria FOREIGN KEY (categoria) REFERENCES Categoria(id) ON DELETE SET NULL;"); } catch { }
     try { db.Database.ExecuteSqlRaw("UPDATE TiposAtivo SET categoria = 'Calçados' WHERE id = 2 OR categoria LIKE 'Cal%ados';"); } catch { }
-    try { db.Database.ExecuteSqlRaw("UPDATE Categoria SET nome = 'Doação' WHERE id = 1 OR nome LIKE 'Doa%o';"); } catch { }
+    try { db.Database.ExecuteSqlRaw("UPDATE Categoria SET nome = 'Doação' WHERE nome LIKE 'Doa%o';"); } catch { }
     try { db.Database.ExecuteSqlRaw("UPDATE Carteira SET nome = 'Caixa Físico (Sede)' WHERE id = 2;"); } catch { }
     try { db.Database.ExecuteSqlRaw("UPDATE Eventos SET local = 'Ginásio Municipal', observacao = 'Arrecadação de casacos e cobertores' WHERE id = 1;"); } catch { }
     try { db.Database.ExecuteSqlRaw("UPDATE Eventos SET observacao = 'Venda comunitária e distribuição' WHERE id = 2;"); } catch { }

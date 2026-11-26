@@ -191,25 +191,85 @@ namespace VestindoSonhos.Controllers
                 var categoria = await _context.Categoria.FindAsync(id);
                 if (categoria != null)
                 {
+                    // Desvincula as transações existentes (deixando-as Sem Categoria) para permitir apagar inclusive a última categoria
                     var vinculadas = await _context.Transacao.Where(t => t.Categoria == id).ToListAsync();
                     if (vinculadas.Any())
                     {
-                        var outra = await _context.Categoria.AsNoTracking().FirstOrDefaultAsync(c => c.Id != id);
-                        if (outra != null)
+                        foreach (var t in vinculadas)
                         {
-                            foreach (var t in vinculadas) t.Categoria = outra.Id;
-                            _context.Transacao.UpdateRange(vinculadas);
-                            await _context.SaveChangesAsync();
+                            t.Categoria = null;
                         }
+                        _context.Transacao.UpdateRange(vinculadas);
+                        await _context.SaveChangesAsync();
                     }
+
                     _context.Categoria.Remove(categoria);
                     await _context.SaveChangesAsync();
+                    if (TempData != null)
+                    {
+                        TempData["Sucesso"] = "Categoria financeira excluída com sucesso!";
+                    }
                 }
             }
-            catch (DbUpdateException)
+            catch (Exception)
             {
-                TempData["Erro"] = "Não foi possível excluir esta categoria pois ela possui registros vinculados.";
+                if (TempData != null)
+                {
+                    TempData["Erro"] = "Não foi possível excluir esta categoria financeira.";
+                }
             }
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Categoria/ApagarTodas
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApagarTodas(string? returnUrl = null)
+        {
+            try
+            {
+                var vinculadas = await _context.Transacao.Where(t => t.Categoria != null).ToListAsync();
+                if (vinculadas.Any())
+                {
+                    foreach (var t in vinculadas)
+                    {
+                        t.Categoria = null;
+                    }
+                    _context.Transacao.UpdateRange(vinculadas);
+                    await _context.SaveChangesAsync();
+                }
+
+                var todasCategorias = await _context.Categoria.ToListAsync();
+                if (todasCategorias.Any())
+                {
+                    _context.Categoria.RemoveRange(todasCategorias);
+                    await _context.SaveChangesAsync();
+                }
+
+                if (TempData != null)
+                {
+                    TempData["Sucesso"] = "Todas as categorias financeiras foram excluídas com sucesso!";
+                }
+            }
+            catch (Exception)
+            {
+                if (TempData != null)
+                {
+                    TempData["Erro"] = "Não foi possível excluir todas as categorias financeiras.";
+                }
+            }
+
+            bool urlLocalSegura = !string.IsNullOrWhiteSpace(returnUrl) &&
+                (Url != null
+                    ? Url.IsLocalUrl(returnUrl)
+                    : (returnUrl.StartsWith("/") && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\")));
+
+            if (urlLocalSegura)
+            {
+                return LocalRedirect(returnUrl!);
+            }
+
             return RedirectToAction(nameof(Index));
         }
 

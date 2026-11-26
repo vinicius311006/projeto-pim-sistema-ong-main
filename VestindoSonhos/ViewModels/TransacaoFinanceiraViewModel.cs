@@ -21,14 +21,13 @@ namespace VestindoSonhos.ViewModels
         [Required(ErrorMessage = "Defina uma razão")]
         public string Razao { get; set; } = null!;
 
-        [Required(ErrorMessage = "Selecione uma categoria")]
-        public int Categoria { get; set; }
+        public int? Categoria { get; set; }
 
         public string? Observacao { get; set; }
 
         [Required(ErrorMessage = "Qual a data da transação?")]
         public DateTime? Hora { get; set; }
         [ValidateNever]
-        public virtual Models.Categoria CategoriaNavigation { get; set; } = null!;
+        public virtual Models.Categoria? CategoriaNavigation { get; set; }
     }
 }

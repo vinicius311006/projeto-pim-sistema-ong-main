@@ -157,18 +157,13 @@ namespace VestindoSonhos.Controllers.Api
                 return NotFound(new { mensagem = "Categoria financeira não encontrada." });
             }
 
+            // Desvincula lançamentos existentes (deixando Sem Categoria) para permitir excluir inclusive a última categoria
             var transacoesVinculadas = await _context.Transacao.Where(t => t.Categoria == id).ToListAsync();
             if (transacoesVinculadas.Any())
             {
-                var outraCategoria = await _context.Categoria.AsNoTracking().FirstOrDefaultAsync(c => c.Id != id);
-                if (outraCategoria == null)
-                {
-                    return BadRequest(new { mensagem = "Não é possível excluir a única categoria financeira existente pois há lançamentos vinculados." });
-                }
-
                 foreach (var t in transacoesVinculadas)
                 {
-                    t.Categoria = outraCategoria.Id;
+                    t.Categoria = null;
                 }
                 _context.Transacao.UpdateRange(transacoesVinculadas);
                 await _context.SaveChangesAsync();
@@ -178,6 +173,30 @@ namespace VestindoSonhos.Controllers.Api
             await _context.SaveChangesAsync();
 
             return Ok(new { mensagem = "Categoria financeira excluída com sucesso!" });
+        }
+
+        [HttpDelete("categorias")]
+        public async Task<IActionResult> ExcluirTodasCategorias()
+        {
+            var vinculadas = await _context.Transacao.Where(t => t.Categoria != null).ToListAsync();
+            if (vinculadas.Any())
+            {
+                foreach (var t in vinculadas)
+                {
+                    t.Categoria = null;
+                }
+                _context.Transacao.UpdateRange(vinculadas);
+                await _context.SaveChangesAsync();
+            }
+
+            var todas = await _context.Categoria.ToListAsync();
+            if (todas.Any())
+            {
+                _context.Categoria.RemoveRange(todas);
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new { mensagem = "Todas as categorias financeiras foram excluídas com sucesso!" });
         }
 
         [HttpPost("transacao")]
@@ -206,8 +225,16 @@ namespace VestindoSonhos.Controllers.Api
                 idUsuario = parsedId;
             }
 
-            var categoria = await _context.Categoria.FindAsync(dto.CategoriaId ?? 1);
-            int catId = categoria?.Id ?? 1;
+            VestindoSonhos.Models.Categoria? categoria = null;
+            if (dto.CategoriaId.HasValue && dto.CategoriaId.Value > 0)
+            {
+                categoria = await _context.Categoria.FindAsync(dto.CategoriaId.Value);
+            }
+            if (categoria == null && dto.CategoriaId == null)
+            {
+                categoria = await _context.Categoria.FirstOrDefaultAsync();
+            }
+            int? catId = categoria?.Id;
 
             var razao = ResolverRazaoFinanceira(dto.Razao, catId, categoria);
 
@@ -285,14 +312,13 @@ namespace VestindoSonhos.Controllers.Api
             var novaCarteiraId = dto.CarteiraId ?? tf.Carteira;
             var carteiraNova = await _context.Carteira.FindAsync(novaCarteiraId) ?? carteiraAntiga;
 
-            var novaCategoriaId = dto.CategoriaId ?? t.Categoria;
-            var categoriaObj = await _context.Categoria.FindAsync(novaCategoriaId);
-            if (categoriaObj != null)
-            {
-                t.Categoria = categoriaObj.Id;
-            }
+            int? novaCategoriaId = dto.CategoriaId ?? t.Categoria;
+            var categoriaObj = (novaCategoriaId.HasValue && novaCategoriaId.Value > 0)
+                ? await _context.Categoria.FindAsync(novaCategoriaId.Value)
+                : null;
+            t.Categoria = categoriaObj?.Id;
 
-            var razaoNova = ResolverRazaoFinanceira(dto.Razao, novaCategoriaId, categoriaObj);
+            var razaoNova = ResolverRazaoFinanceira(dto.Razao, t.Categoria, categoriaObj);
             t.Razao = razaoNova;
 
             if (dto.Observacao != null)
@@ -369,10 +395,10 @@ namespace VestindoSonhos.Controllers.Api
         /// <summary>
         /// Garante que lançamentos na categoria Doação sejam sempre registrados como Entrada.
         /// </summary>
-        private static string ResolverRazaoFinanceira(string? razaoInformada, int catId, VestindoSonhos.Models.Categoria? categoria)
+        private static string ResolverRazaoFinanceira(string? razaoInformada, int? catId, VestindoSonhos.Models.Categoria? categoria)
         {
             var nome = categoria?.Nome?.Trim();
-            bool ehDoacao = catId == 1
+            bool ehDoacao = (categoria != null && catId == 1)
                 || string.Equals(nome, "Doação", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(nome, "Doacao", StringComparison.OrdinalIgnoreCase);
 

@@ -499,6 +499,10 @@
                 Categorias Ativas:
             </span>
             <div class="vs-cat-chips">
+                @if (!categorias.Any())
+                {
+                    <span style="font-size:13px; color:#9CA3AF;">Nenhuma categoria cadastrada (lançamentos como Sem Categoria)</span>
+                }
                 @foreach (var cat in categorias)
                 {
                     <a class="vs-cat-chip" asp-controller="Categoria" asp-action="Editar" asp-route-id="@cat.Id" title="Clique para editar a categoria @cat.Nome">
@@ -581,7 +585,7 @@
                                 </td>
                                 <td>
                                     <span class="vs-badge vs-badge-cat">
-                                        @(item_transacao.CategoriaNavigation?.Nome ?? "Geral")
+                                        @(item_transacao.CategoriaNavigation?.Nome ?? "Sem Categoria")
                                     </span>
                                 </td>
                                 <td>@item_transacao.Usuario</td>

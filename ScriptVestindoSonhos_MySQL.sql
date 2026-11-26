@@ -82,13 +82,13 @@ CREATE TABLE IF NOT EXISTS VoluntarioAtribuido (
 
 CREATE TABLE IF NOT EXISTS Categoria (
     id INT NOT NULL AUTO_INCREMENT,
-    nome VARCHAR(15) NOT NULL,
+    nome VARCHAR(60) NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS Carteira (
     id INT NOT NULL AUTO_INCREMENT,
-    nome VARCHAR(30) NOT NULL,
+    nome VARCHAR(60) NOT NULL,
     saldo DECIMAL(10,2) NOT NULL,
     PRIMARY KEY (id)
 );
@@ -98,11 +98,11 @@ CREATE TABLE IF NOT EXISTS Transacao (
     hora DATETIME,
     usuario INT NOT NULL,
     observacao VARCHAR(255),
-    categoria INT NOT NULL,
+    categoria INT NULL,
     razao VARCHAR(255),
     PRIMARY KEY (id),
     CONSTRAINT FK_Transacao_Usuario FOREIGN KEY (usuario) REFERENCES Usuario(id),
-    CONSTRAINT FK_Transacao_Categoria FOREIGN KEY (categoria) REFERENCES Categoria(id)
+    CONSTRAINT FK_Transacao_Categoria FOREIGN KEY (categoria) REFERENCES Categoria(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS TransacaoFinanceira (

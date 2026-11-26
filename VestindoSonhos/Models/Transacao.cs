@@ -19,11 +19,11 @@ public partial class Transacao
 
     public string? Observacao { get; set; }
 
-    public int Categoria { get; set; }
+    public int? Categoria { get; set; }
 
     public string? Razao { get; set; }
 
-    public virtual Categoria CategoriaNavigation { get; set; } = null!;
+    public virtual Categoria? CategoriaNavigation { get; set; }
 
     public virtual TransacaoFinanceira? TransacaoFinanceira { get; set; }
 
