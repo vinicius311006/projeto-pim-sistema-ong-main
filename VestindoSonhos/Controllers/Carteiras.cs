@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using VestindoSonhos.Helpers;
 using VestindoSonhos.Models;
 
 namespace VestindoSonhos.Controllers
@@ -59,8 +60,10 @@ namespace VestindoSonhos.Controllers
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Criar([Bind("Id,Nome")] Carteira carteira)
+        public async Task<IActionResult> Criar([Bind("Id,Nome,Saldo")] Carteira carteira)
         {
+            ModelState.Remove(nameof(Carteira.Saldo));
+
             carteira.Nome = carteira.Nome?.Trim() ?? string.Empty;
             if (string.IsNullOrWhiteSpace(carteira.Nome))
             {
@@ -71,11 +74,35 @@ namespace VestindoSonhos.Controllers
                 carteira.Nome = carteira.Nome.Substring(0, 60);
             }
 
+            decimal saldoInformado = carteira.Saldo;
+            if (Request?.HasFormContentType == true && Request.Form.ContainsKey("Saldo"))
+            {
+                var saldoTexto = Request.Form["Saldo"].ToString();
+                if (!string.IsNullOrWhiteSpace(saldoTexto) && !saldoTexto.Any(char.IsDigit))
+                {
+                    ModelState.AddModelError(nameof(carteira.Saldo), "Informe um valor numérico válido para o saldo.");
+                }
+                else
+                {
+                    saldoInformado = MoedaHelper.ConverterValorMonetario(saldoTexto);
+                }
+            }
+
+            if (saldoInformado < -99_999_999.99m || saldoInformado > 99_999_999.99m)
+            {
+                ModelState.AddModelError(nameof(carteira.Saldo), "O saldo deve estar entre -R$ 99.999.999,99 e R$ 99.999.999,99.");
+            }
+
+            carteira.Saldo = saldoInformado;
+
             if (ModelState.IsValid)
             {
-                carteira.Saldo = 0;
                 _context.Add(carteira);
                 await _context.SaveChangesAsync();
+                if (TempData != null)
+                {
+                    TempData["Sucesso"] = "Carteira criada com sucesso!";
+                }
                 return RedirectToAction(nameof(Index));
             }
             return View(carteira);
@@ -83,7 +110,7 @@ namespace VestindoSonhos.Controllers
 
         // GET: Carteiras/Editar/5
         [Authorize(Roles = "Administrador")]
-        public async Task<IActionResult> Editar(int? id)
+        public async Task<IActionResult> Editar(int? id, string? returnUrl = null)
         {
             if (id == null)
             {
@@ -95,6 +122,7 @@ namespace VestindoSonhos.Controllers
             {
                 return NotFound();
             }
+            ViewBag.ReturnUrl = returnUrl;
             return View(carteira);
         }
 
@@ -104,7 +132,7 @@ namespace VestindoSonhos.Controllers
         [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(int id, [Bind("Id,Nome")] Carteira carteira)
+        public async Task<IActionResult> Editar(int id, [Bind("Id,Nome,Saldo")] Carteira carteira, string? returnUrl = null)
         {
             if (id != carteira.Id)
             {
@@ -117,6 +145,8 @@ namespace VestindoSonhos.Controllers
                 return NotFound();
             }
 
+            ModelState.Remove(nameof(Carteira.Saldo));
+
             carteira.Nome = carteira.Nome?.Trim() ?? string.Empty;
             if (string.IsNullOrWhiteSpace(carteira.Nome))
             {
@@ -127,13 +157,37 @@ namespace VestindoSonhos.Controllers
                 carteira.Nome = carteira.Nome.Substring(0, 60);
             }
 
+            decimal saldoInformado = carteira.Saldo;
+            if (Request?.HasFormContentType == true && Request.Form.ContainsKey("Saldo"))
+            {
+                var saldoTexto = Request.Form["Saldo"].ToString();
+                if (string.IsNullOrWhiteSpace(saldoTexto) || !saldoTexto.Any(char.IsDigit))
+                {
+                    ModelState.AddModelError(nameof(carteira.Saldo), "Informe um valor numérico válido para o saldo (ex: 5.000,00 ou 0,00).");
+                }
+                else
+                {
+                    saldoInformado = MoedaHelper.ConverterValorMonetario(saldoTexto);
+                }
+            }
+
+            if (saldoInformado < -99_999_999.99m || saldoInformado > 99_999_999.99m)
+            {
+                ModelState.AddModelError(nameof(carteira.Saldo), "O saldo deve estar entre -R$ 99.999.999,99 e R$ 99.999.999,99.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     carteiraDb.Nome = carteira.Nome;
+                    carteiraDb.Saldo = saldoInformado;
                     _context.Update(carteiraDb);
                     await _context.SaveChangesAsync();
+                    if (TempData != null)
+                    {
+                        TempData["Sucesso"] = "Carteira e saldo atualizados com sucesso!";
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -146,9 +200,22 @@ namespace VestindoSonhos.Controllers
                         throw;
                     }
                 }
+
+                bool urlLocalSegura = !string.IsNullOrWhiteSpace(returnUrl) &&
+                    (Url != null
+                        ? Url.IsLocalUrl(returnUrl)
+                        : (returnUrl.StartsWith("/") && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\")));
+
+                if (urlLocalSegura)
+                {
+                    return LocalRedirect(returnUrl!);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
-            carteira.Saldo = carteiraDb.Saldo;
+
+            ViewBag.ReturnUrl = returnUrl;
+            carteira.Saldo = saldoInformado;
             return View(carteira);
         }
 

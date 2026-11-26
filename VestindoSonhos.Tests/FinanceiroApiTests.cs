@@ -255,5 +255,44 @@ namespace VestindoSonhos.Tests
             Assert.IsType<OkObjectResult>(resCriarSemCat);
             Assert.Equal(600.00m, (await context.Carteira.FindAsync(1))!.Saldo);
         }
+
+        [Fact(DisplayName = "9. Edição de todas as carteiras (Portal Web e API) deve permitir alterar nome e saldo livremente")]
+        public async Task EditarCarteira_WebEApi_DeveAtualizarSaldoDeTodasAsCarteiras()
+        {
+            // Preparação com as 3 carteiras padrão
+            using var context = DbContextTestHelper.CriarContextoEmMemoria();
+            context.Carteira.AddRange(
+                new Carteira { Id = 1, Nome = "Conta Principal (Banco)", Saldo = 5000.00m },
+                new Carteira { Id = 2, Nome = "Caixa Físico (Sede)", Saldo = 1500.00m },
+                new Carteira { Id = 3, Nome = "Fundo de Reserva", Saldo = 10000.00m }
+            );
+            await context.SaveChangesAsync();
+
+            var webCarteirasController = new VestindoSonhos.Controllers.Carteiras(context);
+            DbContextTestHelper.ConfigurarUsuarioNoController(webCarteirasController, cargo: "Administrador");
+
+            // Ação 1: Editar Saldo da Carteira 1 e zerar Saldo da Carteira 3 via Portal Web
+            var res1 = await webCarteirasController.Editar(1, new Carteira { Id = 1, Nome = "Conta Principal (Banco)", Saldo = 8250.75m });
+            var res3 = await webCarteirasController.Editar(3, new Carteira { Id = 3, Nome = "Fundo de Reserva", Saldo = 0.00m });
+
+            Assert.IsType<RedirectToActionResult>(res1);
+            Assert.IsType<RedirectToActionResult>(res3);
+            Assert.Equal(8250.75m, (await context.Carteira.FindAsync(1))!.Saldo);
+            Assert.Equal(0.00m, (await context.Carteira.FindAsync(3))!.Saldo);
+
+            // Ação 2: Editar Saldo da Carteira 2 via API REST
+            var apiController = new FinanceiroApiController(context);
+            DbContextTestHelper.ConfigurarUsuarioNoController(apiController, cargo: "Administrador");
+
+            var resApi2 = await apiController.EditarCarteira(2, new CarteiraResumoDto
+            {
+                Id = 2,
+                Nome = "Caixa Físico (Sede)",
+                Saldo = 2750.50m
+            });
+
+            Assert.IsType<OkObjectResult>(resApi2);
+            Assert.Equal(2750.50m, (await context.Carteira.FindAsync(2))!.Saldo);
+        }
     }
 }

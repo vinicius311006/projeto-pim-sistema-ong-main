@@ -94,7 +94,7 @@ public partial class VestindosonhosdbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Nome)
-                .HasMaxLength(30)
+                .HasMaxLength(60)
                 .HasColumnName("nome");
             entity.Property(e => e.Saldo)
                 .HasColumnType("decimal(10, 2)")

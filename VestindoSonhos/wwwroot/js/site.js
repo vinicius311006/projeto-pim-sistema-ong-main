@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function () {
         'razao': 'Razão',
         'categoria': 'Categoria',
         'carteira': 'Carteira',
+        'saldo': 'Saldo',
         'valor': 'Valor',
         'hora': 'Data / Hora',
         'cpf': 'CPF',

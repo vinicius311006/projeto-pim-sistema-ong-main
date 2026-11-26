@@ -1,31 +1,39 @@
 @model VestindoSonhos.Models.Carteira
+@using System.Globalization
 <link rel="stylesheet" href="~/css/formularios.css" />
 
 @{
-    ViewData["Title"] = "Editar";
+    ViewData["Title"] = "Editar Carteira";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var ptBr = new CultureInfo("pt-BR");
+    var saldoFormatado = Model != null ? Model.Saldo.ToString("N2", ptBr) : "0,00";
+    var urlVoltar = !string.IsNullOrWhiteSpace(ViewBag.ReturnUrl as string) ? (string)ViewBag.ReturnUrl : Url.Action("Index", "Carteiras");
 }
 
 <div class="container-formulario">
 
     <div class="btn-back">
-        <a asp-controller="Carteiras" asp-action="Index"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
+        <a href="@urlVoltar"> <i class="material-symbols-outlined">arrow_back_ios</i>Voltar</a>
     </div>
 
 
     <div class="form-card">
         <h1>Editar Carteira</h1>
-	<form class="form-context" asp-action="Editar">
+        <form class="form-context" asp-action="Editar">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
+            <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
             <div class="form-group">
-                <label asp-for="Nome" class="control-label"></label>
-                <input asp-for="Nome" class="form-control" maxlength="30" placeholder="Nome da carteira (ex: Conta Principal, Caixa Sede)" />
+                <label asp-for="Nome" class="control-label">Nome</label>
+                <input asp-for="Nome" class="form-control" maxlength="60" placeholder="Nome da carteira (ex: Conta Principal, Caixa Sede)" />
                 <span asp-validation-for="Nome" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Saldo" class="control-label"></label>
-                <input disabled asp-for="Saldo" class="form-control" />
+                <label for="Saldo" class="control-label">Saldo (R$)</label>
+                <input type="text" inputmode="decimal" name="Saldo" id="Saldo" value="@saldoFormatado" class="form-control" placeholder="Ex: 5.000,00 ou 0,00" required />
+                <small class="form-text text-muted" style="display:block; margin-top:4px; font-size:12.5px;">
+                    Informe o saldo atual desta carteira (ex: 5.000,00 ou 0,00). Os próximos lançamentos continuarão somando ou subtraindo a partir deste valor.
+                </small>
                 <span asp-validation-for="Saldo" class="text-danger"></span>
             </div>
             <div class="form-group">

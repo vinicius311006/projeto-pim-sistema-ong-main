@@ -90,6 +90,80 @@ namespace VestindoSonhos.Controllers.Api
             return Ok(resumo);
         }
 
+        [HttpGet("carteiras")]
+        public async Task<ActionResult<IEnumerable<CarteiraResumoDto>>> ObterCarteiras()
+        {
+            var carteiras = await _context.Carteira
+                .AsNoTracking()
+                .OrderBy(c => c.Id)
+                .Select(c => new CarteiraResumoDto
+                {
+                    Id = c.Id,
+                    Nome = c.Nome,
+                    Saldo = c.Saldo
+                })
+                .ToListAsync();
+
+            return Ok(carteiras);
+        }
+
+        [HttpPost("carteiras")]
+        public async Task<ActionResult<CarteiraResumoDto>> CriarCarteira([FromBody] CarteiraResumoDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+            {
+                return BadRequest(new { mensagem = "O nome da carteira é obrigatório." });
+            }
+
+            if (dto.Saldo < -99_999_999.99m || dto.Saldo > 99_999_999.99m)
+            {
+                return BadRequest(new { mensagem = "O saldo deve estar entre -R$ 99.999.999,99 e R$ 99.999.999,99." });
+            }
+
+            var nome = dto.Nome.Trim();
+            if (nome.Length > 60) nome = nome.Substring(0, 60);
+
+            var nova = new Carteira
+            {
+                Nome = nome,
+                Saldo = dto.Saldo
+            };
+            _context.Carteira.Add(nova);
+            await _context.SaveChangesAsync();
+
+            return Ok(new CarteiraResumoDto { Id = nova.Id, Nome = nova.Nome, Saldo = nova.Saldo });
+        }
+
+        [HttpPut("carteiras/{id:int}")]
+        public async Task<IActionResult> EditarCarteira(int id, [FromBody] CarteiraResumoDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Nome))
+            {
+                return BadRequest(new { mensagem = "O nome da carteira é obrigatório." });
+            }
+
+            if (dto.Saldo < -99_999_999.99m || dto.Saldo > 99_999_999.99m)
+            {
+                return BadRequest(new { mensagem = "O saldo deve estar entre -R$ 99.999.999,99 e R$ 99.999.999,99." });
+            }
+
+            var carteira = await _context.Carteira.FindAsync(id);
+            if (carteira == null)
+            {
+                return NotFound(new { mensagem = "Carteira financeira não encontrada." });
+            }
+
+            var nome = dto.Nome.Trim();
+            if (nome.Length > 60) nome = nome.Substring(0, 60);
+
+            carteira.Nome = nome;
+            carteira.Saldo = dto.Saldo;
+            _context.Carteira.Update(carteira);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { mensagem = "Carteira e saldo atualizados com sucesso!", carteira = new CarteiraResumoDto { Id = carteira.Id, Nome = carteira.Nome, Saldo = carteira.Saldo } });
+        }
+
         [HttpGet("categorias")]
         public async Task<ActionResult<IEnumerable<CategoriaFinanceiraDto>>> ObterCategorias()
         {
