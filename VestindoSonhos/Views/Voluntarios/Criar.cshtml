@@ -24,7 +24,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Cpf" class="control-label">CPF</label>
-                <input asp-for="Cpf" class="form-control" type="text" maxlength="11" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11)" placeholder="11 dígitos (somente números)" />
+                <input asp-for="Cpf" class="form-control" type="text" required minlength="11" maxlength="11" pattern="\d{11}" data-val-cpf="true" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11)" placeholder="11 dígitos válidos (somente números)" />
                 <span asp-validation-for="Cpf" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -34,7 +34,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Telefone" class="control-label"></label>
-                <input asp-for="Telefone" class="form-control" type="tel" maxlength="11" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11)" placeholder="DDD + 9 dígitos (ex: 11987654321)" />
+                <input asp-for="Telefone" class="form-control" type="tel" minlength="10" maxlength="11" pattern="\d{10,11}" data-val-telefone="true" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11)" placeholder="DDD + número completo (ex: 11987654321)" />
                 <span asp-validation-for="Telefone" class="text-danger"></span>
             </div>
             <div class="form-group">

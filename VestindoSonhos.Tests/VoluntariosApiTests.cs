@@ -22,7 +22,7 @@ namespace VestindoSonhos.Tests
             var novoVoluntario = new VoluntariosApiController.CriarEditarVoluntarioDto
             {
                 Nome = "  Maria Clara Souza  ",
-                Cpf = "123.456.789-01",
+                Cpf = "123.456.789-09",
                 Telefone = "(11) 98765-4321",
                 Email = "maria.clara@vestindosonhos.org",
                 Endereco = "Rua das Flores, 120"
@@ -36,7 +36,7 @@ namespace VestindoSonhos.Tests
             var dtoRetornado = Assert.IsType<VoluntariosApiController.VoluntarioDto>(okResult.Value);
 
             Assert.Equal("Maria Clara Souza", dtoRetornado.Nome);
-            Assert.Equal("12345678901", dtoRetornado.Cpf); // Verifica remoção de pontos e traço
+            Assert.Equal("12345678909", dtoRetornado.Cpf); // Verifica remoção de pontos e traço
             Assert.Equal("11987654321", dtoRetornado.Telefone); // Verifica remoção de parênteses e hífen
             Assert.Equal(1, context.Voluntario.Count());
         }
@@ -106,7 +106,7 @@ namespace VestindoSonhos.Tests
             var dtoAtualizado = new VoluntariosApiController.CriarEditarVoluntarioDto
             {
                 Nome = "João Pedro Atualizado",
-                Cpf = "123.123.123-99",
+                Cpf = "529.982.247-25",
                 Telefone = "(11) 98888-7777",
                 Endereco = "Rua Nova, 500",
                 Email = "joaopedro@ong.org"

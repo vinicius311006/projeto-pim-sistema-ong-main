@@ -23,7 +23,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Telefone" class="control-label"></label>
-                <input asp-for="Telefone" class="form-control" type="tel" maxlength="11" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11)" placeholder="DDD + 9 dígitos (ex: 11987654321)" />
+                <input asp-for="Telefone" class="form-control" type="tel" required minlength="10" maxlength="11" pattern="\d{10,11}" data-val-telefone="true" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11)" placeholder="DDD + número completo (ex: 11987654321)" />
                 <span asp-validation-for="Telefone" class="text-danger"></span>
             </div>
             <div class="form-group">

@@ -186,11 +186,64 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     traduzirSpansValidacao();
 
-    // 3. Configura mensagens nativas HTML5 do navegador em PT-BR
+    // 3. Configura mensagens nativas HTML5 e validação de CPF / Telefone em PT-BR
+    function cpfEhValidoJs(cpfRaw) {
+        var digitos = (cpfRaw || '').replace(/\D/g, '');
+        if (digitos.length !== 11) return false;
+        if (/^(\d)\1{10}$/.test(digitos)) return false;
+
+        var soma1 = 0;
+        for (var i = 0; i < 9; i++) {
+            soma1 += parseInt(digitos.charAt(i), 10) * (10 - i);
+        }
+        var resto1 = (soma1 * 10) % 11;
+        if (resto1 === 10) resto1 = 0;
+        if (parseInt(digitos.charAt(9), 10) !== resto1) return false;
+
+        var soma2 = 0;
+        for (var j = 0; j < 10; j++) {
+            soma2 += parseInt(digitos.charAt(j), 10) * (11 - j);
+        }
+        var resto2 = (soma2 * 10) % 11;
+        if (resto2 === 10) resto2 = 0;
+        return parseInt(digitos.charAt(10), 10) === resto2;
+    }
+
+    function telefoneEhValidoJs(telRaw) {
+        var digitos = (telRaw || '').replace(/\D/g, '');
+        if (digitos.length !== 10 && digitos.length !== 11) return false;
+        if (/^(\d)\1+$/.test(digitos)) return false;
+        var ddd = parseInt(digitos.substring(0, 2), 10);
+        return ddd >= 11 && ddd <= 99;
+    }
+
+    function validarRegrasCustomizadasCampo(campo) {
+        var valor = (campo.value || '').trim();
+        if (campo.getAttribute('data-val-cpf') === 'true' && valor.length > 0) {
+            if (!cpfEhValidoJs(valor)) {
+                campo.setCustomValidity('CPF inválido. Verifique os 11 dígitos informados.');
+                return;
+            }
+        }
+        if (campo.getAttribute('data-val-telefone') === 'true' && valor.length > 0) {
+            if (!telefoneEhValidoJs(valor)) {
+                campo.setCustomValidity('Informe um telefone válido completo com DDD (10 ou 11 dígitos).');
+                return;
+            }
+        }
+        campo.setCustomValidity('');
+    }
+
     document.querySelectorAll('input, select, textarea').forEach(function (campo) {
+        validarRegrasCustomizadasCampo(campo);
+
         campo.addEventListener('invalid', function () {
             campo.setCustomValidity('');
-            if (!campo.validity.valid) {
+            validarRegrasCustomizadasCampo(campo);
+            if (!campo.validity.valid && !campo.validationMessage) {
+                return;
+            }
+            if (!campo.validity.valid && !campo.validity.customError) {
                 var nome = obterNomeCampoAmigavel(campo.getAttribute('name') || campo.id);
                 if (campo.validity.valueMissing) {
                     campo.setCustomValidity('O campo ' + nome + ' é obrigatório.');
@@ -203,15 +256,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else if (campo.validity.rangeUnderflow || campo.validity.rangeOverflow) {
                     campo.setCustomValidity('O valor informado para ' + nome + ' está fora do intervalo permitido.');
                 } else if (campo.validity.patternMismatch) {
-                    campo.setCustomValidity('O formato informado no campo ' + nome + ' é inválido.');
+                    if (campo.getAttribute('data-val-telefone') === 'true') {
+                        campo.setCustomValidity('Informe um telefone válido completo com DDD (10 ou 11 dígitos).');
+                    } else if (campo.getAttribute('data-val-cpf') === 'true') {
+                        campo.setCustomValidity('CPF inválido. Informe os 11 dígitos numéricos.');
+                    } else {
+                        campo.setCustomValidity('O formato informado no campo ' + nome + ' é inválido.');
+                    }
                 }
             }
         });
         campo.addEventListener('input', function () {
-            campo.setCustomValidity('');
+            validarRegrasCustomizadasCampo(campo);
         });
         campo.addEventListener('change', function () {
-            campo.setCustomValidity('');
+            validarRegrasCustomizadasCampo(campo);
         });
     });
 });

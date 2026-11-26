@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using VestindoSonhos.Helpers;
 using VestindoSonhos.Models;
 using VestindoSonhos.Models.DTOs;
 
@@ -76,6 +77,11 @@ namespace VestindoSonhos.Controllers.Api
             var telefone = System.Text.RegularExpressions.Regex.Replace(dto.Telefone ?? "", @"\D", "");
             if (telefone.Length > 11) telefone = telefone.Substring(0, 11);
 
+            if (!ValidadorUsuarioHelper.TelefoneEhValido(telefone))
+            {
+                return BadRequest(new { mensagem = "Informe um telefone válido completo com DDD (10 ou 11 dígitos)." });
+            }
+
             var nome = dto.Nome.Trim();
             if (nome.Length > 80) nome = nome.Substring(0, 80);
 
@@ -128,6 +134,11 @@ namespace VestindoSonhos.Controllers.Api
 
             var telefone = System.Text.RegularExpressions.Regex.Replace(dto.Telefone ?? "", @"\D", "");
             if (telefone.Length > 11) telefone = telefone.Substring(0, 11);
+
+            if (!ValidadorUsuarioHelper.TelefoneEhValido(telefone))
+            {
+                return BadRequest(new { mensagem = "Informe um telefone válido completo com DDD (10 ou 11 dígitos)." });
+            }
 
             var nome = dto.Nome.Trim();
             if (nome.Length > 80) nome = nome.Substring(0, 80);

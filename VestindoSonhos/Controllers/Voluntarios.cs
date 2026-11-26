@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using VestindoSonhos.Helpers;
 using VestindoSonhos.Models;
 
 namespace VestindoSonhos.Controllers
@@ -175,34 +176,50 @@ namespace VestindoSonhos.Controllers
         {
             if (voluntario == null) return;
 
-            voluntario.Nome = voluntario.Nome?.Trim();
+            voluntario.Nome = voluntario.Nome?.Trim() ?? string.Empty;
             voluntario.Endereco = voluntario.Endereco?.Trim();
             voluntario.Email = voluntario.Email?.Trim();
 
             if (string.IsNullOrWhiteSpace(voluntario.Nome))
             {
+                ModelState.Remove(nameof(voluntario.Nome));
                 ModelState.AddModelError(nameof(voluntario.Nome), "O nome do voluntário é obrigatório.");
             }
+            else if (voluntario.Nome.Length > 60)
+            {
+                voluntario.Nome = voluntario.Nome.Substring(0, 60);
+            }
 
-            if (!string.IsNullOrEmpty(voluntario.Telefone))
+            if (!string.IsNullOrWhiteSpace(voluntario.Telefone))
             {
                 voluntario.Telefone = Regex.Replace(voluntario.Telefone, @"\D", "");
                 if (voluntario.Telefone.Length > 11)
                     voluntario.Telefone = voluntario.Telefone.Substring(0, 11);
+
+                if (!ValidadorUsuarioHelper.TelefoneEhValido(voluntario.Telefone))
+                {
+                    ModelState.Remove(nameof(voluntario.Telefone));
+                    ModelState.AddModelError(nameof(voluntario.Telefone), "Informe um telefone válido completo com DDD (10 ou 11 dígitos).");
+                }
+            }
+            else
+            {
+                voluntario.Telefone = null;
             }
 
-            if (!string.IsNullOrEmpty(voluntario.Cpf))
-            {
-                voluntario.Cpf = Regex.Replace(voluntario.Cpf, @"\D", "");
-                if (voluntario.Cpf.Length > 11)
-                    voluntario.Cpf = voluntario.Cpf.Substring(0, 11);
-                if (voluntario.Cpf.Length != 11)
-                    ModelState.AddModelError(nameof(voluntario.Cpf), "O CPF deve conter 11 dígitos numéricos.");
-            }
+            voluntario.Cpf = Regex.Replace(voluntario.Cpf ?? string.Empty, @"\D", "");
+            if (voluntario.Cpf.Length > 11)
+                voluntario.Cpf = voluntario.Cpf.Substring(0, 11);
 
-            if (!string.IsNullOrEmpty(voluntario.Nome) && voluntario.Nome.Length > 60)
+            if (string.IsNullOrWhiteSpace(voluntario.Cpf))
             {
-                voluntario.Nome = voluntario.Nome.Substring(0, 60);
+                ModelState.Remove(nameof(voluntario.Cpf));
+                ModelState.AddModelError(nameof(voluntario.Cpf), "O CPF do voluntário é obrigatório.");
+            }
+            else if (!ValidadorUsuarioHelper.CpfEhValido(voluntario.Cpf))
+            {
+                ModelState.Remove(nameof(voluntario.Cpf));
+                ModelState.AddModelError(nameof(voluntario.Cpf), "CPF inválido. Verifique os 11 dígitos informados.");
             }
 
             if (!string.IsNullOrEmpty(voluntario.Endereco) && voluntario.Endereco.Length > 50)

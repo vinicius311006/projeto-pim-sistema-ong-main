@@ -211,5 +211,76 @@ namespace VestindoSonhos.Tests
             Assert.True(controller.ModelState.ContainsKey(nameof(usuarioInvalido.DataNascimento)));
             Assert.True(controller.ModelState.ContainsKey(nameof(usuarioInvalido.Telefone)));
         }
+
+        [Fact(DisplayName = "9. Beneficiários (MVC e API) com telefone incompleto (ex: 169979) devem ser rejeitados")]
+        public async Task Beneficiarios_ComTelefoneIncompleto_DeveRejeitarWebEApi()
+        {
+            using var context = DbContextTestHelper.CriarContextoEmMemoria();
+
+            // MVC: Criar e Editar com telefone incompleto "169979"
+            var mvcCtrl = new Beneficiarios(context);
+            DbContextTestHelper.ConfigurarUsuarioNoController(mvcCtrl, "Administrador", 1);
+
+            var benInvalido = new Beneficiario
+            {
+                Id = 25,
+                Nome = "Vinícius Nascimento Buzzo",
+                Telefone = "169979",
+                Endereco = "Rua Ali, 7",
+                Situacao = "Bloqueado",
+                Observacao = "#calça"
+            };
+
+            await mvcCtrl.Criar(benInvalido);
+            Assert.False(mvcCtrl.ModelState.IsValid);
+            Assert.True(mvcCtrl.ModelState.ContainsKey(nameof(benInvalido.Telefone)));
+
+            // API: Criar com telefone incompleto "169979"
+            var apiCtrl = new BeneficiariosApiController(context);
+            DbContextTestHelper.ConfigurarUsuarioNoController(apiCtrl, "Administrador", 1);
+            var respApi = await apiCtrl.Criar(new CriarEditarBeneficiarioDto
+            {
+                Nome = "Vinícius Nascimento Buzzo",
+                Telefone = "169979",
+                Endereco = "Rua Ali, 7",
+                Situacao = "Bloqueado"
+            });
+            Assert.IsType<BadRequestObjectResult>(respApi.Result);
+        }
+
+        [Fact(DisplayName = "10. Voluntários (MVC e API) com CPF inválido (ex: 11111111111) ou telefone incompleto devem ser rejeitados")]
+        public async Task Voluntarios_ComCpfRepetidoOuTelefoneIncompleto_DeveRejeitarWebEApi()
+        {
+            using var context = DbContextTestHelper.CriarContextoEmMemoria();
+            context.Voluntario.Add(new Voluntario { Id = 22, Nome = "Voluntário Original", Cpf = "52998224725" });
+            await context.SaveChangesAsync();
+
+            // MVC: Editar com CPF 11111111111
+            var mvcCtrl = new Voluntarios(context);
+            DbContextTestHelper.ConfigurarUsuarioNoController(mvcCtrl, "Administrador", 1);
+
+            var volInvalido = new Voluntario
+            {
+                Id = 22,
+                Nome = "Vinícius Nascimento Buzzo",
+                Cpf = "11111111111",
+                Telefone = "169979"
+            };
+
+            await mvcCtrl.Editar(22, volInvalido);
+            Assert.False(mvcCtrl.ModelState.IsValid);
+            Assert.True(mvcCtrl.ModelState.ContainsKey(nameof(volInvalido.Cpf)));
+            Assert.True(mvcCtrl.ModelState.ContainsKey(nameof(volInvalido.Telefone)));
+
+            // API: Editar com CPF 11111111111
+            var apiCtrl = new VoluntariosApiController(context);
+            DbContextTestHelper.ConfigurarUsuarioNoController(apiCtrl, "Administrador", 1);
+            var respApi = await apiCtrl.Editar(22, new VoluntariosApiController.CriarEditarVoluntarioDto
+            {
+                Nome = "Vinícius Nascimento Buzzo",
+                Cpf = "11111111111"
+            });
+            Assert.IsType<BadRequestObjectResult>(respApi);
+        }
     }
 }

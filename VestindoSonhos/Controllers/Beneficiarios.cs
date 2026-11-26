@@ -5,7 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using VestindoSonhos.Helpers;
 using VestindoSonhos.Models;
 using VestindoSonhos.ViewModels;
 
@@ -91,46 +93,7 @@ namespace VestindoSonhos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar([Bind("Id,Nome,Telefone,Endereco,Situacao,Observacao")] Beneficiario beneficiario)
         {
-            if (!string.IsNullOrEmpty(beneficiario.Telefone))
-            {
-                beneficiario.Telefone = System.Text.RegularExpressions.Regex.Replace(beneficiario.Telefone, @"\D", "");
-                if (beneficiario.Telefone.Length > 11)
-                {
-                    beneficiario.Telefone = beneficiario.Telefone.Substring(0, 11);
-                }
-            }
-
-            if (!string.IsNullOrEmpty(beneficiario.Nome) && beneficiario.Nome.Length > 80)
-            {
-                beneficiario.Nome = beneficiario.Nome.Substring(0, 80);
-            }
-            if (!string.IsNullOrEmpty(beneficiario.Endereco) && beneficiario.Endereco.Length > 60)
-            {
-                beneficiario.Endereco = beneficiario.Endereco.Substring(0, 60);
-            }
-            if (!string.IsNullOrEmpty(beneficiario.Observacao) && beneficiario.Observacao.Length > 255)
-            {
-                beneficiario.Observacao = beneficiario.Observacao.Substring(0, 255);
-            }
-
-            if (string.IsNullOrWhiteSpace(beneficiario.Situacao))
-            {
-                beneficiario.Situacao = "Ok";
-            }
-            else if (beneficiario.Situacao.StartsWith("Aguardando", StringComparison.OrdinalIgnoreCase))
-            {
-                beneficiario.Situacao = "Aguardando";
-            }
-            else if (beneficiario.Situacao.StartsWith("Bloque", StringComparison.OrdinalIgnoreCase))
-            {
-                beneficiario.Situacao = "Bloqueado";
-            }
-
-            List<string> situacoes = new List<string> { "Ok", "Aguardando", "Bloqueado", "Aguardando Doacao", "Aguardando Doação" };
-            if (!situacoes.Contains(beneficiario.Situacao))
-            {
-                ModelState.AddModelError(nameof(beneficiario.Situacao), "Situação inválida.");
-            }
+            SanitizarEValidarBeneficiario(beneficiario);
 
             if (ModelState.IsValid)
             {
@@ -183,46 +146,7 @@ namespace VestindoSonhos.Controllers
                 return NotFound();
             }
 
-            if (!string.IsNullOrEmpty(beneficiario.Telefone))
-            {
-                beneficiario.Telefone = System.Text.RegularExpressions.Regex.Replace(beneficiario.Telefone, @"\D", "");
-                if (beneficiario.Telefone.Length > 11)
-                {
-                    beneficiario.Telefone = beneficiario.Telefone.Substring(0, 11);
-                }
-            }
-
-            if (!string.IsNullOrEmpty(beneficiario.Nome) && beneficiario.Nome.Length > 80)
-            {
-                beneficiario.Nome = beneficiario.Nome.Substring(0, 80);
-            }
-            if (!string.IsNullOrEmpty(beneficiario.Endereco) && beneficiario.Endereco.Length > 60)
-            {
-                beneficiario.Endereco = beneficiario.Endereco.Substring(0, 60);
-            }
-            if (!string.IsNullOrEmpty(beneficiario.Observacao) && beneficiario.Observacao.Length > 255)
-            {
-                beneficiario.Observacao = beneficiario.Observacao.Substring(0, 255);
-            }
-
-            if (string.IsNullOrWhiteSpace(beneficiario.Situacao))
-            {
-                beneficiario.Situacao = "Ok";
-            }
-            else if (beneficiario.Situacao.StartsWith("Aguardando", StringComparison.OrdinalIgnoreCase))
-            {
-                beneficiario.Situacao = "Aguardando";
-            }
-            else if (beneficiario.Situacao.StartsWith("Bloque", StringComparison.OrdinalIgnoreCase))
-            {
-                beneficiario.Situacao = "Bloqueado";
-            }
-
-            List<string> situacoes = new List<string> { "Ok", "Aguardando", "Bloqueado", "Aguardando Doacao", "Aguardando Doação" };
-            if (!situacoes.Contains(beneficiario.Situacao))
-            {
-                ModelState.AddModelError(nameof(beneficiario.Situacao), "Situação inválida.");
-            }
+            SanitizarEValidarBeneficiario(beneficiario);
 
             if (ModelState.IsValid)
             {
@@ -246,6 +170,76 @@ namespace VestindoSonhos.Controllers
             }
             CarregarDropdowns(beneficiario.Situacao);
             return View(beneficiario);
+        }
+
+        private void SanitizarEValidarBeneficiario(Beneficiario beneficiario)
+        {
+            if (beneficiario == null) return;
+
+            beneficiario.Nome = beneficiario.Nome?.Trim() ?? string.Empty;
+            beneficiario.Endereco = beneficiario.Endereco?.Trim() ?? string.Empty;
+            beneficiario.Observacao = beneficiario.Observacao?.Trim();
+
+            if (string.IsNullOrWhiteSpace(beneficiario.Nome))
+            {
+                ModelState.Remove(nameof(beneficiario.Nome));
+                ModelState.AddModelError(nameof(beneficiario.Nome), "O nome do beneficiário é obrigatório.");
+            }
+            else if (beneficiario.Nome.Length > 80)
+            {
+                beneficiario.Nome = beneficiario.Nome.Substring(0, 80);
+            }
+
+            if (string.IsNullOrWhiteSpace(beneficiario.Endereco))
+            {
+                ModelState.Remove(nameof(beneficiario.Endereco));
+                ModelState.AddModelError(nameof(beneficiario.Endereco), "O endereço é obrigatório.");
+            }
+            else if (beneficiario.Endereco.Length > 60)
+            {
+                beneficiario.Endereco = beneficiario.Endereco.Substring(0, 60);
+            }
+
+            beneficiario.Telefone = Regex.Replace(beneficiario.Telefone ?? string.Empty, @"\D", "");
+            if (beneficiario.Telefone.Length > 11)
+            {
+                beneficiario.Telefone = beneficiario.Telefone.Substring(0, 11);
+            }
+
+            if (string.IsNullOrWhiteSpace(beneficiario.Telefone))
+            {
+                ModelState.Remove(nameof(beneficiario.Telefone));
+                ModelState.AddModelError(nameof(beneficiario.Telefone), "O telefone é obrigatório (informe o DDD + número).");
+            }
+            else if (!ValidadorUsuarioHelper.TelefoneEhValido(beneficiario.Telefone))
+            {
+                ModelState.Remove(nameof(beneficiario.Telefone));
+                ModelState.AddModelError(nameof(beneficiario.Telefone), "Informe um telefone válido completo com DDD (10 ou 11 dígitos).");
+            }
+
+            if (!string.IsNullOrEmpty(beneficiario.Observacao) && beneficiario.Observacao.Length > 255)
+            {
+                beneficiario.Observacao = beneficiario.Observacao.Substring(0, 255);
+            }
+
+            if (string.IsNullOrWhiteSpace(beneficiario.Situacao))
+            {
+                beneficiario.Situacao = "Ok";
+            }
+            else if (beneficiario.Situacao.StartsWith("Aguardando", StringComparison.OrdinalIgnoreCase))
+            {
+                beneficiario.Situacao = "Aguardando";
+            }
+            else if (beneficiario.Situacao.StartsWith("Bloque", StringComparison.OrdinalIgnoreCase))
+            {
+                beneficiario.Situacao = "Bloqueado";
+            }
+
+            List<string> situacoes = new List<string> { "Ok", "Aguardando", "Bloqueado", "Aguardando Doacao", "Aguardando Doação" };
+            if (!situacoes.Contains(beneficiario.Situacao))
+            {
+                ModelState.AddModelError(nameof(beneficiario.Situacao), "Situação inválida.");
+            }
         }
 
         // GET: Beneficiarios/Apagar/5

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
+using VestindoSonhos.Helpers;
 using VestindoSonhos.Models;
 
 namespace VestindoSonhos.Controllers.Api
@@ -68,11 +69,23 @@ namespace VestindoSonhos.Controllers.Api
                 return BadRequest(new { mensagem = "O nome do voluntário é obrigatório." });
             }
 
+            var cpf = SanitizarDigitos(dto.Cpf, 11);
+            if (!ValidadorUsuarioHelper.CpfEhValido(cpf))
+            {
+                return BadRequest(new { mensagem = "CPF inválido. Verifique os 11 dígitos informados." });
+            }
+
+            var telefone = SanitizarDigitos(dto.Telefone, 11);
+            if (!string.IsNullOrWhiteSpace(telefone) && !ValidadorUsuarioHelper.TelefoneEhValido(telefone))
+            {
+                return BadRequest(new { mensagem = "Informe um telefone válido completo com DDD (10 ou 11 dígitos)." });
+            }
+
             var voluntario = new Voluntario
             {
                 Nome = SanitizarTexto(dto.Nome, 60),
-                Cpf = SanitizarDigitos(dto.Cpf, 11),
-                Telefone = SanitizarDigitos(dto.Telefone, 11),
+                Cpf = cpf,
+                Telefone = string.IsNullOrWhiteSpace(telefone) ? null : telefone,
                 Endereco = SanitizarTexto(dto.Endereco, 50),
                 Email = SanitizarTexto(dto.Email, 40)
             };
@@ -106,9 +119,21 @@ namespace VestindoSonhos.Controllers.Api
                 return BadRequest(new { mensagem = "O nome do voluntário é obrigatório." });
             }
 
+            var cpf = SanitizarDigitos(dto.Cpf, 11);
+            if (!ValidadorUsuarioHelper.CpfEhValido(cpf))
+            {
+                return BadRequest(new { mensagem = "CPF inválido. Verifique os 11 dígitos informados." });
+            }
+
+            var telefone = SanitizarDigitos(dto.Telefone, 11);
+            if (!string.IsNullOrWhiteSpace(telefone) && !ValidadorUsuarioHelper.TelefoneEhValido(telefone))
+            {
+                return BadRequest(new { mensagem = "Informe um telefone válido completo com DDD (10 ou 11 dígitos)." });
+            }
+
             voluntario.Nome = SanitizarTexto(dto.Nome, 60);
-            voluntario.Cpf = SanitizarDigitos(dto.Cpf, 11);
-            voluntario.Telefone = SanitizarDigitos(dto.Telefone, 11);
+            voluntario.Cpf = cpf;
+            voluntario.Telefone = string.IsNullOrWhiteSpace(telefone) ? null : telefone;
             voluntario.Endereco = SanitizarTexto(dto.Endereco, 50);
             voluntario.Email = SanitizarTexto(dto.Email, 40);
 
